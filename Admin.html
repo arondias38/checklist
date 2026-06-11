@@ -104,7 +104,7 @@
     <div class="header-bar">
       <div class="select-group">
         <label>캠퍼스</label>
-        <select id="campusSelect" onmousedown="this.dataset.prev = this.value;" onchange="onCampusChange(false)" required>
+        <select id="campusSelect" onmousedown="this.dataset.prev = this.value;" onchange="handleCampusChange(this)" required>
           <option value="" disabled selected hidden>캠퍼스 선택</option>
           <option value="dongtan">SG동탄청운학원</option>
           <option value="yeongtong">SG영통청운학원</option>
@@ -238,31 +238,30 @@
     }
 
     window.onload = function() {
-      // 🔹 Vercel 환경: 접속 시 URL에 캠퍼스가 있으면 캠퍼스 변경 함수 즉시 호출
+      // 🔹 Vercel 환경: 접속 시 URL에 캠퍼스가 있으면 자동 선택, 없으면 대기
       const urlParams = new URLSearchParams(window.location.search);
       const campus = urlParams.get('campus');
       if (campus) {
-         document.getElementById("campusSelect").value = campus;
-         onCampusChange(true); // 첫 로드 플래그 전달
+         const campusEl = document.getElementById("campusSelect");
+         campusEl.value = campus;
+         executeCampusSwitch(campus, "", campusEl, true); // 첫 로드는 즉시 실행
       } else {
          document.getElementById("mainTitleDisplay").textContent = "캠퍼스를 선택해 주세요";
       }
     };
 
-    // 🔹 1번 핵심 반영: 관리자 앱 내 캠퍼스 변경 시 관리자 코드 묻기 보안 적용 (Session Storage)
-    function onCampusChange(isFirstLoad = false) {
-        const campusEl = document.getElementById("campusSelect");
-        const campus = campusEl.value;
-        const prevCampus = campusEl.dataset.prev || "";
-        if(!campus) return;
-
-        if (isDirty && !isFirstLoad) {
+    // 🔹 캠퍼스 변경 더티체크 및 껍데기 복원 로직
+    function handleCampusChange(el) {
+        let attemptVal = el.value;
+        let prevVal = el.dataset.prev || "";
+        if (isDirty) {
+            el.value = prevVal; // 껍데기 복원
             showCustomConfirm("저장되지 않은 확인 내역이 있습니다.<br>무시하고 캠퍼스를 변경하시겠습니까?", function() {
-                isDirty = false;
-                executeCampusSwitch(campus, prevCampus, campusEl, isFirstLoad);
+                isDirty = false; el.value = attemptVal;
+                executeCampusSwitch(attemptVal, prevVal, el, false);
             });
         } else {
-            executeCampusSwitch(campus, prevCampus, campusEl, isFirstLoad);
+            executeCampusSwitch(attemptVal, prevVal, el, false);
         }
     }
 
