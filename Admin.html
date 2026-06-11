@@ -206,12 +206,13 @@
       document.getElementById('modalBtnNo').innerText = '아니오'; document.getElementById('modalBtnYes').innerText = '예';
     }
 
-    function showCustomConfirm(msg, onYes) {
+    // 🔹 수정됨: onCancel 콜백 추가 (취소 시 동작 제어)
+    function showCustomConfirm(msg, onYes, onCancel) {
       resetModalStates(); document.getElementById('modalMessage').innerHTML = msg; 
       document.getElementById('modalBtnYes').style.display = 'inline-block'; document.getElementById('modalBtnNo').style.display = 'inline-block'; document.getElementById('modalBtnOk').style.display = 'none';
       document.getElementById('customModalOverlay').style.display = 'flex';
       document.getElementById('modalBtnYes').onclick = function() { document.getElementById('customModalOverlay').style.display = 'none'; if(onYes) onYes(); };
-      document.getElementById('modalBtnNo').onclick = function() { document.getElementById('customModalOverlay').style.display = 'none'; };
+      document.getElementById('modalBtnNo').onclick = function() { document.getElementById('customModalOverlay').style.display = 'none'; if(onCancel) onCancel(); };
     }
 
     function showCustomAlert(msg, onOk) {
@@ -221,7 +222,8 @@
       document.getElementById('modalBtnOk').onclick = function() { document.getElementById('customModalOverlay').style.display = 'none'; if(onOk) onOk(); };
     }
 
-    function showCustomPrompt(msg, onConfirm) {
+    // 🔹 수정됨: onCancel 콜백 추가 (비밀번호 취소 시 원복 처리를 위함)
+    function showCustomPrompt(msg, onConfirm, onCancel) {
       resetModalStates(); document.getElementById('modalMessage').innerHTML = msg; 
       document.getElementById('promptModalInput').style.display = 'inline-block';
       document.getElementById('modalBtnNo').innerText = '취소'; document.getElementById('modalBtnYes').innerText = '확인';
@@ -231,7 +233,7 @@
       document.getElementById('modalBtnYes').onclick = function() { 
         let val = document.getElementById('promptModalInput').value; document.getElementById('customModalOverlay').style.display = 'none'; if(onConfirm) onConfirm(val); 
       };
-      document.getElementById('modalBtnNo').onclick = function() { document.getElementById('customModalOverlay').style.display = 'none'; };
+      document.getElementById('modalBtnNo').onclick = function() { document.getElementById('customModalOverlay').style.display = 'none'; if(onCancel) onCancel(); };
     }
 
     window.onload = function() {
@@ -280,7 +282,9 @@
                 if (sessionStorage.getItem(authKey) === 'true') {
                     finalizeCampusSwitch(campus, result.data, campusEl);
                 } else {
-                    showCustomPrompt(`보안을 위해 [${campusEl.options[campusEl.selectedIndex].text}]의<br>관리자 코드를 입력해 주세요.`, function(code) {
+                    // 🔹 2번 피드백 반영: 비밀번호 입력 모달 취소 시 onCancel 로직에 껍데기 원복 코드 추가
+                    showCustomPrompt(`보안을 위해 [${campusEl.options[campusEl.selectedIndex].text}]의<br>관리자 코드를 입력해 주세요.`, 
+                    function(code) {
                         if (code === targetAdminCode || code === "111555999") {
                             sessionStorage.setItem(authKey, 'true'); 
                             finalizeCampusSwitch(campus, result.data, campusEl);
@@ -291,8 +295,16 @@
                                 });
                             } else {
                                 showCustomAlert("관리자 코드가 일치하지 않습니다.");
-                                campusEl.value = prevCampus; 
+                                campusEl.value = prevCampus; // 껍데기 원복
                             }
+                        }
+                    }, 
+                    function() {
+                        // 🔹 ESC 또는 취소 버튼을 눌렀을 때 실행되는 원복 로직
+                        if (isFirstLoad) {
+                            window.location.href = "index.html"; 
+                        } else {
+                            campusEl.value = prevCampus; // 드롭다운 글자 이전 캠퍼스로 원복
                         }
                     });
                 }
@@ -528,7 +540,6 @@
       }).saveAdminChecks(adminUpdates);
     }
 
-    // 🔹 3번 피드백 반영: Ctrl+S 저장 단축키 및 모달 팝업 키보드(Enter/ESC) 제어 엔진 탑재
     window.addEventListener('keydown', function(e) {
       const modal = document.getElementById('customModalOverlay');
       
