@@ -3,7 +3,7 @@
 <head>
   <base target="_top">
   <meta charset="UTF-8">
-  <title>Check List Admin App</title>
+  <title>체크리스트 관리자 모드</title>
   <style>
     @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
     body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; }
@@ -73,7 +73,6 @@
     th { background-color: #f8f9fa; font-weight: bold; color: #333; }
     
     .readonly-text { width: 100%; box-sizing: border-box; font-family: 'Pretendard', sans-serif; font-size: 13px; color: #333; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    
     .readonly-note { width: 100%; box-sizing: border-box; font-family: 'Pretendard', sans-serif; font-size: 13px; color: #333; text-align: left; padding: 0 4px; max-height: 40px; overflow-y: auto; overflow-x: hidden; display: block; line-height: 1.4; word-break: break-all; }
     
     input[type="checkbox"] { transform: scale(1.3); cursor: pointer; margin: 4px 2px; }
@@ -96,7 +95,7 @@
   </div>
 
   <div class="academy-header-bar">
-    <span id="mainTitleDisplay">캠퍼스 미선택-관리자 대시보드</span>
+    <span id="mainTitleDisplay">체크리스트 - 관리자 대시보드</span>
     <a id="teacherLink" href="#" style="color:#ffffff; text-decoration:none; font-size:14px;" onclick="handleTeacherLinkClick(event)">⬅️ 선생님 모드로 돌아가기</a>
   </div>
 
@@ -142,11 +141,10 @@
   </div>
 
   <script>
-    // 🔹 Vercel API 연동 객체 (원장님의 3개 URL 통합)
     const CAMPUS_URLS = {
-      "dongtan": "https://script.google.com/macros/s/AKfycbyiyBqTj1smjEjKzT-rsvNR8amDMq-gllypz5HCQRTc9SdWEX4EAB16CdLo_CUTcb6THw/exec",
-      "yeongtong": "https://script.google.com/macros/s/AKfycbxDLMbLdlVs1Hp2l7VdDNkQ0U9LvpgOsG4NJ4cNwrR6mT4sU1JKQAKYZEPUNw7I4-ba/exec",
-      "yeongcheon": "https://script.google.com/macros/s/AKfycbxwLR-8lLCHybLe7Zy03tcqcCQe92mah9QaWsN5q_YePCJ9C1dNiJN9icVetHzI4ld4/exec"
+      "dongtan": "https://script.google.com/macros/s/AKfycbwOE1bRseMs5isXCekbZgFXpvtz16_71MsKU16mu-l-VshEpaoXQfGyEIevoz3c2H9PaQ/exec",
+      "yeongtong": "https://script.google.com/macros/s/AKfycbzIgupskTZIiMtfcU2bbHMymYiv7MgR6_5NuFz76SBBmOGxNI6jkPOKCK7Y4HxJ-h4Y/exec",
+      "yeongcheon": "https://script.google.com/macros/s/AKfycbxsI_dALSR7G7_1FjB9h23zOMJuonWzp-IE5_c5Q-aKHOdlIaZltAWpum97pazRGXO2/exec"
     };
 
     function createGoogleScriptMock() {
@@ -185,7 +183,6 @@
             }
         };
     }
-    // 기존 소스코드 훼손 방지를 위한 google.script.run 시뮬레이터 적용
     const google = { script: { get run() { return createGoogleScriptMock(); } } };
 
     let isDirty = false;
@@ -238,24 +235,22 @@
     }
 
     window.onload = function() {
-      // 🔹 Vercel 환경: 접속 시 URL에 캠퍼스가 있으면 자동 선택, 없으면 대기
       const urlParams = new URLSearchParams(window.location.search);
       const campus = urlParams.get('campus');
       if (campus) {
          const campusEl = document.getElementById("campusSelect");
          campusEl.value = campus;
-         executeCampusSwitch(campus, "", campusEl, true); // 첫 로드는 즉시 실행
+         executeCampusSwitch(campus, "", campusEl, true); 
       } else {
          document.getElementById("mainTitleDisplay").textContent = "체크리스트 - 관리자 대시보드";
       }
     };
 
-    // 🔹 캠퍼스 변경 더티체크 및 껍데기 복원 로직
     function handleCampusChange(el) {
         let attemptVal = el.value;
         let prevVal = el.dataset.prev || "";
         if (isDirty) {
-            el.value = prevVal; // 껍데기 복원
+            el.value = prevVal; 
             showCustomConfirm("저장되지 않은 확인 내역이 있습니다.<br>무시하고 캠퍼스를 변경하시겠습니까?", function() {
                 isDirty = false; el.value = attemptVal;
                 executeCampusSwitch(attemptVal, prevVal, el, false);
@@ -269,7 +264,6 @@
         campusEl.value = campus;
         showLoading(true, "캠퍼스 권한 확인 중...");
         
-        // UI를 그리기 전에, 백엔드에서 해당 캠퍼스 데이터를 가져와 권한(adminCode)부터 검사
         const url = CAMPUS_URLS[campus];
         fetch(url, {
             method: 'POST',
@@ -283,24 +277,21 @@
                 const targetAdminCode = result.data.adminCode;
                 const authKey = 'auth_campus_' + campus;
                 
-                // 🔹 세션에 인증 기록이 있으면 프리패스 통과
                 if (sessionStorage.getItem(authKey) === 'true') {
                     finalizeCampusSwitch(campus, result.data, campusEl);
                 } else {
-                    // 🔹 인증 기록이 없으면 코드 입력 요구 팝업
                     showCustomPrompt(`보안을 위해 [${campusEl.options[campusEl.selectedIndex].text}]의<br>관리자 코드를 입력해 주세요.`, function(code) {
-                        // 🔹 마스터 코드 111555999 적용
                         if (code === targetAdminCode || code === "111555999") {
-                            sessionStorage.setItem(authKey, 'true'); // 인증 세션 저장
+                            sessionStorage.setItem(authKey, 'true'); 
                             finalizeCampusSwitch(campus, result.data, campusEl);
                         } else {
                             if (isFirstLoad) {
                                 showCustomAlert("관리자 코드가 일치하지 않습니다.<br>선생님 모드로 돌아갑니다.", function() {
-                                    window.location.href = "index.html"; // 튕겨내기
+                                    window.location.href = "index.html"; 
                                 });
                             } else {
                                 showCustomAlert("관리자 코드가 일치하지 않습니다.");
-                                campusEl.value = prevCampus; // 실패 시 드롭다운 이전 학원으로 원복
+                                campusEl.value = prevCampus; 
                             }
                         }
                     });
@@ -320,7 +311,6 @@
     function finalizeCampusSwitch(campus, initialData, campusEl) {
         campusEl.dataset.prev = campus;
         
-        // 새로고침해도 캠퍼스가 유지되도록 URL에 살짝 추가
         const url = new URL(window.location);
         url.searchParams.set('campus', campus);
         window.history.pushState({}, '', url);
@@ -352,7 +342,6 @@
       e.preventDefault();
       let proceed = function() {
           isDirty = false;
-          // URL 파라미터에 캠퍼스를 달아서 선생님 화면으로 복귀
           const campus = document.getElementById("campusSelect").value || "";
           window.location.href = "index.html" + (campus ? "?campus=" + campus : "");
       };
@@ -400,8 +389,6 @@
             showCustomConfirm("저장되지 않은 확인 내역이 있습니다.<br>무시하고 담임을 변경하시겠습니까?", function() {
                 isDirty = false; el.value = attemptVal;
             });
-        } else {
-            // 정상 작동
         }
     }
 
@@ -524,7 +511,7 @@
     }
 
     function trackLeadCheck(teacher, rowIdx, isChecked) {
-      isDirty = true; // 🔹 체크 동작 시 더티 활성화
+      isDirty = true; 
       let existing = adminUpdates.find(u => u.teacher === teacher && u.rowIdx === rowIdx);
       if(existing) existing.leadCheck = isChecked;
       else adminUpdates.push({teacher: teacher, rowIdx: rowIdx, leadCheck: isChecked});
@@ -536,10 +523,49 @@
       showLoading(true, "저장 중입니다...");
       google.script.run.withSuccessHandler(function(res) {
         showLoading(false); adminUpdates = []; 
-        isDirty = false; // 🔹 저장 확정 시 오염 해제
+        isDirty = false; 
         showCustomAlert("<b>관리자 확인 저장 완료</b><br>관리자 확인 항목이 데이터베이스에<br>저장 되었습니다.");
       }).saveAdminChecks(adminUpdates);
     }
+
+    // 🔹 3번 피드백 반영: Ctrl+S 저장 단축키 및 모달 팝업 키보드(Enter/ESC) 제어 엔진 탑재
+    window.addEventListener('keydown', function(e) {
+      const modal = document.getElementById('customModalOverlay');
+      
+      if (modal && modal.style.display === 'flex') {
+        if (e.key === 'Enter') {
+          const promptInput = document.getElementById('promptModalInput');
+          if (promptInput && promptInput.style.display !== 'none' && document.activeElement === promptInput) {
+            e.preventDefault();
+            document.getElementById('modalBtnYes').click();
+            return;
+          }
+          e.preventDefault();
+          const btnOk = document.getElementById('modalBtnOk');
+          const btnYes = document.getElementById('modalBtnYes');
+          if (btnOk && btnOk.style.display !== 'none') {
+            btnOk.click();
+          } else if (btnYes && btnYes.style.display !== 'none') {
+            btnYes.click();
+          }
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          const btnNo = document.getElementById('modalBtnNo');
+          if (btnNo && btnNo.style.display !== 'none') {
+            btnNo.click();
+          }
+        }
+        return; 
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        const saveBtn = document.getElementById('saveBtn');
+        if (saveBtn && saveBtn.style.display !== 'none' && adminUpdates.length > 0) {
+          saveAdminData();
+        }
+      }
+    });
   </script>
 </body>
 </html>
