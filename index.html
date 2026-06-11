@@ -65,13 +65,14 @@
     
     .empty-state { flex: 1; display: flex; justify-content: center; align-items: center; color: #888; border: 2px dashed #dee2e6; border-radius: 6px; text-align: center; line-height: 1.5; min-height: 300px; font-weight: bold; }
     
-    /* 🔹 1번 피드백 반영: 표 내부 틀 고정용 스크롤 상자 스타일 디자인 */
     .table-fixed-wrapper { width: 100%; overflow-y: auto; overflow-x: auto; max-height: 520px; border: 1px solid #dee2e6; border-radius: 4px; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; margin-top: 0; }
     th, td { border: 1px solid #dee2e6; padding: 6px 4px; text-align: center; vertical-align: middle; }
     
-    /* 🔹 1번 피드백 반영: 표 헤더 찰싹 붙이기 (틀 고정 효과) */
-    thead th { position: sticky; top: 0; background-color: #f8f9fa; z-index: 10; box-shadow: inset 0 -1px 0 #dee2e6; white-space: nowrap; }
+    /* 🔹 수정됨: 표 헤더 2단 완벽 고정 (과제/오답도 스크롤 시 상단에 찰싹 붙음) */
+    thead tr:nth-child(1) { height: 46px; }
+    thead tr:nth-child(1) th { position: sticky; top: 0; background-color: #f8f9fa; z-index: 11; box-shadow: inset 0 -1px 0 #dee2e6, inset 0 1px 0 #dee2e6; white-space: nowrap; }
+    thead tr:nth-child(2) th { position: sticky; top: 46px; background-color: #f8f9fa; z-index: 11; box-shadow: inset 0 -1px 0 #dee2e6; white-space: nowrap; }
     
     .input-mini { width: 100%; padding: 6px 4px; border: 1px solid #ccc; border-radius: 3px; text-align: center; box-sizing: border-box; font-family: 'Pretendard', sans-serif; font-weight: bold; color: #333; background-color: transparent;}
     .input-mini.empty-placeholder { color: #888888 !important; font-weight: bold; }
@@ -296,12 +297,13 @@
       document.getElementById('modalBtnNo').innerText = '아니오'; document.getElementById('modalBtnYes').innerText = '예';
     }
 
-    function showCustomConfirm(msg, onYes) {
+    // 🔹 수정됨: onCancel 콜백 지원 (취소 시 원복 로직 실행을 위함)
+    function showCustomConfirm(msg, onYes, onCancel) {
       resetModalStates(); document.getElementById('modalMessage').innerHTML = msg; 
       document.getElementById('modalBtnYes').style.display = 'inline-block'; document.getElementById('modalBtnNo').style.display = 'inline-block'; document.getElementById('modalBtnOk').style.display = 'none';
       document.getElementById('customModalOverlay').style.display = 'flex';
       document.getElementById('modalBtnYes').onclick = function() { document.getElementById('customModalOverlay').style.display = 'none'; if(onYes) onYes(); };
-      document.getElementById('modalBtnNo').onclick = function() { document.getElementById('customModalOverlay').style.display = 'none'; };
+      document.getElementById('modalBtnNo').onclick = function() { document.getElementById('customModalOverlay').style.display = 'none'; if(onCancel) onCancel(); };
     }
 
     function showCustomAlert(msg, onOk) {
@@ -311,7 +313,8 @@
       document.getElementById('modalBtnOk').onclick = function() { document.getElementById('customModalOverlay').style.display = 'none'; if(onOk) onOk(); };
     }
 
-    function showCustomPrompt(msg, onConfirm) {
+    // 🔹 수정됨: onCancel 콜백 지원 (비밀번호 취소 시 원복 로직 실행을 위함)
+    function showCustomPrompt(msg, onConfirm, onCancel) {
       resetModalStates(); document.getElementById('modalMessage').innerHTML = msg; 
       document.getElementById('promptModalInput').style.display = 'inline-block';
       document.getElementById('modalBtnNo').innerText = '취소'; document.getElementById('modalBtnYes').innerText = '확인';
@@ -321,7 +324,7 @@
       document.getElementById('modalBtnYes').onclick = function() { 
         let val = document.getElementById('promptModalInput').value; document.getElementById('customModalOverlay').style.display = 'none'; if(onConfirm) onConfirm(val); 
       };
-      document.getElementById('modalBtnNo').onclick = function() { document.getElementById('customModalOverlay').style.display = 'none'; };
+      document.getElementById('modalBtnNo').onclick = function() { document.getElementById('customModalOverlay').style.display = 'none'; if(onCancel) onCancel(); };
     }
 
     function checkLockdown(e) {
@@ -753,7 +756,6 @@
       }
     }
 
-    // 🔹 3번 피드백 반영: Ctrl+S 저장 단축키 및 모달 팝업 키보드(Enter/ESC) 제어 엔진 탑재
     window.addEventListener('keydown', function(e) {
       const modal = document.getElementById('customModalOverlay');
       
