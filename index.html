@@ -65,15 +65,17 @@
     
     .empty-state { flex: 1; display: flex; justify-content: center; align-items: center; color: #888; border: 2px dashed #dee2e6; border-radius: 6px; text-align: center; line-height: 1.5; min-height: 300px; font-weight: bold; }
     
-    .table-fixed-wrapper { width: 100%; overflow-y: auto; overflow-x: auto; max-height: 520px; border: 1px solid #dee2e6; border-radius: 4px; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; margin-top: 0; }
-    th, td { border: 1px solid #dee2e6; padding: 6px 4px; text-align: center; vertical-align: middle; }
+    /* 🔹 수정됨: separate 방식 렌더링 도입 (1px 들뜸/흔들림 완벽 차단) */
+    .table-fixed-wrapper { width: 100%; overflow-y: auto; overflow-x: hidden; max-height: 520px; border: 1px solid #dee2e6; border-radius: 4px; border-bottom: none; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; table-layout: fixed; margin-top: 0; }
+    th, td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 4px; text-align: center; vertical-align: middle; box-sizing: border-box; }
+    th:last-child, td:last-child { border-right: none; }
     
-    /* 🔹 수정됨: 높이 통일(다이어트) 및 1px 틈새 가림 처리 완벽 적용 */
-    thead tr:nth-child(1) { height: 40px; }
-    thead tr:nth-child(2) { height: 32px; }
-    thead tr:nth-child(1) th { position: sticky; top: -1px; background-color: #f8f9fa; z-index: 11; box-shadow: inset 0 -1px 0 #dee2e6, inset 0 1px 0 #dee2e6; white-space: nowrap; box-sizing: border-box; }
-    thead tr:nth-child(2) th { position: sticky; top: 39px; background-color: #f8f9fa; z-index: 11; box-shadow: inset 0 -1px 0 #dee2e6; white-space: nowrap; box-sizing: border-box; }
+    /* 🔹 수정됨: 헤더 높이 완벽 통일(38px) 및 수학적 대칭 다이어트 */
+    thead tr { height: 38px; }
+    thead th { background-color: #f8f9fa; white-space: nowrap; border-top: none; }
+    thead tr:nth-child(1) th { position: sticky; top: 0; z-index: 12; }
+    thead tr:nth-child(2) th { position: sticky; top: 38px; z-index: 11; }
     
     .input-mini { width: 100%; padding: 6px 4px; border: 1px solid #ccc; border-radius: 3px; text-align: center; box-sizing: border-box; font-family: 'Pretendard', sans-serif; font-weight: bold; color: #333; background-color: transparent;}
     .input-mini.empty-placeholder { color: #888888 !important; font-weight: bold; }
@@ -82,8 +84,8 @@
     .note-textarea:disabled { background-color: #dc3545; color: white; font-weight: bold; text-align: center; resize: none; }
 
     input[type="checkbox"] { transform: scale(1.3); cursor: pointer; margin: 4px 2px; }
-    /* 🔹 수정됨: 마스터 체크박스 여백 다이어트 (행 높이 늘어남 방지) */
-    .master-checkbox { transform: scale(1.3); margin-top: 5px; cursor: pointer; }
+    /* 🔹 수정됨: 마스터 체크박스 여백 다이어트 (행 높이 뚱뚱해짐 방어) */
+    .master-checkbox { transform: scale(1.3); margin: 0; vertical-align: middle; cursor: pointer; }
     
     .bottom-controls { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 15px; }
     .left-controls { display: flex; gap: 10px; }
