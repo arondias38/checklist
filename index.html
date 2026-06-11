@@ -135,7 +135,7 @@
     <div class="header-bar">
       <div class="select-group">
         <label>캠퍼스</label>
-        <select id="campusSelect" onchange="onCampusChange()" required>
+        <select id="campusSelect" onmousedown="this.dataset.prev = this.value;" onchange="handleCampusChange(this)" required>
           <option value="" disabled selected hidden>캠퍼스 선택</option>
           <option value="dongtan">SG동탄청운학원</option>
           <option value="yeongtong">SG영통청운학원</option>
@@ -339,6 +339,18 @@
          document.getElementById("mainTitleDisplay").textContent = "캠퍼스를 선택해 주세요";
       }
     };
+
+    // 🔹 캠퍼스 변경 더티체크 로직 추가
+    function handleCampusChange(el) {
+        let attemptVal = el.value;
+        let prevVal = el.dataset.prev || "";
+        if (isDirty) {
+            el.value = prevVal; // 껍데기 복원
+            showCustomConfirm("저장되지 않은 변경 사항이 있습니다.<br>무시하고 캠퍼스를 변경하시겠습니까?", function() {
+                isDirty = false; el.value = attemptVal; onCampusChange();
+            });
+        } else { onCampusChange(); }
+    }
 
     function onCampusChange() {
         const campus = document.getElementById("campusSelect").value;
