@@ -718,7 +718,7 @@
         if (wrongScore !== "" && wrongScore !== "없음") details.push(`· 오답노트: ${wrongScore}`);
         if (dailyVal !== "" && dailyVal !== "없음") details.push(`· 일일TEST: ${dailyVal}`);
         if (weeklyVal !== "" && weeklyVal !== "없음") details.push(`· 주간TEST: ${weeklyVal}`);
-        if (note !== "" && note !== "없음") details.push(`· 특이사항:\n  ${note}`);
+        if (note !== "" && note !== "없음") details.push(`· 특이사항: ${note}`);
         if (details.length > 0) content += `\n\n${details.join('\n')}`;
         html += `<div class="card" id="card${idx}"><div class="card-header-container"><div class="card-header">${cleanName}</div><button class="copy-btn" onclick="copySingleText(${idx}, this)">복사</button></div><div id="cardContent${idx}" class="card-content">${content}</div></div>`;
       });
