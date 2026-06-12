@@ -825,7 +825,7 @@
       if (eggClicks === 1) {
         eggTimer = setTimeout(() => { eggClicks = 0; }, 5000); // 5초 지나면 초기화
       }
-      if (eggClicks === 3) {
+      if (eggClicks === 5) {
         clearTimeout(eggTimer);
         eggClicks = 0;
         const bubble = document.getElementById("eggBubble");
