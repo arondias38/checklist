@@ -716,7 +716,7 @@
         let details = [];
         if (evalScore !== "" && evalScore !== "없음") details.push(`• 과제평가: ${evalScore}`); 
         if (wrongScore !== "" && wrongScore !== "없음") details.push(`• 오답노트: ${wrongScore}`);
-        if (dailyVal !== "" && dailyVal !== "없음") details.push(`· 일일TEST: ${dailyVal}`);
+        if (dailyVal !== "" && dailyVal !== "없음") details.push(`• 일일TEST: ${dailyVal}`);
         if (weeklyVal !== "" && weeklyVal !== "없음") details.push(`• 주간TEST: ${weeklyVal}`);
         if (note !== "" && note !== "없음") details.push(`• 특이사항: ${note}`);
         if (details.length > 0) content += `\n\n${details.join('\n')}`;
