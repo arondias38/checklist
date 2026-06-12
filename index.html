@@ -35,17 +35,19 @@
     .select-group { display: flex; align-items: center; gap: 10px; position: relative; }
     label { font-weight: bold; font-size: 14px; color: #1366ce; }
     
+    /* 🔹 수정: 드롭다운 글자 볼드 해제 */
     select { 
-      width: 190px; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: bold; color: #333; outline: none; height: 38px; box-sizing: border-box; cursor: pointer; 
+      width: 190px; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: normal; color: #333; outline: none; height: 38px; box-sizing: border-box; cursor: pointer; 
       appearance: none; -webkit-appearance: none;
       background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23333"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center; background-size: 20px;
     }
-    select:invalid, select option[value=""][disabled] { color: #888888 !important; font-weight: bold; }
-    select option { color: #000000; font-weight: bold; }
+    select:invalid, select option[value=""][disabled] { color: #888888 !important; font-weight: normal; }
+    select option { color: #000000; font-weight: normal; }
     
     .custom-date-wrapper { position: relative; width: 190px; height: 38px; cursor: pointer; }
+    /* 🔹 수정: 날짜 선택 글자 볼드 해제 */
     .date-display { 
-      width: 100%; height: 100%; border: 1px solid #ced4da; border-radius: 4px; padding: 8px 12px; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: bold; color: #888888; background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23333"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center; background-size: 20px; display: flex; align-items: center; box-sizing: border-box; position: absolute; top:0; left:0; z-index: 1; pointer-events: none;
+      width: 100%; height: 100%; border: 1px solid #ced4da; border-radius: 4px; padding: 8px 12px; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: normal; color: #888888; background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23333"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center; background-size: 20px; display: flex; align-items: center; box-sizing: border-box; position: absolute; top:0; left:0; z-index: 1; pointer-events: none;
     }
     .date-display.selected { color: #333 !important; }
     .hidden-date-input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; border: none; padding: 0; margin: 0; box-sizing: border-box; }
@@ -66,93 +68,46 @@
     
     .empty-state { flex: 1; display: flex; justify-content: center; align-items: center; color: #888; border: 2px dashed #dee2e6; border-radius: 6px; text-align: center; line-height: 1.5; min-height: 300px; font-weight: bold; }
     
-    /* 🔹 황금률 렌더링: 겉 박스는 위/왼쪽 선만, 셀은 아래/오른쪽 선만 그림 (이빨 빠짐 버그 원천 차단) */
     .table-fixed-wrapper { width: 100%; overflow-y: auto; overflow-x: hidden; max-height: 825px; border-top: 1px solid #dee2e6; border-left: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; }
     table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12.5px; table-layout: fixed; margin-top: 0; }
-    th, td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 4px 2px; text-align: center; vertical-align: middle; box-sizing: border-box; }
     
-    /* 🔹 초밀착 다이어트: 머릿글 높이 최소화 (1행 32px, 2행 28px 완벽 대칭) 및 1px 틈새 가림 */
-    thead th { background-color: #f8f9fa; white-space: nowrap; line-height: 1.2; }
+    /* 🔹 수정: 표 셀 좌우 패딩을 2px -> 4px로 원상복구하여 가로 여백 확보 */
+    th, td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 4px; text-align: center; vertical-align: middle; box-sizing: border-box; }
+    
+    thead th { background-color: #f8f9fa; white-space: nowrap; line-height: 1.2; border-top: none; }
     thead tr:nth-child(1) { height: 32px; }
     thead tr:nth-child(2) { height: 28px; }
     thead tr:nth-child(1) th { position: sticky; top: 0; z-index: 12; }
     thead tr:nth-child(2) th { position: sticky; top: 32px; z-index: 11; }
     
-    .input-mini { width: 100%; padding: 4px; border: 1px solid #ccc; border-radius: 3px; text-align: center; box-sizing: border-box; font-family: 'Pretendard', sans-serif; font-weight: bold; color: #333; background-color: transparent;}
-    .input-mini.empty-placeholder { color: #888888 !important; font-weight: bold; }
+    /* 🔹 수정: 표 내부 입력칸(과제, 오답 등) 글자 볼드 해제 */
+    .input-mini { width: 100%; padding: 4px; border: 1px solid #ccc; border-radius: 3px; text-align: center; box-sizing: border-box; font-family: 'Pretendard', sans-serif; font-weight: normal; color: #333; background-color: transparent;}
+    .input-mini.empty-placeholder { color: #888888 !important; font-weight: normal; }
     
     .note-textarea { width: 100%; padding: 4px 6px; border: 1px solid #ccc; border-radius: 3px; box-sizing: border-box; font-family: 'Pretendard', sans-serif; resize: vertical; height: 28px; min-height: 28px; line-height: 1.35; overflow-y: auto; vertical-align: middle; display: block; background-color: transparent;}
     .note-textarea:disabled { background-color: #dc3545; color: white; font-weight: bold; text-align: center; resize: none; }
 
     input[type="checkbox"] { transform: scale(1.3); cursor: pointer; margin: 4px 2px; }
-    /* 🔹 체크박스 여백 다이어트 (행 높이 뚱뚱해짐 원인 제거) */
     .master-checkbox { transform: scale(1.3); margin: 0; vertical-align: middle; cursor: pointer; }
     
     .bottom-controls { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 15px; }
     .left-controls { display: flex; gap: 10px; align-items: center; }
 
-    /* 🔹 마우스 오버 시 펼쳐지는 액션 버튼 디자인 */
     .btn-roster-add-main, .btn-roster-delete-main {
-      height: 38px;
-      max-width: 38px; /* 초기 원형 사이즈 */
-      border-radius: 19px;
-      padding: 0;
-      overflow: hidden;
-      white-space: nowrap;
-      border: none;
-      color: white;
-      font-weight: bold;
-      font-size: 14px;
-      cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      display: inline-flex;
-      align-items: center;
-      justify-content: flex-start;
-      transition: max-width 0.15s cubic-bezier(0.4, 0, 0.2, 1), padding 0.15s ease, background-color 0.2s; 
+      height: 38px; max-width: 38px; border-radius: 19px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: inline-flex; align-items: center; justify-content: flex-start; transition: max-width 0.15s cubic-bezier(0.4, 0, 0.2, 1), padding 0.15s ease, background-color 0.2s; 
     }
-    
     .btn-roster-add-main { background-color: #28a745; }
     .btn-roster-delete-main { background-color: #dc3545; }
-    
-    /* 마우스 오버 시 우측으로 확장 */
-    .btn-roster-add-main:hover, .btn-roster-delete-main:hover, 
-    .btn-roster-delete-main.active { 
-      max-width: 120px;
-      padding-right: 18px; 
-    }
+    .btn-roster-add-main:hover, .btn-roster-delete-main:hover, .btn-roster-delete-main.active { max-width: 120px; padding-right: 18px; }
     .btn-roster-delete-main.active { background-color: #8b0000; box-shadow: inset 0 3px 5px rgba(0,0,0,0.2); }
 
-    /* 아이콘 영역 고정 */
-    .btn-icon-wrap {
-      width: 38px;
-      height: 38px;
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      flex-shrink: 0;
-      font-style: normal;
-      font-size: 1.4em;
-      font-weight: 900;
-      line-height: 0;
-      padding-bottom: 2px;
-    }
-    
-    /* 텍스트 영역 투명도 전환 */
-    .btn-text-wrap {
-      opacity: 0;
-      transition: opacity 0.1s ease-in;
-    }
-    .btn-roster-add-main:hover .btn-text-wrap, 
-    .btn-roster-delete-main:hover .btn-text-wrap,
-    .btn-roster-delete-main.active .btn-text-wrap {
-      opacity: 1;
-      transition-delay: 0.05s; 
-    }
+    .btn-icon-wrap { width: 38px; height: 38px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; font-style: normal; font-size: 1.4em; font-weight: 900; line-height: 0; padding-bottom: 2px; }
+    .btn-text-wrap { opacity: 0; transition: opacity 0.1s ease-in; }
+    .btn-roster-add-main:hover .btn-text-wrap, .btn-roster-delete-main:hover .btn-text-wrap, .btn-roster-delete-main.active .btn-text-wrap { opacity: 1; transition-delay: 0.05s; }
 
     .btn-save-master { padding: 10px 0; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; background-color: #1366ce; color: white; width: 180px; text-align: center; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; }
     .btn-save-master:hover { background-color: #0f52a8; }
 
-    /* 🚨 명단 표 내부의 개별 삭제/복구 버튼 (유지) */
     .btn-discharge-minus { background-color: #dc3545; color: white; border: none; width: 22px; height: 22px; border-radius: 50px; cursor: pointer; display: inline-flex; justify-content: center; align-items: center; padding: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
     .btn-discharge-plus { background-color: #28a745; color: white; border: none; width: 22px; height: 22px; border-radius: 50px; cursor: pointer; display: inline-flex; justify-content: center; align-items: center; padding: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
     .btn-discharge-plus:hover { background-color: #218838; }
@@ -160,7 +115,9 @@
 
     .subject-box { margin-bottom: 12px; background-color: #fdfdfd; padding: 12px; border: 1px solid #e9ecef; border-radius: 6px; }
     .subject-label { font-size: 14px; font-weight: bold; color: #1366ce; margin-bottom: 6px; display: block; }
-    .subject-input { width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; resize: vertical; height: 75px; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: bold; color: #333; }
+    
+    /* 🔹 수정: 금일 수업 개요 입력칸 글자 볼드 해제 */
+    .subject-input { width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; resize: vertical; height: 75px; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: normal; color: #333; }
     .subject-input::placeholder { color: #b0b0b0; font-weight: normal; font-size: 14px; }
 
     .copy-panel-title { text-align: center; font-weight: 800; font-size: 16px; color: #1366ce; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #e6f0ff; letter-spacing: 0.5px; }
