@@ -530,7 +530,7 @@
       if (!teacher || !className || !dateVal) { showCustomAlert("담임명, 반명, 날짜를 모두 선택해 주세요."); return; }
       
       const dayNum = new Date(dateVal).getDay(); 
-      const isM = /(M)(1|2)/.test(className); const isTS = /(TS)([012])/.test(className); const isT = /(?<!S)(T)(1|2)/.test(className); const isS = /(?<!T)(S)([012])/.test(className);
+      const isM = /(M)([012])/.test(className); const isTS = /(TS)(1|2)/.test(className); const isT = /(?<!S)(T)([012])/.test(className); const isS = /(?<!T)(S)(1|2)/.test(className);
       let dayValid = true;
       if (isM && ![1, 3, 5].includes(dayNum)) dayValid = false; if (isTS && ![2, 4, 6].includes(dayNum)) dayValid = false; if (isT && ![2, 4].includes(dayNum)) dayValid = false; if (isS && ![6].includes(dayNum)) dayValid = false;
       
