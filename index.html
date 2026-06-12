@@ -131,6 +131,13 @@
     .card-header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid #eaeaea; }
     .card-header { font-size: 15px; font-weight: 800; color: #1366ce; margin: 0; }
     .copy-btn, .copy-all-btn { font-size: 13px; padding: 4px 10px; cursor: pointer; background-color: white; color: #1366ce; border: 1px solid #1366ce; border-radius: 50px; margin: 0; font-weight: bold; }
+
+    /* 🔹 에그 */
+    .left-panel, .main-container { position: relative; } /* 말풍선 기준점 부여 */
+    .easter-egg-zone { position: absolute; bottom: 0; left: 0; width: 25px; height: 25px; z-index: 50; cursor: default; }
+    .egg-bubble { position: absolute; bottom: 35px; left: 15px; background-color: #1a3978; color: white; padding: 12px 18px; border-radius: 12px; font-size: 14px; font-weight: 900; box-shadow: 0 4px 10px rgba(0,0,0,0.2); opacity: 0; transform: translateY(10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; z-index: 1000; white-space: nowrap; }
+    .egg-bubble::after { content: ''; position: absolute; bottom: -8px; left: 15px; border-width: 8px 8px 0; border-style: solid; border-color: #1a3978 transparent transparent transparent; }
+    .egg-bubble.show { opacity: 1; transform: translateY(0); } /* 에그 마지막 */
   </style>
 </head>
 <body>
@@ -185,6 +192,9 @@
 
     <div class="main-container">
       <div class="left-panel">
+        /* 🔹 에그 */
+      <div class="easter-egg-zone" onclick="triggerEasterEgg()"></div>
+      <div class="egg-bubble" id="eggBubble">🎉 아자아자, 오늘도 화이팅입니다! 🚀</div> /* 에그 마지막 */
         
         <div class="dashboard-banner" id="metaDashboard">
           <div class="db-grid">
@@ -808,6 +818,22 @@
         }
       }
     });
+    // 🔹 에그 (5초 내 3번 클릭 감지) 로직
+    let eggClicks = 0;
+    let eggTimer = null;
+    function triggerEasterEgg() {
+      eggClicks++;
+      if (eggClicks === 1) {
+        eggTimer = setTimeout(() => { eggClicks = 0; }, 5000); // 5초 지나면 초기화
+      }
+      if (eggClicks === 3) {
+        clearTimeout(eggTimer);
+        eggClicks = 0;
+        const bubble = document.getElementById("eggBubble");
+        bubble.classList.add("show");
+        setTimeout(() => { bubble.classList.remove("show"); }, 3000); // 3초 뒤 말풍선 사라짐
+      }
+    } // 에그 마지막
   </script>
 </body>
 </html>
