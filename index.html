@@ -3,7 +3,6 @@
 <head>
   <base target="_top">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>체크리스트 선생님 모드</title>
   <link rel="icon" href="https://i.imgur.com/tFbBVcO.png">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -135,6 +134,27 @@
     .egg-bubble::after { content: ''; position: absolute; bottom: -8px; left: 15px; border-width: 8px 8px 0; border-style: solid; border-color: #1a3978 transparent transparent transparent; }
     .egg-bubble.show { opacity: 1; transform: translateY(0); } 
     /* 🔹 에그 마지막 */
+
+    /* 🔹 태블릿 세로 모드 및 모바일 대응 (1024px 이하) */
+    @media screen and (max-width: 1024px) {
+      .main-container { 
+        flex-direction: column; /* 가로 배치를 세로 배치로 변경 */
+        height: auto; 
+        min-height: auto;
+      }
+      .left-panel, .right-panel { 
+        flex: 0 0 100%; 
+        max-width: 100%; /* 둘 다 가로 100% 꽉 차게 변경 */
+      }
+      .right-panel {
+        border-left: none; /* 기존 왼쪽 파란 선 제거 */
+        border-top: 4px solid #1366ce; /* 위쪽 파란 선으로 변경하여 구분감 유지 */
+        margin-top: 10px; /* 명단과 복사 패널 사이 여백 */
+      }
+      .table-fixed-wrapper {
+        max-height: none; /* 세로 모드에서는 표 내부 스크롤 대신 전체 스크롤 활용 */
+      }
+    }
   </style>
 </head>
 <body>
