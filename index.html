@@ -125,7 +125,6 @@
     .btn-text-wrap { opacity: 0; transition: opacity 0.1s ease-in; }
     .btn-roster-add-main:hover .btn-text-wrap, .btn-roster-delete-main:hover .btn-text-wrap, .btn-roster-delete-main.active .btn-text-wrap { opacity: 1; transition-delay: 0.05s; }
 
-    /* 🔹 선생님 저장 버튼: width를 삭제하고 padding을 주어 글자 길이에 유연하게 대응 (가변 너비) */
     .btn-save-master { height: 38px; padding: 0 20px; box-sizing: border-box; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; background-color: #1366ce; color: white; text-align: center; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; }
     .btn-save-master:hover { background-color: #0f52a8; }
 
@@ -342,6 +341,9 @@
   </div>
 
   <script>
+    // 🔹 팝업 롤백을 위한 기준점 메모리 세팅
+    window.loadedState = null;
+
     const CAMPUS_URLS = {
       "dongtan": "https://script.google.com/macros/s/AKfycbyiyBqTj1smjEjKzT-rsvNR8amDMq-gllypz5HCQRTc9SdWEX4EAB16CdLo_CUTcb6THw/exec",
       "yeongtong": "https://script.google.com/macros/s/AKfycbxDLMbLdlVs1Hp2l7VdDNkQ0U9LvpgOsG4NJ4cNwrR6mT4sU1JKQAKYZEPUNw7I4-ba/exec",
@@ -650,7 +652,35 @@
       let dayValid = true;
       if (isM && ![1, 3, 5].includes(dayNum)) dayValid = false; if (isTS && ![2, 4, 6].includes(dayNum)) dayValid = false; if (isT && ![2, 4].includes(dayNum)) dayValid = false; if (isS && ![6].includes(dayNum)) dayValid = false;
       
-      if (!dayValid) { showCustomConfirm("선택하신 반의 수업 요일이 아닙니다. 입력하신 날짜로 계속 진행할까요?", function() { executeWorkflowLoad(teacher, className, dateVal); }); return; }
+      if (!dayValid) { 
+        // 🔹 원장님 피드백 반영: '아니오(취소/ESC)' 시 UI 완벽 롤백 콜백 추가
+        showCustomConfirm("선택하신 반의 수업 요일이 아닙니다. 입력하신 날짜로 계속 진행할까요?", 
+          function() { executeWorkflowLoad(teacher, className, dateVal); },
+          function() {
+            if (window.loadedState) {
+                // 이전에 조회 성공했던 상태로 셀렉트박스와 텍스트를 모두 동기화 복구
+                const cSel = document.getElementById("classSelect");
+                cSel.value = window.loadedState.className;
+                cSel.dataset.prev = window.loadedState.className;
+                document.getElementById("dbClass").textContent = window.loadedState.className;
+
+                const dInput = document.getElementById("dateInput");
+                dInput.value = window.loadedState.dateVal;
+                dInput.dataset.prev = window.loadedState.dateVal;
+                const disp = document.getElementById("dateDisplayUI");
+                disp.textContent = formatDateWithDay(window.loadedState.dateVal);
+                disp.classList.add("selected");
+            } else {
+                // 화면에 띄워진 명단이 전혀 없을 때는 날짜를 빈칸으로 초기화
+                const dInput = document.getElementById("dateInput");
+                dInput.value = ""; dInput.dataset.prev = "";
+                const disp = document.getElementById("dateDisplayUI");
+                disp.textContent = "날짜를 선택하세요"; disp.classList.remove("selected");
+            }
+          }
+        ); 
+        return; 
+      }
       executeWorkflowLoad(teacher, className, dateVal);
     }
 
@@ -660,6 +690,9 @@
         showLoading(false); 
         isDirty = false; 
         
+        // 🔹 로드 성공 시 현재 화면 상태를 메모리에 고정 (롤백용)
+        window.loadedState = { teacher: teacher, className: className, dateVal: dateVal };
+        
         currentSubject = data.subject || ""; document.getElementById("subjectInput").value = currentSubject; studentList = data.students; isDeleteMode = false; document.getElementById("deleteModeBtn").classList.remove("active");
         document.getElementById("leftEmpty").style.display = "none"; document.getElementById("rightEmpty").style.display = "none"; document.getElementById("attendanceContent").style.display = "block"; document.getElementById("copyContent").style.display = "flex";
         renderTable(); updatePreview(); attachKeyboardNavigationListeners();
@@ -667,6 +700,7 @@
     }
 
     function resetPanels() {
+      window.loadedState = null; // 패널이 리셋되면 롤백 메모리도 초기화
       document.getElementById("leftEmpty").style.display = "flex"; document.getElementById("leftEmpty").innerHTML = "상단의 선택 항목들을 모두 선택해 주세요.";
       document.getElementById("rightEmpty").style.display = "flex"; document.getElementById("rightEmpty").innerHTML = "명단 조회 후 표시 됩니다.";
       document.getElementById("attendanceContent").style.display = "none"; document.getElementById("copyContent").style.display = "none"; document.getElementById("metaDashboard").style.display = "none";
