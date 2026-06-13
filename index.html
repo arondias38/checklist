@@ -609,7 +609,6 @@
         } else { document.getElementById('dateInput').value = attemptVal; onDateInputChange(); }
     }
 
-    // 🔹 날짜 변경 시 누락되었던 [자동 조회] 로직 추가
     function onDateInputChange() {
       const val = document.getElementById("dateInput").value; const disp = document.getElementById("dateDisplayUI");
       if(val) { disp.textContent = formatDateWithDay(val); disp.classList.add("selected"); } 
@@ -618,9 +617,9 @@
       const teacher = document.getElementById("teacherSelect").value;
       const className = document.getElementById("classSelect").value;
       if (val && teacher && className) {
-         handleSearchClick(null); // 날짜, 반, 담임이 모두 있으면 즉시 조회 실행
+         handleSearchClick(null);
       } else {
-         resetPanels(); // 조건이 부족하면 기존 표를 리셋하여 데이터 혼선 방지
+         resetPanels();
       }
     }
 
@@ -740,7 +739,6 @@
         }
         let disabledAttr = (st.isDischarged || st.pendingDischarge) ? "disabled" : "";
 
-        // 🔹 일괄 체크 시 깜빡임 방지를 위해 send-checkbox 클래스 추가 유지
         row.innerHTML = `<td style="background-color:#f8f9fa;">${noColumn}</td><td style="white-space:nowrap; padding-right:6px;">${nameHtml}</td><td style="white-space:nowrap;">${schoolHtml}</td><td>${gradeHtml}</td><td>${s1}</td><td>${s2}</td><td>${s3}</td><td>${s4}</td><td>${noteInputHtml}</td><td><input type="checkbox" class="send-checkbox" ${st.sendCheck ? 'checked' : ''} onchange="updateData(${idx}, 'sendCheck', this.checked)" ${disabledAttr} tabindex="-1"></td><td><input type="checkbox" class="lead-checkbox" ${st.leadCheck ? 'checked' : ''} disabled title="관리자 전용" tabindex="-1"></td>`;
         tbody.appendChild(row);
       });
@@ -751,29 +749,76 @@
       }, 0);
     }
 
+    // 🔹 완벽한 엑셀(Excel) 스타일의 똑똑한 방향키 이동 로직 적용 완료
     function attachKeyboardNavigationListeners() {
        const inputs = document.querySelectorAll('.grid-nav');
        inputs.forEach(input => {
           input.onkeydown = function(e) {
-             let curRow = parseInt(this.dataset.row); let curCol = parseInt(this.dataset.col); let nextInput;
+             let curRow = parseInt(this.dataset.row); 
+             let curCol = parseInt(this.dataset.col); 
+             let nextInput;
              
              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault(); nextInput = document.querySelector(`.grid-nav[data-row="${curRow + 1}"][data-col="${curCol}"]`);
+                e.preventDefault(); 
+                nextInput = document.querySelector(`.grid-nav[data-row="${curRow + 1}"][data-col="${curCol}"]`);
              }
              else if (e.key === "Tab" && !e.shiftKey) {
                 if (curCol === 7) {
-                   e.preventDefault(); let targetRow = curRow + 1; let targetCol = document.querySelector(`.grid-nav[data-row="${targetRow}"][data-col="0"]`) ? 0 : 3;
+                   e.preventDefault(); 
+                   let targetRow = curRow + 1; 
+                   let targetCol = document.querySelector(`.grid-nav[data-row="${targetRow}"][data-col="0"]`) ? 0 : 3;
                    nextInput = document.querySelector(`.grid-nav[data-row="${targetRow}"][data-col="${targetCol}"]`);
                 }
              }
-             else if (e.key === "ArrowUp") { nextInput = document.querySelector(`.grid-nav[data-row="${curRow - 1}"][data-col="${curCol}"]`); } 
-             else if (e.key === "ArrowDown") { nextInput = document.querySelector(`.grid-nav[data-row="${curRow + 1}"][data-col="${curCol}"]`); } 
+             else if (e.key === "ArrowUp") { 
+                // 일반 인풋이거나, 특이사항칸에서 커서가 맨 앞일 때만 위로 이동
+                if (this.tagName === "INPUT" || this.selectionStart === 0) {
+                    nextInput = document.querySelector(`.grid-nav[data-row="${curRow - 1}"][data-col="${curCol}"]`); 
+                }
+             } 
+             else if (e.key === "ArrowDown") { 
+                // 일반 인풋이거나, 특이사항칸에서 커서가 맨 뒤일 때만 아래로 이동
+                if (this.tagName === "INPUT" || this.selectionEnd === this.value.length) {
+                    nextInput = document.querySelector(`.grid-nav[data-row="${curRow + 1}"][data-col="${curCol}"]`); 
+                }
+             } 
              else if (e.key === "ArrowLeft") {
-                if (this.selectionStart === 0 || this.tagName === "TEXTAREA") { nextInput = document.querySelector(`.grid-nav[data-row="${curRow}"][data-col="${curCol - 1}"]`); }
-             } else if (e.key === "ArrowRight") {
-                if (this.selectionEnd === this.value.length || this.tagName === "TEXTAREA") { nextInput = document.querySelector(`.grid-nav[data-row="${curRow}"][data-col="${curCol + 1}"]`); }
+                // 커서가 맨 앞에 도달했을 때만 왼쪽 칸으로 이동
+                if (this.selectionStart === 0) { 
+                   let tempCol = curCol - 1;
+                   while(tempCol >= 0) {
+                       nextInput = document.querySelector(`.grid-nav[data-row="${curRow}"][data-col="${tempCol}"]`);
+                       if (nextInput) break;
+                       tempCol--;
+                   }
+                   // 만약 이번 줄에 왼쪽 칸이 더 없으면 이전 줄 맨 끝(특이사항)으로 감
+                   if (!nextInput && curRow > 0) {
+                       nextInput = document.querySelector(`.grid-nav[data-row="${curRow - 1}"][data-col="7"]`);
+                   }
+                }
+             } 
+             else if (e.key === "ArrowRight") {
+                // 커서가 맨 뒤에 도달했을 때만 오른쪽 칸으로 이동
+                if (this.selectionEnd === this.value.length) { 
+                   let tempCol = curCol + 1;
+                   while(tempCol <= 7) {
+                       nextInput = document.querySelector(`.grid-nav[data-row="${curRow}"][data-col="${tempCol}"]`);
+                       if (nextInput) break;
+                       tempCol++;
+                   }
+                   // 만약 이번 줄 끝(특이사항)에서 오른쪽을 누르면 다음 줄 처음으로 감
+                   if (!nextInput) {
+                       let targetRow = curRow + 1; 
+                       let targetCol = document.querySelector(`.grid-nav[data-row="${targetRow}"][data-col="0"]`) ? 0 : 3;
+                       nextInput = document.querySelector(`.grid-nav[data-row="${targetRow}"][data-col="${targetCol}"]`);
+                   }
+                }
              }
-             if (nextInput) { e.preventDefault(); nextInput.focus(); }
+             
+             if (nextInput) { 
+                 e.preventDefault(); 
+                 nextInput.focus(); 
+             }
           };
        });
     }
@@ -805,7 +850,6 @@
 
     function updateData(idx, field, val) { studentList[idx][field] = val; isDirty = true; updateMasterCheckboxState(); updatePreview(); } 
     
-    // 🔹 일괄 체크 시 표 전체를 다시 그려서 깜빡이는 현상을 방지하는 최적화 로직
     function toggleMaster(field, isChecked) { 
       if (studentList.length === 0) return; 
       studentList.forEach(st => { 
@@ -813,7 +857,6 @@
       }); 
       isDirty = true; 
       
-      // 표 전체를 부수고 다시 그리는 renderTable() 대신, 체크박스 껍데기만 쏙쏙 변경합니다!
       if (field === 'sendCheck') {
         document.querySelectorAll('.send-checkbox:not(:disabled)').forEach(cb => cb.checked = isChecked);
       }
@@ -1000,7 +1043,6 @@
       }
     });
 
-    // 🔹 에그 시작
     let eggClicks = 0;
     let eggTimer = null;
     
@@ -1035,7 +1077,6 @@
         setTimeout(() => { bubble.classList.remove("show"); }, 3000); 
       }
     } 
-    // 🔹 에그 마지막
   </script>
 </body>
 </html>
