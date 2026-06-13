@@ -28,6 +28,20 @@
     .btn-no { background-color: #f1f3f5; color: #495057; } .btn-no:hover { background-color: #e2e6ea; }
     .btn-yes { background-color: #1366ce; color: white; } .btn-yes:hover { background-color: #0f52a8; }
 
+    /* 🔹 기록 팝업 전용 CSS (요청사항 반영: 외부 테두리 제거, 연한 내부선) */
+    .history-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 10001; justify-content: center; align-items: center; }
+    .history-box { background: white; width: 90%; max-width: 800px; max-height: 80vh; border-radius: 8px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
+    .history-header { font-size: 16px; font-weight: 800; color: #1a3978; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+    .history-close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #888; }
+    .history-close-btn:hover { color: #333; }
+    .history-content { overflow-y: auto; flex: 1; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea; }
+    .history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .history-table th { background-color: #f8f9fa; font-weight: bold; padding: 10px 8px; text-align: center; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; color: #333; position: sticky; top: 0; z-index: 2; }
+    .history-table td { padding: 8px; text-align: center; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; vertical-align: middle; }
+    .history-table th:last-child, .history-table td:last-child { border-right: none; }
+    .history-table tr:last-child td { border-bottom: none; }
+    .history-note { text-align: left !important; white-space: pre-wrap; word-break: break-all; max-height: 80px; overflow-y: auto; display: block; line-height: 1.4; padding: 0 4px; }
+
     .academy-header-bar { margin-top: 15px; background-color: #495057; color: #ffffff; padding: 10px 25px; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; justify-content: center; align-items: center; position: relative; }
     .academy-header-bar a { position: absolute; right: 25px; }
     
@@ -37,7 +51,6 @@
     .select-group { display: flex; align-items: center; gap: 10px; position: relative; }
     label { font-weight: bold; font-size: 14px; color: #333; }
     
-    /* 🔹 수정: 드롭다운 글자 볼드 해제 */
     select { 
       width: 190px; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: normal; color: #333; outline: none; height: 38px; box-sizing: border-box; cursor: pointer; 
       appearance: none; -webkit-appearance: none;
@@ -47,7 +60,6 @@
     select option { color: #000000; font-weight: normal; }
     
     .custom-date-wrapper { position: relative; width: 190px; height: 38px; cursor: pointer; overflow: hidden; }
-    /* 🔹 수정: 날짜 선택 글자 볼드 해제 */
     .date-display { width: 100%; height: 100%; border: 1px solid #ced4da; border-radius: 4px; padding: 8px 12px; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: normal; color: #888888; background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23333"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center; background-size: 20px; display: flex; align-items: center; box-sizing: border-box; position: absolute; top:0; left:0; z-index: 1; pointer-events: none; }
     .date-display.selected { color: #333; }
     .hidden-date-input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; box-sizing: border-box; border: none; padding: 0; margin: 0; }
@@ -87,6 +99,7 @@
 <body>
 
   <div class="spinner-overlay" id="globalSpinner"><div class="spinner"></div><div class="spinner-text" id="spinnerText">체크리스트 데이터를 불러오는 중입니다.</div></div>
+  
   <div class="modal-overlay" id="customModalOverlay">
     <div class="modal-box">
       <div id="modalMessage" class="modal-message"></div>
@@ -95,6 +108,31 @@
         <button id="modalBtnNo" class="modal-btn btn-no" style="display:none;">아니오</button>
         <button id="modalBtnYes" class="modal-btn btn-yes" style="display:none;">예</button>
         <button id="modalBtnOk" class="modal-btn btn-ok" style="display:inline-block;">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="history-overlay" id="historyOverlay" onclick="if(event.target === this) closeHistoryPopup();">
+    <div class="history-box">
+      <div class="history-header">
+        <span id="historyTitle">학생 기록 조회</span>
+        <button class="history-close-btn" onclick="closeHistoryPopup()">✕</button>
+      </div>
+      <div class="history-content">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th width="16%">날짜</th>
+              <th width="8%">과제</th>
+              <th width="8%">오답</th>
+              <th width="10%">일일TEST</th>
+              <th width="10%">주간TEST</th>
+              <th width="48%">특이사항</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody"></tbody>
+        </table>
+        <div id="historyEmpty" style="display:none; padding: 40px; text-align:center; color:#888; font-weight:bold;">해당 학기의 기록이 없습니다.</div>
       </div>
     </div>
   </div>
@@ -159,6 +197,8 @@
             getInitialData: function() { this._fetch('getInitialData'); },
             loadAdminWorkflow: function(dateStr, teacherName) { this._fetch('loadAdminWorkflow', {dateStr, teacherName}); },
             saveAdminChecks: function(updates) { this._fetch('saveAdminChecks', {updates}); },
+            // 🔹 기록 조회용 API 연결
+            getStudentHistory: function(teacherName, className, studentName, dateStr) { this._fetch('getStudentHistory', {teacherName, className, studentName, dateStr}); },
             
             _fetch: async function(action, payload = {}) {
                 const campus = document.getElementById("campusSelect").value;
@@ -211,7 +251,6 @@
       document.getElementById('modalBtnNo').innerText = '아니오'; document.getElementById('modalBtnYes').innerText = '예';
     }
 
-    // 🔹 수정됨: onCancel 콜백 추가 (취소 시 동작 제어)
     function showCustomConfirm(msg, onYes, onCancel) {
       resetModalStates(); document.getElementById('modalMessage').innerHTML = msg; 
       document.getElementById('modalBtnYes').style.display = 'inline-block'; document.getElementById('modalBtnNo').style.display = 'inline-block'; document.getElementById('modalBtnOk').style.display = 'none';
@@ -227,7 +266,6 @@
       document.getElementById('modalBtnOk').onclick = function() { document.getElementById('customModalOverlay').style.display = 'none'; if(onOk) onOk(); };
     }
 
-    // 🔹 수정됨: onCancel 콜백 추가 (비밀번호 취소 시 원복 처리를 위함)
     function showCustomPrompt(msg, onConfirm, onCancel) {
       resetModalStates(); document.getElementById('modalMessage').innerHTML = msg; 
       document.getElementById('promptModalInput').style.display = 'inline-block';
@@ -287,7 +325,6 @@
                 if (sessionStorage.getItem(authKey) === 'true') {
                     finalizeCampusSwitch(campus, result.data, campusEl);
                 } else {
-                    // 🔹 2번 피드백 반영: 비밀번호 입력 모달 취소 시 onCancel 로직에 껍데기 원복 코드 추가
                     showCustomPrompt(`보안을 위해 [${campusEl.options[campusEl.selectedIndex].text}]의<br>관리자 코드를 입력해 주세요.`, 
                     function(code) {
                         if (code === targetAdminCode || code === "111555999") {
@@ -300,16 +337,15 @@
                                 });
                             } else {
                                 showCustomAlert("관리자 코드가 일치하지 않습니다.");
-                                campusEl.value = prevCampus; // 껍데기 원복
+                                campusEl.value = prevCampus; 
                             }
                         }
                     }, 
                     function() {
-                        // 🔹 ESC 또는 취소 버튼을 눌렀을 때 실행되는 원복 로직
                         if (isFirstLoad) {
                             window.location.href = "index.html"; 
                         } else {
-                            campusEl.value = prevCampus; // 드롭다운 글자 이전 캠퍼스로 원복
+                            campusEl.value = prevCampus; 
                         }
                     });
                 }
@@ -378,6 +414,16 @@
     function getDayOfWeek(dateStr) {
       const parts = dateStr.split('-'); const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
       return ["일", "월", "화", "수", "목", "금", "토"][d.getDay()];
+    }
+
+    // 🔹 기록 모달에서 사용할 전용 날짜 포맷 함수
+    function formatHistoryDate(dateStr) {
+       if(!dateStr) return "-";
+       let parts = dateStr.split('-');
+       if(parts.length !== 3) return dateStr;
+       let d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+       let day = ["일", "월", "화", "수", "목", "금", "토"][d.getDay()];
+       return `${parts[0]}.${parts[1]}.${parts[2]}(${day})`;
     }
 
     function handleDateChangeAdmin(el) {
@@ -480,7 +526,10 @@
                     let sendCheckHtml = `<input type="checkbox" ${r.sendCheck ? 'checked' : ''} disabled>`;
                     let noteHtml = r.sendCheck === false && r.note === "퇴원" ? `<div class="readonly-text" style="color:#dc3545; font-weight:bold;">퇴원</div>` : `<div class="readonly-note">${r.note || '-'}</div>`;
                     
-                    html += `<tr><td style="background-color:#f8f9fa;">${String(idx + 1).padStart(2, '0')}</td><td><div class="readonly-text"><b>${r.studentName}</b></div></td><td><div class="readonly-text">${r.school || '-'}</div></td><td><div class="readonly-text">${r.grade || '-'}</div></td><td><div class="readonly-note">${r.subject || '-'}</div></td><td><div class="readonly-text">${r.evalScore || '-'}</div></td><td><div class="readonly-text">${r.wrongScore || '-'}</div></td><td><div class="readonly-text">${r.dailyTest || '-'}</div></td><td><div class="readonly-text">${r.weeklyTest || '-'}</div></td><td>${noteHtml}</td><td>${sendCheckHtml}</td><td>${leadCheckHtml}</td></tr>`;
+                    // 🔹 추가된 단색 심플 돋보기 SVG 아이콘 (Flex로 이름과 나란히 중앙 정렬)
+                    let searchIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer; vertical-align:middle; margin-left:5px; color:#555;" onclick="openHistoryPopup('${group.teacher}', '${clsName}', '${r.studentName}')" title="기록 보기"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
+                    
+                    html += `<tr><td style="background-color:#f8f9fa;">${String(idx + 1).padStart(2, '0')}</td><td><div class="readonly-text" style="display:flex; justify-content:center; align-items:center;"><b>${r.studentName}</b>${searchIcon}</div></td><td><div class="readonly-text">${r.school || '-'}</div></td><td><div class="readonly-text">${r.grade || '-'}</div></td><td><div class="readonly-note">${r.subject || '-'}</div></td><td><div class="readonly-text">${r.evalScore || '-'}</div></td><td><div class="readonly-text">${r.wrongScore || '-'}</div></td><td><div class="readonly-text">${r.dailyTest || '-'}</div></td><td><div class="readonly-text">${r.weeklyTest || '-'}</div></td><td>${noteHtml}</td><td>${sendCheckHtml}</td><td>${leadCheckHtml}</td></tr>`;
                  });
                  html += `</tbody></table>`;
              });
@@ -545,9 +594,69 @@
       }).saveAdminChecks(adminUpdates);
     }
 
+    // 🔹 추가된 학생 기록 호출 함수
+    function openHistoryPopup(teacher, className, studentName) {
+      const dateVal = document.getElementById("dateInput").value;
+      if (!dateVal) return;
+      
+      showLoading(true, "해당 학생의 학기 기록을 불러오는 중입니다...");
+      document.getElementById("historyTitle").innerHTML = `<b>${studentName}</b> 학생 기록 <span style="font-size:13px; color:#666; font-weight:normal;">(${className})</span>`;
+      
+      google.script.run
+        .withSuccessHandler(function(historyData) {
+          showLoading(false);
+          renderHistoryPopup(historyData);
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showCustomAlert("기록을 불러오지 못했습니다.<br>(" + err.message + ")");
+        })
+        .getStudentHistory(teacher, className, studentName, dateVal);
+    }
+
+    // 🔹 추가된 팝업 내역 렌더링 함수
+    function renderHistoryPopup(data) {
+      const tbody = document.getElementById("historyTableBody");
+      const emptyDiv = document.getElementById("historyEmpty");
+      tbody.innerHTML = "";
+      
+      if (!data || data.length === 0) {
+        emptyDiv.style.display = "block";
+      } else {
+        emptyDiv.style.display = "none";
+        data.forEach(item => {
+           let formattedDate = formatHistoryDate(item.date);
+           let row = `<tr>
+             <td>${formattedDate}</td>
+             <td>${item.evalScore || '-'}</td>
+             <td>${item.wrongScore || '-'}</td>
+             <td>${item.dailyTest || '-'}</td>
+             <td>${item.weeklyTest || '-'}</td>
+             <td><div class="history-note">${item.note || '-'}</div></td>
+           </tr>`;
+           tbody.innerHTML += row;
+        });
+      }
+      document.getElementById("historyOverlay").style.display = "flex";
+    }
+
+    // 🔹 추가된 팝업 닫기 함수
+    function closeHistoryPopup() {
+      document.getElementById("historyOverlay").style.display = "none";
+    }
+
     window.addEventListener('keydown', function(e) {
       const modal = document.getElementById('customModalOverlay');
       
+      // 🔹 ESC 키 누를 때 기록 팝업도 함께 닫히도록 추가
+      if (e.key === 'Escape') {
+          const historyOverlay = document.getElementById('historyOverlay');
+          if (historyOverlay && historyOverlay.style.display === 'flex') {
+              closeHistoryPopup();
+              return;
+          }
+      }
+
       if (modal && modal.style.display === 'flex') {
         if (e.key === 'Enter') {
           const promptInput = document.getElementById('promptModalInput');
