@@ -433,11 +433,17 @@
         } else { document.getElementById('dateInput').value = attemptVal; onDateInputChange(); }
     }
 
+    // 🔹 관리자 앱 누락되었던 날짜 변경 시 자동 조회 로직 추가
     function onDateInputChange() {
       if(checkLockdown()) return;
       const val = document.getElementById("dateInput").value; const disp = document.getElementById("dateDisplayUI");
       if(val) { disp.textContent = `${val.split('-')[0]}.${val.split('-')[1]}.${val.split('-')[2]}(${getDayOfWeek(val)})`; disp.classList.add("selected"); } 
       else { disp.textContent = "날짜를 선택하세요"; disp.classList.remove("selected"); }
+
+      const teacher = document.getElementById("teacherSelect").value;
+      if (val && teacher) {
+         handleSearchClickAdmin(null);
+      }
     }
 
     function handleTeacherChangeAdmin(el) {
@@ -446,8 +452,20 @@
         if (isDirty) {
             el.value = prevVal; 
             showCustomConfirm("저장되지 않은 확인 내역이 있습니다.<br>무시하고 담임을 변경하시겠습니까?", function() {
-                isDirty = false; el.value = attemptVal;
+                isDirty = false; el.value = attemptVal; el.dataset.prev = attemptVal;
+                onTeacherChangeAdminAutoTrigger(); 
             });
+        } else {
+            el.dataset.prev = attemptVal;
+            onTeacherChangeAdminAutoTrigger();
+        }
+    }
+
+    // 🔹 관리자 앱 누락되었던 담임 변경 시 자동 조회 로직 추가
+    function onTeacherChangeAdminAutoTrigger() {
+        const dateVal = document.getElementById("dateInput").value;
+        if(dateVal) {
+            handleSearchClickAdmin(null);
         }
     }
 
@@ -522,7 +540,6 @@
                     let sendCheckHtml = `<input type="checkbox" ${r.sendCheck ? 'checked' : ''} disabled>`;
                     let noteHtml = r.sendCheck === false && r.note === "퇴원" ? `<div class="readonly-text" style="color:#dc3545; font-weight:bold;">퇴원</div>` : `<div class="readonly-note">${r.note || '-'}</div>`;
                     
-                    // 🔹 관리자 앱도 이름 완벽 중앙 정렬 & 돋보기 우측 고정 배치로 수정 완료
                     let searchIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer; color:#555;" onclick="openHistoryPopup('${group.teacher}', '${clsName}', '${r.studentName}')" title="기록 보기"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
                     
                     html += `<tr><td style="background-color:#f8f9fa;">${String(idx + 1).padStart(2, '0')}</td><td style="padding-right:6px;"><div class="readonly-text" style="position:relative; display:flex; justify-content:center; align-items:center; width:100%; min-height:20px;"><b>${r.studentName}</b><div style="position:absolute; right:2px; display:flex;">${searchIcon}</div></div></td><td><div class="readonly-text">${r.school || '-'}</div></td><td><div class="readonly-text">${r.grade || '-'}</div></td><td><div class="readonly-note">${r.subject || '-'}</div></td><td><div class="readonly-text">${r.evalScore || '-'}</div></td><td><div class="readonly-text">${r.wrongScore || '-'}</div></td><td><div class="readonly-text">${r.dailyTest || '-'}</div></td><td><div class="readonly-text">${r.weeklyTest || '-'}</div></td><td>${noteHtml}</td><td>${sendCheckHtml}</td><td>${leadCheckHtml}</td></tr>`;
