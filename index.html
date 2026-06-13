@@ -102,7 +102,7 @@
       resize: none; /* 직접 드래그 확장 방지 */
       height: 28px; 
       min-height: 28px; 
-      max-height: 46px; /* 2줄까지만 시각적 확장 허용 */
+      max-height: 48px; /* 2줄까지만 시각적 확장 허용 */
       line-height: 1.35; 
       overflow-y: auto; 
       vertical-align: middle; 
@@ -681,8 +681,8 @@
 
     // 🔹 특이사항 텍스트 영역 자동 높이 조절 함수
     function autoResize(el) {
-      el.style.height = '28px'; // 높이를 먼저 초기화하여 줄어들 수 있게 함
-      el.style.height = el.scrollHeight + 'px'; // 입력된 내용(스크롤 높이)만큼 확장 (최대 46px까지만 확장됨)
+      el.style.height = '28px'; 
+      el.style.height = (el.scrollHeight + 2) + 'px';
     }
 
     function renderTable() {
