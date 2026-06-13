@@ -95,7 +95,7 @@
     .input-mini { width: 100%; padding: 4px; border: 1px solid #ccc; border-radius: 3px; text-align: center; box-sizing: border-box; font-family: 'Pretendard', sans-serif; font-weight: normal; color: #333; background-color: transparent;}
     .input-mini.empty-placeholder { color: #888888 !important; font-weight: normal; }
     
-    /* 🔹 미세한 꿀렁임과 깜빡임 원천 차단 */
+    /* 🔹 깜빡임 없는 완벽한 자동 확장을 위한 특이사항 텍스트 CSS */
     .note-textarea { 
       width: 100%; padding: 4px 6px; border: 1px solid #ccc; border-radius: 3px; box-sizing: border-box; 
       font-family: 'Pretendard', sans-serif; 
@@ -205,7 +205,6 @@
     </div>
   </div>
 
-  <!-- 🔹 학생 기록 모달 팝업 -->
   <div class="history-overlay" id="historyOverlay" onclick="if(event.target === this) closeHistoryPopup();">
     <div class="history-box">
       <div class="history-header">
@@ -678,7 +677,6 @@
       const btn = document.getElementById("deleteModeBtn"); if (isDeleteMode) btn.classList.add("active"); else btn.classList.remove("active"); renderTable(); attachKeyboardNavigationListeners();
     }
 
-    // 🔹 2줄/3줄 높이를 완벽하게 고정하여 행이 늘어나거나 스크롤이 깜빡이는 현상 완전 차단
     function autoResize(el) {
       el.style.overflowY = 'hidden'; 
       el.style.height = '28px'; 
@@ -686,13 +684,10 @@
       let sHeight = el.scrollHeight;
 
       if (sHeight <= 32) { 
-        // 1줄 분량
         el.style.height = '28px';
       } else { 
-        // 2줄 이상 분량: 높이를 46px로 완벽히 동일하게 고정
         el.style.height = '46px';
         if (sHeight > 52) {
-          // 3줄 이상부터만 스크롤바 허용 (높이는 46px로 유지되므로 표의 행이 더 이상 늘어나지 않음)
           el.style.overflowY = 'auto';
         }
       }
@@ -741,7 +736,8 @@
         }
         let disabledAttr = (st.isDischarged || st.pendingDischarge) ? "disabled" : "";
 
-        row.innerHTML = `<td style="background-color:#f8f9fa;">${noColumn}</td><td style="white-space:nowrap; padding-right:6px;">${nameHtml}</td><td style="white-space:nowrap;">${schoolHtml}</td><td>${gradeHtml}</td><td>${s1}</td><td>${s2}</td><td>${s3}</td><td>${s4}</td><td>${noteInputHtml}</td><td><input type="checkbox" ${st.sendCheck ? 'checked' : ''} onchange="updateData(${idx}, 'sendCheck', this.checked)" ${disabledAttr} tabindex="-1"></td><td><input type="checkbox" ${st.leadCheck ? 'checked' : ''} disabled title="관리자 전용" tabindex="-1"></td>`;
+        // 🔹 발송완료 체크박스에 클래스(send-checkbox) 추가하여 렌더링 깜빡임 방지용으로 사용
+        row.innerHTML = `<td style="background-color:#f8f9fa;">${noColumn}</td><td style="white-space:nowrap; padding-right:6px;">${nameHtml}</td><td style="white-space:nowrap;">${schoolHtml}</td><td>${gradeHtml}</td><td>${s1}</td><td>${s2}</td><td>${s3}</td><td>${s4}</td><td>${noteInputHtml}</td><td><input type="checkbox" class="send-checkbox" ${st.sendCheck ? 'checked' : ''} onchange="updateData(${idx}, 'sendCheck', this.checked)" ${disabledAttr} tabindex="-1"></td><td><input type="checkbox" class="lead-checkbox" ${st.leadCheck ? 'checked' : ''} disabled title="관리자 전용" tabindex="-1"></td>`;
         tbody.appendChild(row);
       });
       updateMasterCheckboxState();
@@ -805,13 +801,20 @@
 
     function updateData(idx, field, val) { studentList[idx][field] = val; isDirty = true; updateMasterCheckboxState(); updatePreview(); } 
     
+    // 🔹 일괄 체크 시 표 전체를 다시 그려서 발생하는 깜빡임 버그 원천 차단
     function toggleMaster(field, isChecked) { 
       if (studentList.length === 0) return; 
       studentList.forEach(st => { 
         if(!st.isDischarged && !st.pendingDischarge) { st[field] = isChecked; }
       }); 
       isDirty = true; 
-      renderTable(); updatePreview(); attachKeyboardNavigationListeners(); 
+      
+      // 표를 다시 그리는 renderTable() 삭제, DOM의 체크박스 상태만 스마트하게 직접 변경!
+      if (field === 'sendCheck') {
+        document.querySelectorAll('.send-checkbox:not(:disabled)').forEach(cb => cb.checked = isChecked);
+      }
+      
+      updatePreview(); 
     }
     
     function updateMasterCheckboxState() {
