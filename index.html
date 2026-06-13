@@ -125,8 +125,8 @@
     .btn-text-wrap { opacity: 0; transition: opacity 0.1s ease-in; }
     .btn-roster-add-main:hover .btn-text-wrap, .btn-roster-delete-main:hover .btn-text-wrap, .btn-roster-delete-main.active .btn-text-wrap { opacity: 1; transition-delay: 0.05s; }
 
-    /* 🔹 버튼 높이 고정 및 패딩 제거 적용 */
-    .btn-save-master { height: 38px; padding: 0; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; background-color: #1366ce; color: white; width: 180px; text-align: center; box-sizing: border-box; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; }
+    /* 🔹 선생님 저장 버튼: width를 삭제하고 padding을 주어 글자 길이에 유연하게 대응 (가변 너비) */
+    .btn-save-master { height: 38px; padding: 0 20px; box-sizing: border-box; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; background-color: #1366ce; color: white; text-align: center; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; }
     .btn-save-master:hover { background-color: #0f52a8; }
 
     .btn-discharge-minus { background-color: #dc3545; color: white; border: none; width: 22px; height: 22px; border-radius: 50px; cursor: pointer; display: inline-flex; justify-content: center; align-items: center; padding: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
@@ -319,7 +319,7 @@
               <div style="display:flex; align-items:center; justify-content:center; line-height: 1; margin-top: 9px;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>입력 내용 저장
               </div>
-              <div style="font-size: 9px; font-weight: normal; color: rgba(255,255,255,0.75); letter-spacing: 0.5px; line-height: 1; margin-top: 3px;">Ctrl + S</div>
+              <div style="font-size: 9px; font-weight: normal; color: rgba(255,255,255,0.75); letter-spacing: 0.5px; line-height: 1; margin-top: 2px;">Ctrl + S</div>
             </button>
           </div>
         </div>
