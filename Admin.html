@@ -28,6 +28,7 @@
     .btn-no { background-color: #f1f3f5; color: #495057; } .btn-no:hover { background-color: #e2e6ea; }
     .btn-yes { background-color: #1366ce; color: white; } .btn-yes:hover { background-color: #0f52a8; }
 
+    /* 🔹 기존 학생 기록 팝업 (유지) */
     .history-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 10001; justify-content: center; align-items: center; }
     .history-box { background: white; width: 90%; max-width: 800px; max-height: 80vh; border-radius: 8px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
     .history-header { font-size: 16px; font-weight: 800; color: #1a3978; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
@@ -40,6 +41,19 @@
     .history-table th:last-child, .history-table td:last-child { border-right: none; }
     .history-table tr:last-child td { border-bottom: none; }
     .history-note { text-align: left !important; white-space: pre-wrap; word-break: break-all; max-height: 80px; overflow-y: auto; display: block; line-height: 1.4; padding: 0 4px; }
+
+    /* 🔹 새로 추가된 선생님 요약(매트릭스) 팝업 CSS */
+    .matrix-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10002; justify-content: center; align-items: center; }
+    .matrix-box { background: white; width: 95%; max-width: 1200px; max-height: 85vh; border-radius: 8px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; box-sizing: border-box; }
+    .matrix-header { font-size: 18px; font-weight: 900; color: #1a3978; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1a3978; padding-bottom: 10px; }
+    .matrix-close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #888; }
+    .matrix-close-btn:hover { color: #333; }
+    .matrix-content { overflow-y: auto; flex: 1; }
+    .matrix-month-title { font-size: 16px; font-weight: 800; color: #495057; margin: 20px 0 10px 0; border-left: 4px solid #d32f2f; padding-left: 8px; }
+    .matrix-table-wrap { width: 100%; overflow-x: auto; background: white; border: 1px solid #eaeaea; }
+    .matrix-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12.5px; text-align: center; }
+    .matrix-table th { background-color: #f8f9fa; font-weight: bold; padding: 10px 5px; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; color: #333; position: sticky; top: 0; z-index: 2; }
+    .matrix-table td { padding: 8px 5px; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; vertical-align: middle; }
 
     .academy-header-bar { margin-top: 15px; background-color: #495057; color: #ffffff; padding: 10px 25px; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; justify-content: center; align-items: center; position: relative; }
     .academy-header-bar a { position: absolute; right: 25px; }
@@ -67,14 +81,13 @@
     .btn-search { padding: 0 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; background-color: #1366ce; color: white; transition: 0.2s; height: 38px; cursor: pointer; box-sizing: border-box; }
     .btn-search:hover { background-color: #0f52a8; }
     
-    /* 🔹 관리자 저장 버튼 높이 38px 고정 및 패딩 정리 */
-    .btn-save-admin { height: 38px; padding: 0 20px; box-sizing: border-box; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 14px; background-color: #d32f2f; color: white; margin-left: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transition: 0.2s; display: none; flex-direction: column; align-items: center; justify-content: center; }
+    .btn-save-admin { height: 38px; width: 190px; padding: 0; box-sizing: border-box; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 14px; background-color: #d32f2f; color: white; margin-left: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transition: 0.2s; display: none; flex-direction: column; align-items: center; justify-content: center; }
     .btn-save-admin:hover { background-color: #b71c1c; }
     
     .summary-banner { background: #fff; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; font-weight: bold; color: #333; border: 1px solid #dee2e6; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: none; flex-wrap: wrap; gap: 10px; }
     .summary-card { flex: 1 1 calc(50% - 10px); min-width: 340px; display: flex; align-items: center; background-color: #f8f9fa; border: 1px solid #e9ecef; padding: 6px 12px; border-radius: 6px; box-sizing: border-box; }
     .t-badge { background-color: #1a3978; color: white; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: bold; min-width: 50px; text-align: center; margin-right: 12px; }
-    .t-info { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: bold; flex-wrap: wrap; }
+    .t-info { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: bold; flex-wrap: wrap; flex: 1; }
     .t-alert { color: #dc3545; font-weight: 900; }
     
     .main-container { background-color: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); min-height: 500px; }
@@ -136,6 +149,16 @@
     </div>
   </div>
 
+  <div class="matrix-overlay" id="matrixOverlay" onclick="if(event.target === this) closeMatrixPopup();">
+    <div class="matrix-box">
+      <div class="matrix-header">
+        <span id="matrixTitle">선생님 학기 요약</span>
+        <button class="matrix-close-btn" onclick="closeMatrixPopup()">✕</button>
+      </div>
+      <div class="matrix-content" id="matrixContentArea"></div>
+    </div>
+  </div>
+
   <div class="academy-header-bar">
     <span id="mainTitleDisplay">체크리스트 - 관리자 대시보드</span>
     <a id="teacherLink" href="#" style="color:#ffffff; text-decoration:none; font-size:14px;" onclick="handleTeacherLinkClick(event)">⬅️ 선생님 모드로 돌아가기</a>
@@ -171,11 +194,12 @@
            관리자 확인 일괄 적용 <input type="checkbox" style="margin-left:8px;" onchange="toggleAllLeadChecks(this.checked)">
          </label>
       </div>
-      <button class="btn-save-admin" id="saveBtn" style="margin-left:15px;" onclick="saveAdminData()">
+      
+      <button class="btn-save-admin" id="saveBtn" onclick="saveAdminData()">
         <div style="display:flex; align-items:center; justify-content:center; line-height: 1; margin-top: 9px;">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>관리자 확인 저장
         </div>
-        <div style="font-size: 9px; font-weight: normal; color: rgba(255,255,255,0.75); letter-spacing: 0.5px; line-height: 1; margin-top: 3px;">Ctrl + S</div>
+        <div style="font-size: 9px; font-weight: normal; color: rgba(255,255,255,0.75); letter-spacing: 0.5px; line-height: 1; margin-top: 2px;">Ctrl + S</div>
       </button>
     </div>
 
@@ -202,6 +226,7 @@
             loadAdminWorkflow: function(dateStr, teacherName) { this._fetch('loadAdminWorkflow', {dateStr, teacherName}); },
             saveAdminChecks: function(updates) { this._fetch('saveAdminChecks', {updates}); },
             getStudentHistory: function(teacherName, className, studentName, dateStr) { this._fetch('getStudentHistory', {teacherName, className, studentName, dateStr}); },
+            getTeacherMatrixHistory: function(payload) { this._fetch('getTeacherMatrixHistory', payload); }, // 🔹 매트릭스 API 연결
             
             _fetch: async function(action, payload = {}) {
                 const campus = document.getElementById("campusSelect").value;
@@ -410,7 +435,7 @@
 
     function showLoading(status, msg) {
       const spinner = document.getElementById("globalSpinner");
-      if(status) { document.getElementById("spinnerText").textContent = msg || "로딩 중මැ입니다..."; spinner.style.display = "flex"; } 
+      if(status) { document.getElementById("spinnerText").textContent = msg || "로딩 중입니다..."; spinner.style.display = "flex"; } 
       else { spinner.style.display = "none"; }
     }
 
@@ -503,34 +528,49 @@
           
           if(res.length === 0) {
              document.getElementById("summaryBanner").style.display = "none";
-             content.innerHTML = '<div style="text-align:center; padding: 40px; color: red; font-weight: bold;">조회된 명단이 없습니다.</div>';
+             content.innerHTML = '<div style="text-align:center; padding: 40px; color: red; font-weight: bold;">해당 학기의 명단을 찾을 수 없습니다.</div>';
              document.getElementById("saveBtn").style.display = "none";
              document.getElementById("globalCheckLabel").style.display = "none";
              return;
           }
 
+          // 🔹 선생님 요약 배너 % 변환 및 3분할(제출/검토요망/해당없음) 렌더링 + 돋보기 아이콘
           let summaryHtml = res.map(g => {
-             if (g.summary.isMissingComplete) {
-                return `<div class="summary-card"><span class="t-badge">${g.teacher}</span> <span class="t-alert" style="margin-left:10px;">검토요망</span></div>`;
-             }
-             let s = g.summary;
-             let subjColor = s.subjectCount !== s.classCount ? 'color:#dc3545;' : 'color:#333;';
-             let sentColor = s.totalSent !== s.totalStudents ? 'color:#dc3545;' : 'color:#333;';
+             let badge = `<span class="t-badge">${g.teacher}</span>`;
+             let searchIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer; color:#555;" onclick="openTeacherMatrixPopup('${g.teacher}')" title="선생님 학기 요약 보기"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
              
-             let text = `<div class="summary-card"><span class="t-badge">${g.teacher}</span> <div class="t-info"><span>수업개요입력: <span style="${subjColor} font-weight:900;">${s.subjectCount}/${s.classCount}</span></span> <span style="color:#ccc;">|</span> <span>발송완료: <span style="${sentColor} font-weight:900;">${s.totalSent}/${s.totalStudents}</span></span>`;
+             let textContent = '';
              
-             if (s.missedClasses && s.missedClasses.length > 0) {
-                 text += ` <span style="color:#ccc;">|</span> <span class="t-alert">미제출: ${s.missedClasses.join(', ')}</span>`;
+             if (g.summary.isNoClass) {
+                 textContent = `<span style="color:#333; font-weight:bold;">해당 없음</span>`;
+             } else if (g.summary.isMissingComplete) {
+                 textContent = `<span class="t-alert">검토 요망</span>`;
+             } else {
+                 let s = g.summary;
+                 let subjPct = s.classCount > 0 ? Math.round((s.subjectCount / s.classCount) * 100) : 0;
+                 let sentPct = s.totalStudents > 0 ? Math.round((s.totalSent / s.totalStudents) * 100) : 0;
+                 let subjColor = subjPct < 100 ? 'color:#dc3545;' : 'color:#333;';
+                 let sentColor = sentPct < 100 ? 'color:#dc3545;' : 'color:#333;';
+                 
+                 textContent = `<span>수업개요입력: <span style="${subjColor} font-weight:900;">${subjPct}%</span></span> <span style="color:#ccc;">|</span> <span>발송완료: <span style="${sentColor} font-weight:900;">${sentPct}%</span></span>`;
+                 
+                 if (s.missedClasses && s.missedClasses.length > 0) {
+                     textContent += ` <span style="color:#ccc;">|</span> <span class="t-alert">미제출: ${s.missedClasses.join(', ')}</span>`;
+                 }
              }
-             text += `</div></div>`;
-             return text;
+             
+             return `<div class="summary-card" style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center;">${badge} <div class="t-info" style="margin-left:8px;">${textContent}</div></div>
+                        <div>${searchIcon}</div>
+                     </div>`;
           }).join('');
           
           document.getElementById("summaryBanner").style.display = "flex";
           document.getElementById("summaryBanner").innerHTML = summaryHtml;
 
           res.forEach(group => {
-             if (group.summary.isMissingComplete) return;
+             // 🔹 수업이 없거나(isNoClass), 전체 미제출(isMissingComplete)이면 아래 상세 표는 그리지 않음
+             if (group.summary.isNoClass || group.summary.isMissingComplete) return;
              
              let html = `<div class="teacher-group"><div class="teacher-header">📌 담임명: ${group.teacher}</div>`;
              
@@ -554,7 +594,8 @@
              content.innerHTML += html;
           });
           
-          let hasData = res.some(g => !g.summary.isMissingComplete);
+          // 상세 데이터가 하나라도 렌더링 되었는지 확인 (전체 선생님 중 하나라도 상세 표가 그려졌는지)
+          let hasData = res.some(g => !g.summary.isNoClass && !g.summary.isMissingComplete);
           if(hasData) {
              document.getElementById("saveBtn").style.display = "inline-flex";
              document.getElementById("globalCheckLabel").style.display = "flex";
@@ -611,6 +652,99 @@
       }).saveAdminChecks(adminUpdates);
     }
 
+    // 🔹 선생님 요약(매트릭스) 팝업 열기 함수
+    function openTeacherMatrixPopup(teacherName) {
+      const dateVal = document.getElementById("dateInput").value;
+      if (!dateVal) return;
+      
+      showLoading(true, "선생님의 학기 전체 기록을 정리 중입니다...");
+      
+      google.script.run
+        .withSuccessHandler(function(data) {
+          showLoading(false);
+          renderMatrixPopup(data);
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showCustomAlert("데이터를 불러오지 못했습니다.<br>(" + err.message + ")");
+        })
+        .getTeacherMatrixHistory({teacherName: teacherName, dateStr: dateVal});
+    }
+
+    // 🔹 선생님 요약(매트릭스) 팝업 렌더링 함수
+    function renderMatrixPopup(data) {
+        if (data.error) { showCustomAlert(data.error); return; }
+        
+        document.getElementById("matrixTitle").innerHTML = `<b>${data.teacherName}</b> 선생님 학기 요약`;
+        const contentArea = document.getElementById("matrixContentArea");
+        contentArea.innerHTML = "";
+        
+        if (!data.classes || data.classes.length === 0) {
+            contentArea.innerHTML = '<div style="padding: 40px; text-align:center; color:#888; font-weight:bold;">해당 학기에 배정된 수업이 없습니다.</div>';
+            document.getElementById("matrixOverlay").style.display = "flex";
+            return;
+        }
+        
+        let html = "";
+        data.months.forEach(monthObj => {
+            html += `<div class="matrix-month-title">${monthObj.month}</div>`;
+            html += `<div class="matrix-table-wrap">
+                        <table class="matrix-table">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" width="90px" style="min-width:90px; position:sticky; left:0; z-index:3;">날짜</th>`;
+            // 가로행 1단: 반명
+            data.classes.forEach(cName => {
+                html += `<th colspan="2" style="min-width:160px; font-size:12px;">${cName}</th>`;
+            });
+            html += `</tr><tr>`;
+            // 가로행 2단: 서브열
+            data.classes.forEach(cName => {
+                html += `<th style="font-size:11.5px;">수업개요</th><th style="font-size:11.5px;">발송완료</th>`;
+            });
+            html += `</tr></thead><tbody>`;
+            
+            // 세로행: 날짜 순회
+            monthObj.rows.forEach(row => {
+                let dateParts = row.date.split('-');
+                let dStr = `${dateParts[1]}/${dateParts[2]}`;
+                let dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+                // 요일 색상 지정 (일:빨강, 토:파랑)
+                let dayColor = row.dayNum === 0 ? "color:#d32f2f;" : (row.dayNum === 6 ? "color:#1366ce;" : "");
+                let dateDisplay = `<span style="${dayColor}">${dStr}(${dayNames[row.dayNum]})</span>`;
+                
+                // 기간 외 날짜 블라인드 처리 (회색 배경)
+                let bgStyle = row.isOutOfBounds ? 'background-color:#f4f5f7;' : '';
+                
+                html += `<tr style="${bgStyle}">
+                            <td style="font-weight:bold; position:sticky; left:0; background-color:${row.isOutOfBounds ? '#f4f5f7' : '#fff'}; z-index:1; border-right:1px solid #eaeaea;">${dateDisplay}</td>`;
+                            
+                data.classes.forEach(cName => {
+                    let cellData = row.classes[cName];
+                    if (!cellData.isActive) {
+                        html += `<td colspan="2" style="color:#ccc;">-</td>`;
+                    } else {
+                        // 100% 가 아니면 빨간색 강조 (재원생이 있을 때만 적용)
+                        let subjStyle = (!cellData.subjComplete && cellData.activeCount > 0) ? 'color:#dc3545; font-weight:bold;' : 'color:#333;';
+                        let sentStyle = (!cellData.sentComplete && cellData.activeCount > 0) ? 'color:#dc3545; font-weight:bold;' : 'color:#333;';
+                        html += `<td style="${subjStyle}">${cellData.subject}</td>
+                                 <td style="${sentStyle}">${cellData.sent}</td>`;
+                    }
+                });
+                html += `</tr>`;
+            });
+            
+            html += `</tbody></table></div>`;
+        });
+        
+        contentArea.innerHTML = html;
+        document.getElementById("matrixOverlay").style.display = "flex";
+    }
+
+    function closeMatrixPopup() {
+        document.getElementById("matrixOverlay").style.display = "none";
+    }
+
     function openHistoryPopup(teacher, className, studentName) {
       const dateVal = document.getElementById("dateInput").value;
       if (!dateVal) return;
@@ -663,10 +797,14 @@
       const modal = document.getElementById('customModalOverlay');
       
       if (e.key === 'Escape') {
+          // ESC 누를 때 떠있는 팝업 닫기 처리
+          const matrixOverlay = document.getElementById('matrixOverlay');
+          if (matrixOverlay && matrixOverlay.style.display === 'flex') {
+              closeMatrixPopup(); return;
+          }
           const historyOverlay = document.getElementById('historyOverlay');
           if (historyOverlay && historyOverlay.style.display === 'flex') {
-              closeHistoryPopup();
-              return;
+              closeHistoryPopup(); return;
           }
       }
 
