@@ -28,7 +28,6 @@
     .btn-no { background-color: #f1f3f5; color: #495057; } .btn-no:hover { background-color: #e2e6ea; }
     .btn-yes { background-color: #1366ce; color: white; } .btn-yes:hover { background-color: #0f52a8; }
 
-    /* 🔹 기록 팝업 전용 CSS (요청사항 반영: 외부 테두리 제거, 연한 내부선) */
     .history-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 10001; justify-content: center; align-items: center; }
     .history-box { background: white; width: 90%; max-width: 800px; max-height: 80vh; border-radius: 8px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
     .history-header { font-size: 16px; font-weight: 800; color: #1a3978; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
@@ -89,7 +88,6 @@
     th { background-color: #f8f9fa; font-weight: bold; color: #333; }
     
     .readonly-text { width: 100%; box-sizing: border-box; font-family: 'Pretendard', sans-serif; font-size: 13px; color: #333; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    
     .readonly-note { width: 100%; box-sizing: border-box; font-family: 'Pretendard', sans-serif; font-size: 13px; color: #333; text-align: left; padding: 0 4px; max-height: 40px; overflow-y: auto; overflow-x: hidden; display: block; line-height: 1.4; word-break: break-all; }
     
     input[type="checkbox"] { transform: scale(1.3); cursor: pointer; margin: 4px 2px; }
@@ -197,7 +195,6 @@
             getInitialData: function() { this._fetch('getInitialData'); },
             loadAdminWorkflow: function(dateStr, teacherName) { this._fetch('loadAdminWorkflow', {dateStr, teacherName}); },
             saveAdminChecks: function(updates) { this._fetch('saveAdminChecks', {updates}); },
-            // 🔹 기록 조회용 API 연결
             getStudentHistory: function(teacherName, className, studentName, dateStr) { this._fetch('getStudentHistory', {teacherName, className, studentName, dateStr}); },
             
             _fetch: async function(action, payload = {}) {
@@ -416,7 +413,6 @@
       return ["일", "월", "화", "수", "목", "금", "토"][d.getDay()];
     }
 
-    // 🔹 기록 모달에서 사용할 전용 날짜 포맷 함수
     function formatHistoryDate(dateStr) {
        if(!dateStr) return "-";
        let parts = dateStr.split('-');
@@ -526,10 +522,10 @@
                     let sendCheckHtml = `<input type="checkbox" ${r.sendCheck ? 'checked' : ''} disabled>`;
                     let noteHtml = r.sendCheck === false && r.note === "퇴원" ? `<div class="readonly-text" style="color:#dc3545; font-weight:bold;">퇴원</div>` : `<div class="readonly-note">${r.note || '-'}</div>`;
                     
-                    // 🔹 추가된 단색 심플 돋보기 SVG 아이콘 (Flex로 이름과 나란히 중앙 정렬)
-                    let searchIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer; vertical-align:middle; margin-left:5px; color:#555;" onclick="openHistoryPopup('${group.teacher}', '${clsName}', '${r.studentName}')" title="기록 보기"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
+                    // 🔹 관리자 앱도 이름 완벽 중앙 정렬 & 돋보기 우측 고정 배치로 수정 완료
+                    let searchIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer; color:#555;" onclick="openHistoryPopup('${group.teacher}', '${clsName}', '${r.studentName}')" title="기록 보기"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
                     
-                    html += `<tr><td style="background-color:#f8f9fa;">${String(idx + 1).padStart(2, '0')}</td><td><div class="readonly-text" style="display:flex; justify-content:center; align-items:center;"><b>${r.studentName}</b>${searchIcon}</div></td><td><div class="readonly-text">${r.school || '-'}</div></td><td><div class="readonly-text">${r.grade || '-'}</div></td><td><div class="readonly-note">${r.subject || '-'}</div></td><td><div class="readonly-text">${r.evalScore || '-'}</div></td><td><div class="readonly-text">${r.wrongScore || '-'}</div></td><td><div class="readonly-text">${r.dailyTest || '-'}</div></td><td><div class="readonly-text">${r.weeklyTest || '-'}</div></td><td>${noteHtml}</td><td>${sendCheckHtml}</td><td>${leadCheckHtml}</td></tr>`;
+                    html += `<tr><td style="background-color:#f8f9fa;">${String(idx + 1).padStart(2, '0')}</td><td style="padding-right:6px;"><div class="readonly-text" style="position:relative; display:flex; justify-content:center; align-items:center; width:100%; min-height:20px;"><b>${r.studentName}</b><div style="position:absolute; right:2px; display:flex;">${searchIcon}</div></div></td><td><div class="readonly-text">${r.school || '-'}</div></td><td><div class="readonly-text">${r.grade || '-'}</div></td><td><div class="readonly-note">${r.subject || '-'}</div></td><td><div class="readonly-text">${r.evalScore || '-'}</div></td><td><div class="readonly-text">${r.wrongScore || '-'}</div></td><td><div class="readonly-text">${r.dailyTest || '-'}</div></td><td><div class="readonly-text">${r.weeklyTest || '-'}</div></td><td>${noteHtml}</td><td>${sendCheckHtml}</td><td>${leadCheckHtml}</td></tr>`;
                  });
                  html += `</tbody></table>`;
              });
@@ -594,7 +590,6 @@
       }).saveAdminChecks(adminUpdates);
     }
 
-    // 🔹 추가된 학생 기록 호출 함수
     function openHistoryPopup(teacher, className, studentName) {
       const dateVal = document.getElementById("dateInput").value;
       if (!dateVal) return;
@@ -614,7 +609,6 @@
         .getStudentHistory(teacher, className, studentName, dateVal);
     }
 
-    // 🔹 추가된 팝업 내역 렌더링 함수
     function renderHistoryPopup(data) {
       const tbody = document.getElementById("historyTableBody");
       const emptyDiv = document.getElementById("historyEmpty");
@@ -640,7 +634,6 @@
       document.getElementById("historyOverlay").style.display = "flex";
     }
 
-    // 🔹 추가된 팝업 닫기 함수
     function closeHistoryPopup() {
       document.getElementById("historyOverlay").style.display = "none";
     }
@@ -648,7 +641,6 @@
     window.addEventListener('keydown', function(e) {
       const modal = document.getElementById('customModalOverlay');
       
-      // 🔹 ESC 키 누를 때 기록 팝업도 함께 닫히도록 추가
       if (e.key === 'Escape') {
           const historyOverlay = document.getElementById('historyOverlay');
           if (historyOverlay && historyOverlay.style.display === 'flex') {
