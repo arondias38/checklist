@@ -27,7 +27,6 @@
     .btn-no { background-color: #f1f3f5; color: #495057; } .btn-no:hover { background-color: #e2e6ea; }
     .btn-yes, .btn-ok { background-color: #1366ce; color: white; } .btn-yes:hover, .btn-ok:hover { background-color: #0f52a8; }
 
-    /* 🔹 학생 기록 모달 CSS */
     .history-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 10001; justify-content: center; align-items: center; }
     .history-box { background: white; width: 90%; max-width: 800px; max-height: 80vh; border-radius: 8px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
     .history-header { font-size: 16px; font-weight: 800; color: #1366ce; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
@@ -95,7 +94,6 @@
     .input-mini { width: 100%; padding: 4px; border: 1px solid #ccc; border-radius: 3px; text-align: center; box-sizing: border-box; font-family: 'Pretendard', sans-serif; font-weight: normal; color: #333; background-color: transparent;}
     .input-mini.empty-placeholder { color: #888888 !important; font-weight: normal; }
     
-    /* 🔹 깜빡임 없는 완벽한 자동 확장을 위한 특이사항 텍스트 CSS */
     .note-textarea { 
       width: 100%; padding: 4px 6px; border: 1px solid #ccc; border-radius: 3px; box-sizing: border-box; 
       font-family: 'Pretendard', sans-serif; 
@@ -152,7 +150,6 @@
     .card-header { font-size: 15px; font-weight: 800; color: #1366ce; margin: 0; }
     .copy-btn, .copy-all-btn { font-size: 13px; padding: 4px 10px; cursor: pointer; background-color: white; color: #1366ce; border: 1px solid #1366ce; border-radius: 50px; margin: 0; font-weight: bold; }
 
-    /* 🔹 에그 시작 */
     .left-panel, .main-container { position: relative; } 
     .easter-egg-zone { position: absolute; bottom: 0; left: 0; width: 25px; height: 25px; z-index: 50; cursor: default; }
     .egg-bubble { position: absolute; bottom: 35px; left: 15px; background-color: #1a3978; color: white; padding: 12px 18px; border-radius: 12px; font-size: 14px; font-weight: 900; box-shadow: 0 4px 10px rgba(0,0,0,0.2); opacity: 0; transform: translateY(10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; z-index: 1000; white-space: nowrap; }
@@ -179,9 +176,7 @@
       0% { margin-left: -100px; }
       100% { margin-left: 100px; } 
     }
-    /* 🔹 에그 마지막 */
 
-    /* 🔹 태블릿 세로 모드 및 모바일 대응 (1024px 이하) */
     @media screen and (max-width: 1024px) {
       .main-container { flex-direction: column; height: auto; min-height: auto; }
       .left-panel, .right-panel { flex: 0 0 100%; max-width: 100%; }
@@ -614,10 +609,19 @@
         } else { document.getElementById('dateInput').value = attemptVal; onDateInputChange(); }
     }
 
+    // 🔹 날짜 변경 시 누락되었던 [자동 조회] 로직 추가
     function onDateInputChange() {
       const val = document.getElementById("dateInput").value; const disp = document.getElementById("dateDisplayUI");
       if(val) { disp.textContent = formatDateWithDay(val); disp.classList.add("selected"); } 
       else { disp.textContent = "날짜를 선택하세요"; disp.classList.remove("selected"); }
+      
+      const teacher = document.getElementById("teacherSelect").value;
+      const className = document.getElementById("classSelect").value;
+      if (val && teacher && className) {
+         handleSearchClick(null); // 날짜, 반, 담임이 모두 있으면 즉시 조회 실행
+      } else {
+         resetPanels(); // 조건이 부족하면 기존 표를 리셋하여 데이터 혼선 방지
+      }
     }
 
     function handleSearchClick(e) {
@@ -736,7 +740,7 @@
         }
         let disabledAttr = (st.isDischarged || st.pendingDischarge) ? "disabled" : "";
 
-        // 🔹 발송완료 체크박스에 클래스(send-checkbox) 추가하여 렌더링 깜빡임 방지용으로 사용
+        // 🔹 일괄 체크 시 깜빡임 방지를 위해 send-checkbox 클래스 추가 유지
         row.innerHTML = `<td style="background-color:#f8f9fa;">${noColumn}</td><td style="white-space:nowrap; padding-right:6px;">${nameHtml}</td><td style="white-space:nowrap;">${schoolHtml}</td><td>${gradeHtml}</td><td>${s1}</td><td>${s2}</td><td>${s3}</td><td>${s4}</td><td>${noteInputHtml}</td><td><input type="checkbox" class="send-checkbox" ${st.sendCheck ? 'checked' : ''} onchange="updateData(${idx}, 'sendCheck', this.checked)" ${disabledAttr} tabindex="-1"></td><td><input type="checkbox" class="lead-checkbox" ${st.leadCheck ? 'checked' : ''} disabled title="관리자 전용" tabindex="-1"></td>`;
         tbody.appendChild(row);
       });
@@ -801,7 +805,7 @@
 
     function updateData(idx, field, val) { studentList[idx][field] = val; isDirty = true; updateMasterCheckboxState(); updatePreview(); } 
     
-    // 🔹 일괄 체크 시 표 전체를 다시 그려서 발생하는 깜빡임 버그 원천 차단
+    // 🔹 일괄 체크 시 표 전체를 다시 그려서 깜빡이는 현상을 방지하는 최적화 로직
     function toggleMaster(field, isChecked) { 
       if (studentList.length === 0) return; 
       studentList.forEach(st => { 
@@ -809,7 +813,7 @@
       }); 
       isDirty = true; 
       
-      // 표를 다시 그리는 renderTable() 삭제, DOM의 체크박스 상태만 스마트하게 직접 변경!
+      // 표 전체를 부수고 다시 그리는 renderTable() 대신, 체크박스 껍데기만 쏙쏙 변경합니다!
       if (field === 'sendCheck') {
         document.querySelectorAll('.send-checkbox:not(:disabled)').forEach(cb => cb.checked = isChecked);
       }
