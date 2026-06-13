@@ -95,19 +95,18 @@
     .input-mini { width: 100%; padding: 4px; border: 1px solid #ccc; border-radius: 3px; text-align: center; box-sizing: border-box; font-family: 'Pretendard', sans-serif; font-weight: normal; color: #333; background-color: transparent;}
     .input-mini.empty-placeholder { color: #888888 !important; font-weight: normal; }
     
-    /* 🔹 자동 확장 기능이 추가된 특이사항 텍스트 영역 */
+    /* 🔹 깜빡임 없는 완벽한 자동 확장을 위한 특이사항 텍스트 CSS */
     .note-textarea { 
       width: 100%; padding: 4px 6px; border: 1px solid #ccc; border-radius: 3px; box-sizing: border-box; 
       font-family: 'Pretendard', sans-serif; 
-      resize: none; /* 직접 드래그 확장 방지 */
+      resize: none; 
       height: 28px; 
       min-height: 28px; 
-      max-height: 48px; /* 2줄까지만 시각적 확장 허용 */
+      /* max-height와 transition을 제거하여 높이 계산 충돌 및 깜빡임 원천 차단 */
       line-height: 1.35; 
-      overflow-y: auto; 
+      overflow-y: hidden; /* 기본적으로 스크롤바를 숨겨서 측정 시 번쩍임 방지 */
       vertical-align: middle; 
       display: block; background-color: transparent; 
-      transition: height 0.1s ease; /* 스르륵 부드럽게 확장 */
     }
     .note-textarea:disabled { background-color: #dc3545; color: white; font-weight: bold; text-align: center; resize: none; }
 
@@ -679,10 +678,26 @@
       const btn = document.getElementById("deleteModeBtn"); if (isDeleteMode) btn.classList.add("active"); else btn.classList.remove("active"); renderTable(); attachKeyboardNavigationListeners();
     }
 
-    // 🔹 특이사항 텍스트 영역 자동 높이 조절 함수
+    // 🔹 깜빡임 없는 완벽한 특이사항 텍스트 영역 자동 높이 조절 함수
     function autoResize(el) {
+      // 1. 측정 중 스크롤바가 순간적으로 생기는 깜빡임 원천 차단
+      el.style.overflowY = 'hidden'; 
+      // 2. 정확한 내용물 높이 측정을 위해 1줄 크기(28px)로 초기화
       el.style.height = '28px'; 
-      el.style.height = (el.scrollHeight + 2) + 'px';
+      
+      let sHeight = el.scrollHeight;
+
+      if (sHeight <= 32) { 
+        // 1줄 분량: 높이 증가 없이 완벽 고정
+        el.style.height = '28px';
+      } else if (sHeight <= 52) { 
+        // 2줄 분량: 텍스트 높이 + 테두리(2px)만큼만 정확히 확장
+        el.style.height = (sHeight + 2) + 'px';
+      } else { 
+        // 3줄 이상: 48px로 고정하고 내부 스크롤바 허용
+        el.style.height = '48px';
+        el.style.overflowY = 'auto';
+      }
     }
 
     function renderTable() {
@@ -719,7 +734,6 @@
         let s3 = `<input type="text" class="input-mini grid-nav" data-row="${idx}" data-col="5" value="${st.dailyTest}" oninput="updateData(${idx}, 'dailyTest', this.value)">`;
         let s4 = `<input type="text" class="input-mini grid-nav" data-row="${idx}" data-col="6" value="${st.weeklyTest}" oninput="updateData(${idx}, 'weeklyTest', this.value)">`;
         
-        // 🔹 autoResize 함수가 입력될 때마다 호출되도록 연결
         let noteInputHtml = `<textarea class="note-textarea grid-nav" data-row="${idx}" data-col="7" oninput="updateData(${idx}, 'note', this.value); autoResize(this)">${st.note}</textarea>`;
 
         if (st.isDischarged || st.pendingDischarge) {
@@ -734,7 +748,6 @@
       });
       updateMasterCheckboxState();
       
-      // 🔹 표 렌더링 직후, 이미 길게 입력된 내용들에 맞춰 한 번씩 자동 크기 조절 실행
       setTimeout(() => {
         document.querySelectorAll('.note-textarea:not(:disabled)').forEach(el => autoResize(el));
       }, 0);
