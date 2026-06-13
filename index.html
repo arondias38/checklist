@@ -125,7 +125,6 @@
     .btn-text-wrap { opacity: 0; transition: opacity 0.1s ease-in; }
     .btn-roster-add-main:hover .btn-text-wrap, .btn-roster-delete-main:hover .btn-text-wrap, .btn-roster-delete-main.active .btn-text-wrap { opacity: 1; transition-delay: 0.05s; }
 
-    /* 🔹 저장 버튼 CSS 2단 구조에 맞게 높이, 정렬 조절 완료 */
     .btn-save-master { padding: 6px 0; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; background-color: #1366ce; color: white; width: 180px; text-align: center; box-sizing: border-box; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; }
     .btn-save-master:hover { background-color: #0f52a8; }
 
@@ -297,6 +296,7 @@
                   <th colspan="2" width="12%">과제완성도</th>
                   <th rowspan="2" width="6%">일일<br>TEST</th>
                   <th rowspan="2" width="6%">주간<br>TEST</th>
+                  <!-- 🔹 수정된 헤더 디테일 반영 -->
                   <th rowspan="2" width="39%">학생별 특이사항 / 보강계획<br><span style="color:#888; font-size:11px; font-weight:normal;">( 줄바꿈: Shift + Enter )</span></th>
                   <th rowspan="2" width="6.5%">발송완료<br><input type="checkbox" class="master-checkbox" id="masterSend" onchange="toggleMaster('sendCheck', this.checked)" tabindex="-1"></th>
                   <th rowspan="2" width="6.5%">관리자 확인<br><input type="checkbox" class="master-checkbox" id="masterLead" disabled title="관리자 전용" tabindex="-1"></th>
@@ -623,9 +623,9 @@
       const teacher = document.getElementById("teacherSelect").value;
       const className = document.getElementById("classSelect").value;
       if (val && teacher && className) {
-         handleSearchClick(null); 
+         handleSearchClick(null);
       } else {
-         resetPanels(); 
+         resetPanels();
       }
     }
 
@@ -755,7 +755,6 @@
       }, 0);
     }
 
-    // 🔹 완벽한 엑셀(Excel) 스타일의 똑똑한 방향키 이동 로직!
     function attachKeyboardNavigationListeners() {
        const inputs = document.querySelectorAll('.grid-nav');
        inputs.forEach(input => {
@@ -777,19 +776,16 @@
                 }
              }
              else if (e.key === "ArrowUp") { 
-                // 일반 인풋이거나, 특이사항칸에서 커서가 맨 앞일 때만 위 칸으로 이동
                 if (this.tagName === "INPUT" || this.selectionStart === 0) {
                     nextInput = document.querySelector(`.grid-nav[data-row="${curRow - 1}"][data-col="${curCol}"]`); 
                 }
              } 
              else if (e.key === "ArrowDown") { 
-                // 일반 인풋이거나, 특이사항칸에서 커서가 맨 뒤일 때만 아래 칸으로 이동
                 if (this.tagName === "INPUT" || this.selectionEnd === this.value.length) {
                     nextInput = document.querySelector(`.grid-nav[data-row="${curRow + 1}"][data-col="${curCol}"]`); 
                 }
              } 
              else if (e.key === "ArrowLeft") {
-                // 커서가 맨 앞에 도달했을 때만 왼쪽 칸으로 이동
                 if (this.selectionStart === 0) { 
                    let tempCol = curCol - 1;
                    while(tempCol >= 0) {
@@ -797,14 +793,12 @@
                        if (nextInput) break;
                        tempCol--;
                    }
-                   // 만약 이번 줄에 왼쪽 칸이 더 없으면 이전 줄 맨 끝(특이사항)으로 감
                    if (!nextInput && curRow > 0) {
                        nextInput = document.querySelector(`.grid-nav[data-row="${curRow - 1}"][data-col="7"]`);
                    }
                 }
              } 
              else if (e.key === "ArrowRight") {
-                // 커서가 맨 뒤에 도달했을 때만 오른쪽 칸으로 이동
                 if (this.selectionEnd === this.value.length) { 
                    let tempCol = curCol + 1;
                    while(tempCol <= 7) {
@@ -812,7 +806,6 @@
                        if (nextInput) break;
                        tempCol++;
                    }
-                   // 만약 이번 줄 끝(특이사항)에서 오른쪽을 누르면 쿨하게 다음 줄 처음으로 넘어감!
                    if (!nextInput) {
                        let targetRow = curRow + 1; 
                        let targetCol = document.querySelector(`.grid-nav[data-row="${targetRow}"][data-col="0"]`) ? 0 : 3;
