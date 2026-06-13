@@ -67,7 +67,8 @@
     .btn-search { padding: 0 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; background-color: #1366ce; color: white; transition: 0.2s; height: 38px; cursor: pointer; box-sizing: border-box; }
     .btn-search:hover { background-color: #0f52a8; }
     
-    .btn-save-admin { padding: 0 20px; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 14px; background-color: #d32f2f; color: white; height: 38px; margin-left: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transition: 0.2s; display: none; align-items: center; justify-content: center; }
+    /* 🔹 관리자 저장 버튼 CSS 2단 구조 조절 완료 */
+    .btn-save-admin { padding: 6px 20px; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 14px; background-color: #d32f2f; color: white; margin-left: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transition: 0.2s; display: none; flex-direction: column; align-items: center; justify-content: center; }
     .btn-save-admin:hover { background-color: #b71c1c; }
     
     .summary-banner { background: #fff; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; font-weight: bold; color: #333; border: 1px solid #dee2e6; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: none; flex-wrap: wrap; gap: 10px; }
@@ -170,7 +171,12 @@
            관리자 확인 일괄 적용 <input type="checkbox" style="margin-left:8px;" onchange="toggleAllLeadChecks(this.checked)">
          </label>
       </div>
-      <button class="btn-save-admin" id="saveBtn" style="margin-left:15px;" onclick="saveAdminData()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> 관리자 확인 저장</button>
+      <button class="btn-save-admin" id="saveBtn" style="margin-left:15px;" onclick="saveAdminData()">
+        <div style="display:flex; align-items:center; justify-content:center;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>관리자 확인 저장
+        </div>
+        <div style="font-size:11px; font-weight:normal; color:rgba(255,255,255,0.75); margin-top:2px; letter-spacing:0.5px;">Ctrl + S</div>
+      </button>
     </div>
 
     <div class="summary-banner" id="summaryBanner"></div>
@@ -433,7 +439,6 @@
         } else { document.getElementById('dateInput').value = attemptVal; onDateInputChange(); }
     }
 
-    // 🔹 관리자 앱 누락되었던 날짜 변경 시 자동 조회 로직 추가
     function onDateInputChange() {
       if(checkLockdown()) return;
       const val = document.getElementById("dateInput").value; const disp = document.getElementById("dateDisplayUI");
@@ -461,7 +466,6 @@
         }
     }
 
-    // 🔹 관리자 앱 누락되었던 담임 변경 시 자동 조회 로직 추가
     function onTeacherChangeAdminAutoTrigger() {
         const dateVal = document.getElementById("dateInput").value;
         if(dateVal) {
