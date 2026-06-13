@@ -41,16 +41,15 @@
     .history-table tr:last-child td { border-bottom: none; }
     .history-note { text-align: left !important; white-space: pre-wrap; word-break: break-all; max-height: 80px; overflow-y: auto; display: block; line-height: 1.4; padding: 0 4px; }
 
-    /* 🔹 선생님 요약(매트릭스) 팝업: 가로 스크롤 방지를 위해 max-width를 1500px로 넓힘 */
+    /* 🔹 팝업 창 너비를 학생 팝업(800px) 대비 약 135% 수준인 1100px로 축소 */
     .matrix-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10002; justify-content: center; align-items: center; }
-    .matrix-box { background: white; width: 95%; max-width: 1500px; max-height: 85vh; border-radius: 8px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; box-sizing: border-box; }
+    .matrix-box { background: white; width: 95%; max-width: 1100px; max-height: 85vh; border-radius: 8px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; box-sizing: border-box; }
     .matrix-header { font-size: 18px; font-weight: 900; color: #1a3978; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1a3978; padding-bottom: 10px; }
     .matrix-close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #888; }
     .matrix-close-btn:hover { color: #333; }
     .matrix-content { overflow-y: auto; flex: 1; }
     .matrix-month-title { font-size: 16px; font-weight: 800; color: #495057; margin: 20px 0 10px 0; border-left: 4px solid #d32f2f; padding-left: 8px; }
     
-    /* 🔹 팝업 표 디자인 (불필요한 맨 밑줄 삭제 및 정교화) */
     .matrix-table-wrap { width: 100%; overflow-x: auto; background: white; border: 1px solid #eaeaea; border-radius: 4px; margin-bottom: 15px; }
     .matrix-table { width: 100%; border-collapse: collapse; font-size: 12.5px; text-align: center; margin: 0; }
     .matrix-table th { background-color: #f8f9fa; font-weight: bold; padding: 10px 5px; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; color: #333; position: sticky; top: 0; z-index: 2; }
@@ -87,13 +86,18 @@
     .btn-save-admin { height: 38px; width: 190px; padding: 0; box-sizing: border-box; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 14px; background-color: #d32f2f; color: white; margin-left: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transition: 0.2s; display: none; flex-direction: column; align-items: center; justify-content: center; }
     .btn-save-admin:hover { background-color: #b71c1c; }
     
-    /* 🔹 홀수 뭉침 방지를 위해 summary-card 의 너비 단단히 고정 (flex-grow 제거) */
     .summary-banner { background: #fff; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; font-weight: bold; color: #333; border: 1px solid #dee2e6; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: none; flex-wrap: wrap; gap: 10px; }
     .summary-card { flex: 0 0 calc(50% - 5px); width: calc(50% - 5px); min-width: 340px; display: flex; align-items: center; background-color: #f8f9fa; border: 1px solid #e9ecef; padding: 6px 12px; border-radius: 6px; box-sizing: border-box; }
     
-    /* 🔹 돋보기가 쏙 들어간 깔끔한 선생님 이름 배지 디자인 */
-    .t-badge { background-color: #1a3978; color: white; padding: 5px 10px; border-radius: 4px; font-size: 13px; font-weight: bold; width: 100px; min-width: 100px; display: flex; justify-content: space-between; align-items: center; margin-right: 12px; box-sizing: border-box; cursor: pointer; flex-shrink: 0; transition: 0.2s; }
+    /* 🔹 이름은 완벽한 중앙, 돋보기는 우측 끝에 배치되도록 배지 디자인 전면 개편 */
+    .t-badge { 
+        background-color: #1a3978; color: white; border-radius: 4px; font-size: 13px; font-weight: bold; 
+        width: 120px; min-width: 120px; height: 26px; /* 길이 늘리고 고정 */
+        display: flex; justify-content: center; align-items: center; position: relative; /* 돋보기 Absolute를 위해 Relative 줌 */
+        margin-right: 12px; box-sizing: border-box; cursor: pointer; flex-shrink: 0; transition: 0.2s; 
+    }
     .t-badge:hover { background-color: #11285e; }
+    
     .t-info { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: bold; flex-wrap: wrap; flex: 1; }
     .t-alert { color: #dc3545; font-weight: 900; }
     
@@ -156,7 +160,6 @@
     </div>
   </div>
 
-  <!-- 새로 추가된 선생님 요약(매트릭스) 팝업 -->
   <div class="matrix-overlay" id="matrixOverlay" onclick="if(event.target === this) closeMatrixPopup();">
     <div class="matrix-box">
       <div class="matrix-header">
@@ -234,7 +237,7 @@
             loadAdminWorkflow: function(dateStr, teacherName) { this._fetch('loadAdminWorkflow', {dateStr, teacherName}); },
             saveAdminChecks: function(updates) { this._fetch('saveAdminChecks', {updates}); },
             getStudentHistory: function(teacherName, className, studentName, dateStr) { this._fetch('getStudentHistory', {teacherName, className, studentName, dateStr}); },
-            getTeacherMatrixHistory: function(payload) { this._fetch('getTeacherMatrixHistory', payload); }, 
+            getTeacherMatrixHistory: function(payload) { this._fetch('getTeacherMatrixHistory', payload); },
             
             _fetch: async function(action, payload = {}) {
                 const campus = document.getElementById("campusSelect").value;
@@ -542,12 +545,12 @@
              return;
           }
 
-          // 🔹 돋보기가 포함된 새로운 디자인의 t-badge 렌더링
+          // 🔹 돋보기가 쏙 들어간 완벽한 중앙 정렬 배지 렌더링
           let summaryHtml = res.map(g => {
              let searchIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:white;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
              let badge = `<div class="t-badge" onclick="openTeacherMatrixPopup('${g.teacher}')" title="${g.teacher} 선생님 학기 요약 보기">
                              <span>${g.teacher}</span>
-                             <span style="display:flex; align-items:center;">${searchIcon}</span>
+                             <div style="position:absolute; right:8px; display:flex; align-items:center;">${searchIcon}</div>
                           </div>`;
              
              let textContent = '';
@@ -660,7 +663,6 @@
       }).saveAdminChecks(adminUpdates);
     }
 
-    // 🔹 선생님 요약(매트릭스) 팝업 열기 함수
     function openTeacherMatrixPopup(teacherName) {
       const dateVal = document.getElementById("dateInput").value;
       if (!dateVal) return;
@@ -679,7 +681,7 @@
         .getTeacherMatrixHistory({teacherName: teacherName, dateStr: dateVal});
     }
 
-    // 🔹 선생님 요약(매트릭스) 팝업 렌더링 함수
+    // 🔹 가로 스크롤 완전 해결을 위한 팝업 표 렌더링 로직 수정 (min-width 삭제, nowrap 적용)
     function renderMatrixPopup(data) {
         if (data.error) { showCustomAlert(data.error); return; }
         
@@ -700,15 +702,15 @@
                         <table class="matrix-table">
                             <thead>
                                 <tr>
-                                    <th rowspan="2" width="90px" style="min-width:90px; position:sticky; left:0; z-index:3;">날짜</th>`;
-            // 가로행 1단: 반명
+                                    <th rowspan="2" width="80px" style="min-width:80px; position:sticky; left:0; z-index:3;">날짜</th>`;
+            // 가로행 1단: 반명 (너비 강제 제한을 풀고 글자에 맞춰 부드럽게 조정)
             data.classes.forEach(cName => {
-                html += `<th colspan="2" style="min-width:160px; font-size:12px;">${cName}</th>`;
+                html += `<th colspan="2" style="font-size:12px; white-space:nowrap; padding:10px 5px;">${cName}</th>`;
             });
             html += `</tr><tr>`;
             // 가로행 2단: 서브열
             data.classes.forEach(cName => {
-                html += `<th style="font-size:11.5px;">수업개요</th><th style="font-size:11.5px;">발송완료</th>`;
+                html += `<th style="font-size:11.5px; white-space:nowrap; padding:6px 4px;">수업개요</th><th style="font-size:11.5px; white-space:nowrap; padding:6px 4px;">발송완료</th>`;
             });
             html += `</tr></thead><tbody>`;
             
@@ -718,27 +720,23 @@
                 let dStr = `${dateParts[1]}/${dateParts[2]}`;
                 let dayNames = ["일", "월", "화", "수", "목", "금", "토"];
                 
-                // 🔹 토요일 파란색, 일요일 빨간색 처리
                 let dayColor = row.dayNum === 0 ? "color:#dc3545;" : (row.dayNum === 6 ? "color:#1366ce;" : "color:#333;");
                 let dateDisplay = `<span style="${dayColor}">${dStr}(${dayNames[row.dayNum]})</span>`;
                 
-                // 🔹 기간 외 날짜 블라인드 (회색 배경)
                 let bgStyle = row.isOutOfBounds ? 'background-color:#f4f5f7;' : '';
                 
                 html += `<tr style="${bgStyle}">
-                            <td style="font-weight:bold; position:sticky; left:0; background-color:${row.isOutOfBounds ? '#f4f5f7' : '#fff'}; z-index:1; border-right:1px solid #eaeaea;">${dateDisplay}</td>`;
+                            <td style="font-weight:bold; position:sticky; left:0; background-color:${row.isOutOfBounds ? '#f4f5f7' : '#fff'}; z-index:1; border-right:1px solid #eaeaea; white-space:nowrap;">${dateDisplay}</td>`;
                             
                 data.classes.forEach(cName => {
                     let cellData = row.classes[cName];
                     if (!cellData.isActive) {
-                        // 🔹 수업이 없는 날짜에도 세로 라인(칸 분할)을 동일하게 유지
                         html += `<td style="color:#ccc;">-</td><td style="color:#ccc;">-</td>`;
                     } else {
-                        // 100% 가 아니면 빨간색 강조
                         let subjStyle = (!cellData.subjComplete && cellData.activeCount > 0) ? 'color:#dc3545; font-weight:bold;' : 'color:#333;';
                         let sentStyle = (!cellData.sentComplete && cellData.activeCount > 0) ? 'color:#dc3545; font-weight:bold;' : 'color:#333;';
-                        html += `<td style="${subjStyle}">${cellData.subject}</td>
-                                 <td style="${sentStyle}">${cellData.sent}</td>`;
+                        html += `<td style="${subjStyle}; white-space:nowrap;">${cellData.subject}</td>
+                                 <td style="${sentStyle}; white-space:nowrap;">${cellData.sent}</td>`;
                     }
                 });
                 html += `</tr>`;
