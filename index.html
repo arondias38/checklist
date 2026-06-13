@@ -95,16 +95,15 @@
     .input-mini { width: 100%; padding: 4px; border: 1px solid #ccc; border-radius: 3px; text-align: center; box-sizing: border-box; font-family: 'Pretendard', sans-serif; font-weight: normal; color: #333; background-color: transparent;}
     .input-mini.empty-placeholder { color: #888888 !important; font-weight: normal; }
     
-    /* 🔹 깜빡임 없는 완벽한 자동 확장을 위한 특이사항 텍스트 CSS */
+    /* 🔹 미세한 꿀렁임과 깜빡임 원천 차단 */
     .note-textarea { 
       width: 100%; padding: 4px 6px; border: 1px solid #ccc; border-radius: 3px; box-sizing: border-box; 
       font-family: 'Pretendard', sans-serif; 
       resize: none; 
       height: 28px; 
       min-height: 28px; 
-      /* max-height와 transition을 제거하여 높이 계산 충돌 및 깜빡임 원천 차단 */
       line-height: 1.35; 
-      overflow-y: hidden; /* 기본적으로 스크롤바를 숨겨서 측정 시 번쩍임 방지 */
+      overflow-y: hidden; 
       vertical-align: middle; 
       display: block; background-color: transparent; 
     }
@@ -206,6 +205,7 @@
     </div>
   </div>
 
+  <!-- 🔹 학생 기록 모달 팝업 -->
   <div class="history-overlay" id="historyOverlay" onclick="if(event.target === this) closeHistoryPopup();">
     <div class="history-box">
       <div class="history-header">
@@ -678,25 +678,23 @@
       const btn = document.getElementById("deleteModeBtn"); if (isDeleteMode) btn.classList.add("active"); else btn.classList.remove("active"); renderTable(); attachKeyboardNavigationListeners();
     }
 
-    // 🔹 깜빡임 없는 완벽한 특이사항 텍스트 영역 자동 높이 조절 함수
+    // 🔹 2줄/3줄 높이를 완벽하게 고정하여 행이 늘어나거나 스크롤이 깜빡이는 현상 완전 차단
     function autoResize(el) {
-      // 1. 측정 중 스크롤바가 순간적으로 생기는 깜빡임 원천 차단
       el.style.overflowY = 'hidden'; 
-      // 2. 정확한 내용물 높이 측정을 위해 1줄 크기(28px)로 초기화
       el.style.height = '28px'; 
       
       let sHeight = el.scrollHeight;
 
       if (sHeight <= 32) { 
-        // 1줄 분량: 높이 증가 없이 완벽 고정
+        // 1줄 분량
         el.style.height = '28px';
-      } else if (sHeight <= 52) { 
-        // 2줄 분량: 텍스트 높이 + 테두리(2px)만큼만 정확히 확장
-        el.style.height = (sHeight + 2) + 'px';
       } else { 
-        // 3줄 이상: 48px로 고정하고 내부 스크롤바 허용
-        el.style.height = '48px';
-        el.style.overflowY = 'auto';
+        // 2줄 이상 분량: 높이를 46px로 완벽히 동일하게 고정
+        el.style.height = '46px';
+        if (sHeight > 52) {
+          // 3줄 이상부터만 스크롤바 허용 (높이는 46px로 유지되므로 표의 행이 더 이상 늘어나지 않음)
+          el.style.overflowY = 'auto';
+        }
       }
     }
 
