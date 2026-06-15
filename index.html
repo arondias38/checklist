@@ -486,7 +486,7 @@
             showLoading(false);
             globalAcademyName = data.academyName; 
             globalAdminCode = data.adminCode; 
-            document.getElementById("mainTitleDisplay").textContent = globalAcademyName + "-체크리스트";
+            document.getElementById("mainTitleDisplay").textContent = globalAcademyName + " - 체크리스트";
             
             const select = document.getElementById("teacherSelect");
             data.teachers.forEach(t => { let opt = document.createElement("option"); opt.value = t; opt.textContent = t; select.appendChild(opt); });
