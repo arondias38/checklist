@@ -3,7 +3,7 @@
 <head>
   <base target="_top">
   <meta charset="UTF-8">
-  <title>체크리스트 선생님 모드</title>
+  <title>체크리스트 window.loadedState = null; 선생님 모드</title>
   <link rel="icon" href="https://i.imgur.com/tFbBVcO.png">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <style>
@@ -142,6 +142,10 @@
     .copy-panel-title { text-align: center; font-weight: 800; font-size: 16px; color: #1366ce; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #e6f0ff; letter-spacing: 0.5px; }
     .note-container { margin-bottom: 8px; font-size: 14px; color: #333; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
     textarea#customNote { width: 100%; height: 75px; margin-bottom: 12px; font-family: 'Pretendard', sans-serif; font-size: 14px; padding: 6px; border: 1px solid #bbb; border-radius: 4px; resize: vertical; outline: none; box-sizing: border-box;}
+    
+    /* 🔹 1번 피드백: 복사 박스 예시 문구의 폰트 색상과 굵기를 좌측과 완벽히 일치시킴 */
+    textarea#customNote::placeholder { color: #b0b0b0; font-weight: normal; font-size: 14px; }
+    
     .copy-all-container { text-align: right; margin: 0px 0px 10px 0; }
     
     .preview-area { flex: 1; overflow-y: auto; padding-right: 5px; }
@@ -341,7 +345,6 @@
   </div>
 
   <script>
-    // 🔹 팝업 롤백을 위한 기준점 메모리 세팅
     window.loadedState = null;
 
     const CAMPUS_URLS = {
@@ -543,11 +546,6 @@
        return `${parts[0]}.${parts[1]}.${parts[2]}(${day})`;
     }
 
-    function insertDefaultNote() {
-      const teacher = document.getElementById("teacherSelect").value || "OOO";
-      document.getElementById("customNote").value = `안녕하세요.\n${globalAcademyName} 담임 ${teacher} 입니다.\n수업에 대한 체크리스트를 안내드리오니 참고해 주시면 감사드리겠습니다.`; updatePreview();
-    }
-
     function handleTeacherChange(el) {
         let attemptVal = el.value;
         let prevVal = el.dataset.prev || "";
@@ -653,12 +651,10 @@
       if (isM && ![1, 3, 5].includes(dayNum)) dayValid = false; if (isTS && ![2, 4, 6].includes(dayNum)) dayValid = false; if (isT && ![2, 4].includes(dayNum)) dayValid = false; if (isS && ![6].includes(dayNum)) dayValid = false;
       
       if (!dayValid) { 
-        // 🔹 원장님 피드백 반영: '아니오(취소/ESC)' 시 UI 완벽 롤백 콜백 추가
         showCustomConfirm("선택하신 반의 수업 요일이 아닙니다. 입력하신 날짜로 계속 진행할까요?", 
           function() { executeWorkflowLoad(teacher, className, dateVal); },
           function() {
             if (window.loadedState) {
-                // 이전에 조회 성공했던 상태로 셀렉트박스와 텍스트를 모두 동기화 복구
                 const cSel = document.getElementById("classSelect");
                 cSel.value = window.loadedState.className;
                 cSel.dataset.prev = window.loadedState.className;
@@ -671,7 +667,6 @@
                 disp.textContent = formatDateWithDay(window.loadedState.dateVal);
                 disp.classList.add("selected");
             } else {
-                // 화면에 띄워진 명단이 전혀 없을 때는 날짜를 빈칸으로 초기화
                 const dInput = document.getElementById("dateInput");
                 dInput.value = ""; dInput.dataset.prev = "";
                 const disp = document.getElementById("dateDisplayUI");
@@ -690,7 +685,6 @@
         showLoading(false); 
         isDirty = false; 
         
-        // 🔹 로드 성공 시 현재 화면 상태를 메모리에 고정 (롤백용)
         window.loadedState = { teacher: teacher, className: className, dateVal: dateVal };
         
         currentSubject = data.subject || ""; document.getElementById("subjectInput").value = currentSubject; studentList = data.students; isDeleteMode = false; document.getElementById("deleteModeBtn").classList.remove("active");
@@ -700,7 +694,7 @@
     }
 
     function resetPanels() {
-      window.loadedState = null; // 패널이 리셋되면 롤백 메모리도 초기화
+      window.loadedState = null; 
       document.getElementById("leftEmpty").style.display = "flex"; document.getElementById("leftEmpty").innerHTML = "상단의 선택 항목들을 모두 선택해 주세요.";
       document.getElementById("rightEmpty").style.display = "flex"; document.getElementById("rightEmpty").innerHTML = "명단 조회 후 표시 됩니다.";
       document.getElementById("attendanceContent").style.display = "none"; document.getElementById("copyContent").style.display = "none"; document.getElementById("metaDashboard").style.display = "none";
@@ -758,8 +752,9 @@
 
         let searchIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer; color:#555;" onclick="openHistoryPopup('${st.name}')" title="기록 보기"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
         
+        // 🔹 2번 피드백: st.isNew 조건일 때 인라인 style에서 font-weight:bold; 과감히 제거하여 통일함
         let nameHtml = st.isNew ? 
-            `<input type="text" class="input-mini empty-placeholder grid-nav" data-row="${idx}" data-col="0" style="width:100%; font-weight:bold;" placeholder="학생명" value="${st.name}" oninput="updateData(${idx}, 'name', this.value); this.classList.remove('empty-placeholder');">` : 
+            `<input type="text" class="input-mini empty-placeholder grid-nav" data-row="${idx}" data-col="0" style="width:100%;" placeholder="학생명" value="${st.name}" oninput="updateData(${idx}, 'name', this.value); this.classList.remove('empty-placeholder');">` : 
             `<div style="position:relative; display:flex; justify-content:center; align-items:center; width:100%; min-height:22px;"><b>${st.name}</b><div style="position:absolute; right:2px; display:flex;">${searchIcon}</div></div>`;
             
         let schoolHtml = st.isNew ? `<input type="text" class="input-mini empty-placeholder grid-nav" data-row="${idx}" data-col="1" style="width:100%;" placeholder="학교" value="${st.school}" oninput="updateData(${idx}, 'school', this.value); this.classList.remove('empty-placeholder');">` : `${st.school || "-"}`;
