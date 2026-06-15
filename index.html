@@ -3,7 +3,7 @@
 <head>
   <base target="_top">
   <meta charset="UTF-8">
-  <title>체크리스트 window.loadedState = null; 선생님 모드</title>
+  <title>체크리스트 선생님 모드</title>
   <link rel="icon" href="https://i.imgur.com/tFbBVcO.png">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <style>
@@ -142,8 +142,6 @@
     .copy-panel-title { text-align: center; font-weight: 800; font-size: 16px; color: #1366ce; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #e6f0ff; letter-spacing: 0.5px; }
     .note-container { margin-bottom: 8px; font-size: 14px; color: #333; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
     textarea#customNote { width: 100%; height: 75px; margin-bottom: 12px; font-family: 'Pretendard', sans-serif; font-size: 14px; padding: 6px; border: 1px solid #bbb; border-radius: 4px; resize: vertical; outline: none; box-sizing: border-box;}
-    
-    /* 🔹 1번 피드백: 복사 박스 예시 문구의 폰트 색상과 굵기를 좌측과 완벽히 일치시킴 */
     textarea#customNote::placeholder { color: #b0b0b0; font-weight: normal; font-size: 14px; }
     
     .copy-all-container { text-align: right; margin: 0px 0px 10px 0; }
@@ -345,6 +343,7 @@
   </div>
 
   <script>
+    // 🔹 상태 롤백을 위한 메모리
     window.loadedState = null;
 
     const CAMPUS_URLS = {
@@ -654,6 +653,7 @@
         showCustomConfirm("선택하신 반의 수업 요일이 아닙니다. 입력하신 날짜로 계속 진행할까요?", 
           function() { executeWorkflowLoad(teacher, className, dateVal); },
           function() {
+            // 🔹 롤백 버그 해결: 취소 시 화면에 띄워져 있는 기존 데이터 기준(window.loadedState)으로 UI 요소 완벽 복구
             if (window.loadedState) {
                 const cSel = document.getElementById("classSelect");
                 cSel.value = window.loadedState.className;
@@ -679,17 +679,79 @@
       executeWorkflowLoad(teacher, className, dateVal);
     }
 
+    // 🔹 로컬 임시저장(Auto-save) 실행 함수
+    function saveLocalDraft() {
+        if (!isDirty) return; 
+        const teacher = document.getElementById("teacherSelect").value;
+        const className = document.getElementById("classSelect").value;
+        const dateVal = document.getElementById("dateInput").value;
+        if (!teacher || !className || !dateVal) return;
+        
+        // 반, 교사, 날짜별로 고유한 임시 키 생성 (데이터 꼬임 원천 차단)
+        const key = `draft_${teacher}_${className}_${dateVal}`;
+        const payload = {
+            subject: currentSubject,
+            students: studentList,
+            timestamp: new Date().getTime()
+        };
+        localStorage.setItem(key, JSON.stringify(payload));
+    }
+
+    function checkLocalDraftAndLoad(teacher, className, dateVal, serverData) {
+       const key = `draft_${teacher}_${className}_${dateVal}`;
+       const draftStr = localStorage.getItem(key);
+       
+       if (draftStr) {
+           const draft = JSON.parse(draftStr);
+           showCustomConfirm("이전에 작성하다가 <b>저장하지 않은 임시 데이터</b>가 발견되었습니다.<br>복구하시겠습니까?", 
+               function() { // 복구(예)
+                   currentSubject = draft.subject || "";
+                   document.getElementById("subjectInput").value = currentSubject;
+                   studentList = draft.students || [];
+                   isDirty = true; // 복구했으니 다시 '저장해야 할(dirty)' 상태로 전환
+                   finalizeLoad();
+                   updatePreview();
+                   showCustomAlert("임시 데이터가 화면에 복구되었습니다.<br>확인 후 꼭 <b>[입력 내용 저장]</b>을 눌러주세요.");
+               },
+               function() { // 무시(아니오)
+                   localStorage.removeItem(key); // 쓸모없는 임시데이터 폐기
+                   applyServerData();
+               }
+           );
+       } else {
+           applyServerData();
+       }
+
+       function applyServerData() {
+           currentSubject = serverData.subject || "";
+           document.getElementById("subjectInput").value = currentSubject;
+           studentList = serverData.students || [];
+           isDirty = false;
+           finalizeLoad();
+           updatePreview();
+       }
+
+       function finalizeLoad() {
+           isDeleteMode = false; 
+           document.getElementById("deleteModeBtn").classList.remove("active");
+           document.getElementById("leftEmpty").style.display = "none"; 
+           document.getElementById("rightEmpty").style.display = "none"; 
+           document.getElementById("attendanceContent").style.display = "block"; 
+           document.getElementById("copyContent").style.display = "flex";
+           renderTable(); attachKeyboardNavigationListeners();
+       }
+    }
+
     function executeWorkflowLoad(teacher, className, dateVal) {
       showLoading(true, "선택하신 반의 명단을 불러오는 중...");
       google.script.run.withSuccessHandler(function(data) {
         showLoading(false); 
-        isDirty = false; 
         
         window.loadedState = { teacher: teacher, className: className, dateVal: dateVal };
         
-        currentSubject = data.subject || ""; document.getElementById("subjectInput").value = currentSubject; studentList = data.students; isDeleteMode = false; document.getElementById("deleteModeBtn").classList.remove("active");
-        document.getElementById("leftEmpty").style.display = "none"; document.getElementById("rightEmpty").style.display = "none"; document.getElementById("attendanceContent").style.display = "block"; document.getElementById("copyContent").style.display = "flex";
-        renderTable(); updatePreview(); attachKeyboardNavigationListeners();
+        // 🔹 기존엔 서버 데이터만 화면에 바로 뿌렸으나, 이젠 '임시저장 복구 검사'를 먼저 거침
+        checkLocalDraftAndLoad(teacher, className, dateVal, data);
+
       }).loadAttendanceWorkflow(teacher, className, dateVal);
     }
 
@@ -701,11 +763,12 @@
       document.getElementById("subjectInput").value = ""; currentSubject = "";
     }
 
-    function updateSubject(val) { currentSubject = val; isDirty = true; updatePreview(); }
+    function updateSubject(val) { currentSubject = val; isDirty = true; saveLocalDraft(); updatePreview(); }
 
     function addNewStudentRow() {
       studentList.push({ isNew: true, isDischarged: false, name: "", school: "", grade: "", evalScore: "", wrongScore: "", dailyTest: "", weeklyTest: "", note: "", sendCheck: false, leadCheck: false });
       isDirty = true;
+      saveLocalDraft();
       renderTable(); updatePreview(); attachKeyboardNavigationListeners();
     }
 
@@ -752,7 +815,6 @@
 
         let searchIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer; color:#555;" onclick="openHistoryPopup('${st.name}')" title="기록 보기"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
         
-        // 🔹 2번 피드백: st.isNew 조건일 때 인라인 style에서 font-weight:bold; 과감히 제거하여 통일함
         let nameHtml = st.isNew ? 
             `<input type="text" class="input-mini empty-placeholder grid-nav" data-row="${idx}" data-col="0" style="width:100%;" placeholder="학생명" value="${st.name}" oninput="updateData(${idx}, 'name', this.value); this.classList.remove('empty-placeholder');">` : 
             `<div style="position:relative; display:flex; justify-content:center; align-items:center; width:100%; min-height:22px;"><b>${st.name}</b><div style="position:absolute; right:2px; display:flex;">${searchIcon}</div></div>`;
@@ -861,6 +923,7 @@
         studentList[idx].pendingDischarge = true; 
         studentList[idx].pendingRestore = false;
         isDirty = true;
+        saveLocalDraft();
         renderTable(); updatePreview(); attachKeyboardNavigationListeners(); 
       });
     }
@@ -872,11 +935,17 @@
         studentList[idx].pendingRestore = true; 
         studentList[idx].isDischarged = false; 
         isDirty = true;
+        saveLocalDraft();
         renderTable(); updatePreview(); attachKeyboardNavigationListeners(); 
       });
     }
 
-    function updateData(idx, field, val) { studentList[idx][field] = val; isDirty = true; updateMasterCheckboxState(); updatePreview(); } 
+    function updateData(idx, field, val) { 
+        studentList[idx][field] = val; 
+        isDirty = true; 
+        saveLocalDraft();
+        updateMasterCheckboxState(); updatePreview(); 
+    } 
     
     function toggleMaster(field, isChecked) { 
       if (studentList.length === 0) return; 
@@ -884,6 +953,7 @@
         if(!st.isDischarged && !st.pendingDischarge) { st[field] = isChecked; }
       }); 
       isDirty = true; 
+      saveLocalDraft();
       
       if (field === 'sendCheck') {
         document.querySelectorAll('.send-checkbox:not(:disabled)').forEach(cb => cb.checked = isChecked);
@@ -958,6 +1028,9 @@
           .withSuccessHandler(function() {
             showLoading(false);
             isDirty = false; 
+            
+            // 🔹 데이터가 완벽하게 서버(DB)에 저장되었으므로 해당 반의 로컬 임시 메모리 찌꺼기를 삭제!
+            localStorage.removeItem(`draft_${teacher}_${className}_${date}`);
             
             studentList.forEach(st => { 
                 if (st.isNew && st.name.trim() !== "") st.isNew = false; 
