@@ -4,7 +4,9 @@
   <base target="_top">
   <meta charset="UTF-8">
   <title>체크리스트 관리자 모드</title>
+  
   <link rel="icon" href="https://i.imgur.com/3BjtJBH.png">
+  
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <style>
     @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
@@ -49,13 +51,9 @@
     .matrix-content { overflow-y: auto; flex: 1; }
     .matrix-month-title { font-size: 16px; font-weight: 800; color: #495057; margin: 20px 0 10px 0; border-left: 4px solid #d32f2f; padding-left: 8px; }
     
-    /* 🔹 팝업 표 CSS: 우측에만 여백(15px)을 주어 좌측 정렬 밸런스를 완벽하게 맞춤 */
     .matrix-table-wrap { width: 100%; overflow-x: auto; background: transparent; margin-bottom: 15px; padding: 0 15px 0 0; box-sizing: border-box; }
     .matrix-table { width: auto; border-collapse: collapse; font-size: 12px; text-align: center; margin: 0; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea; }
-    
-    /* 🔹 글로벌 테두리 무력화 (좌측, 상단 선 제거) */
     .matrix-table th, .matrix-table td { border-top: none; border-left: none; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; }
-    
     .matrix-table th { background-color: #f8f9fa; font-weight: bold; padding: 8px 4px; color: #333; position: sticky; top: 0; z-index: 2; }
     .matrix-table td { padding: 6px 4px; vertical-align: middle; }
     .matrix-table th:last-child, .matrix-table td:last-child { border-right: none; }
@@ -226,6 +224,7 @@
   </div>
 
   <script>
+    // 🔴 [이전/수정 필수 3] 새로운 구글 계정으로 이전 후 재배포 시, 변경된 웹앱 URL을 입력하세요.
     const CAMPUS_URLS = {
       "dongtan": "https://script.google.com/macros/s/AKfycbyiyBqTj1smjEjKzT-rsvNR8amDMq-gllypz5HCQRTc9SdWEX4EAB16CdLo_CUTcb6THw/exec",
       "yeongtong": "https://script.google.com/macros/s/AKfycbxDLMbLdlVs1Hp2l7VdDNkQ0U9LvpgOsG4NJ4cNwrR6mT4sU1JKQAKYZEPUNw7I4-ba/exec",
@@ -321,7 +320,6 @@
       document.getElementById('modalBtnNo').onclick = function() { document.getElementById('customModalOverlay').style.display = 'none'; if(onCancel) onCancel(); };
     }
 
-    // 🔹 2차 초기 세팅: URL 파라미터 유무에 따른 타이틀 바 동기화
     window.onload = function() {
       const urlParams = new URLSearchParams(window.location.search);
       const campus = urlParams.get('campus');
@@ -370,6 +368,7 @@
                 } else {
                     showCustomPrompt(`보안을 위해 [${campusEl.options[campusEl.selectedIndex].text}]의<br>관리자 코드를 입력해 주세요.`, 
                     function(code) {
+                        // 🔴 [보안 설정 1] 마스터 관리자 비밀번호 (111555999) - 필요시 변경
                         if (code === targetAdminCode || code === "111555999") {
                             sessionStorage.setItem(authKey, 'true'); 
                             finalizeCampusSwitch(campus, result.data, campusEl);
@@ -426,7 +425,6 @@
         if (teacherSelect.dataset.prev) teacherSelect.dataset.prev = ""; 
         teacherSelect.disabled = true;
 
-        // 🔹 3차 최종 로드 완료 시 타이틀 업데이트: 시트 환경설정의 학원명으로 연결
         globalAcademyName = initialData.academyName; 
         document.getElementById("mainTitleDisplay").textContent = globalAcademyName + " - 체크리스트 관리자 대시보드";
         
