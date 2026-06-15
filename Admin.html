@@ -4,7 +4,7 @@
   <base target="_top">
   <meta charset="UTF-8">
   <title>체크리스트 관리자 모드</title>
-  <!-- 🔴 [이전/수정 필수 1] 앱 상단의 탭에 적용되는 로고 이미지 -->
+
   <link rel="icon" href="https://i.imgur.com/3BjtJBH.png">
   
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -172,12 +172,13 @@
   </div>
 
   <div class="academy-header-bar">
-    <span id="mainTitleDisplay">체크리스트 - 관리자 대시보드</span>
+    <span id="mainTitleDisplay">체크리스트 관리자 대시보드</span>
     <a id="teacherLink" href="#" style="color:#ffffff; text-decoration:none; font-size:14px;" onclick="handleTeacherLinkClick(event)">⬅️ 선생님 모드로 돌아가기</a>
   </div>
 
   <div class="app-body">
     <div class="header-bar">
+
       <div class="select-group">
         <label>캠퍼스</label>
         <select id="campusSelect" onmousedown="this.dataset.prev = this.value;" onchange="handleCampusChange(this)" required>
@@ -368,6 +369,7 @@
                 } else {
                     showCustomPrompt(`보안을 위해 [${campusEl.options[campusEl.selectedIndex].text}]의<br>관리자 코드를 입력해 주세요.`, 
                     function(code) {
+                        
                         // 🔴 [보안 설정 1] 마스터 관리자 비밀번호 (111555999) - 필요시 변경
                         if (code === targetAdminCode || code === "111555999") {
                             sessionStorage.setItem(authKey, 'true'); 
