@@ -4,9 +4,9 @@
   <base target="_top">
   <meta charset="UTF-8">
   <title>체크리스트 선생님 모드</title>
-  <!-- 🔴 [이전/수정 필수 1] 앱 상단의 탭에 적용되는 로고 이미지 -->
+
   <link rel="icon" href="https://i.imgur.com/tFbBVcO.png">
-  
+
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <style>
     @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
@@ -488,10 +488,7 @@
             showLoading(false);
             globalAcademyName = data.academyName; 
             globalAdminCode = data.adminCode; 
-            
-            let cSelect = document.getElementById("campusSelect");
-            let campusName = cSelect.options[cSelect.selectedIndex].text;
-            document.getElementById("mainTitleDisplay").textContent = campusName + " - 체크리스트";
+            document.getElementById("mainTitleDisplay").textContent = globalAcademyName + " - 체크리스트";
             
             const select = document.getElementById("teacherSelect");
             data.teachers.forEach(t => { let opt = document.createElement("option"); opt.value = t; opt.textContent = t; select.appendChild(opt); });
@@ -553,9 +550,7 @@
 
     function insertDefaultNote() {
       const teacher = document.getElementById("teacherSelect").value || "OOO";
-      let cSelect = document.getElementById("campusSelect");
-      let campusName = cSelect.options[cSelect.selectedIndex].text;
-      let displayAcademyName = globalAcademyName || campusName;
+      let displayAcademyName = globalAcademyName || "학원";
       document.getElementById("customNote").value = `안녕하세요.\n${displayAcademyName} 담임 ${teacher} 입니다.\n수업에 대한 체크리스트를 안내드리오니 참고해 주시면 감사드리겠습니다.`; 
       updatePreview();
     }
