@@ -174,7 +174,7 @@
   </div>
 
   <div class="academy-header-bar">
-    <span id="mainTitleDisplay">체크리스트 - 관리자 대시보드</span>
+    <span id="mainTitleDisplay">체크리스트 관리자 대시보드</span>
     <a id="teacherLink" href="#" style="color:#ffffff; text-decoration:none; font-size:14px;" onclick="handleTeacherLinkClick(event)">⬅️ 선생님 모드로 돌아가기</a>
   </div>
 
@@ -329,7 +329,7 @@
          campusEl.value = campus;
          executeCampusSwitch(campus, "", campusEl, true); 
       } else {
-         document.getElementById("mainTitleDisplay").textContent = "체크리스트 - 관리자 대시보드";
+         document.getElementById("mainTitleDisplay").textContent = " - 체크리스트 관리자 대시보드";
       }
     };
 
@@ -426,7 +426,7 @@
         teacherSelect.disabled = true;
 
         globalAcademyName = initialData.academyName; 
-        document.getElementById("mainTitleDisplay").textContent = globalAcademyName + " - 관리자 대시보드";
+        document.getElementById("mainTitleDisplay").textContent = globalAcademyName + " - 체크리스트 관리자 대시보드";
         
         teacherSelect.innerHTML = '<option value="All">All (모든 선생님)</option>';
         initialData.teachers.forEach(t => { let opt = document.createElement("option"); opt.value = t; opt.textContent = t; teacherSelect.appendChild(opt); });
