@@ -49,11 +49,11 @@
     .matrix-content { overflow-y: auto; flex: 1; }
     .matrix-month-title { font-size: 16px; font-weight: 800; color: #495057; margin: 20px 0 10px 0; border-left: 4px solid #d32f2f; padding-left: 8px; }
     
-    /* 🔹 글로벌 CSS 충돌 완벽 방어 및 허공 라인 제거를 위한 팝업 표 CSS */
+    /* 🔹 팝업 표 CSS: 우측에만 여백(15px)을 주어 좌측 정렬 밸런스를 완벽하게 맞춤 */
     .matrix-table-wrap { width: 100%; overflow-x: auto; background: transparent; margin-bottom: 15px; padding: 0 15px 0 0; box-sizing: border-box; }
     .matrix-table { width: auto; border-collapse: collapse; font-size: 12px; text-align: center; margin: 0; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea; }
     
-    /* 여기서 글로벌 테이블(th, td)의 기본 1px 테두리 설정을 무력화시킵니다! */
+    /* 🔹 글로벌 테두리 무력화 (좌측, 상단 선 제거) */
     .matrix-table th, .matrix-table td { border-top: none; border-left: none; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; }
     
     .matrix-table th { background-color: #f8f9fa; font-weight: bold; padding: 8px 4px; color: #333; position: sticky; top: 0; z-index: 2; }
@@ -174,7 +174,7 @@
   </div>
 
   <div class="academy-header-bar">
-    <span id="mainTitleDisplay">체크리스트 관리자 대시보드</span>
+    <span id="mainTitleDisplay">체크리스트 - 관리자 대시보드</span>
     <a id="teacherLink" href="#" style="color:#ffffff; text-decoration:none; font-size:14px;" onclick="handleTeacherLinkClick(event)">⬅️ 선생님 모드로 돌아가기</a>
   </div>
 
@@ -321,6 +321,7 @@
       document.getElementById('modalBtnNo').onclick = function() { document.getElementById('customModalOverlay').style.display = 'none'; if(onCancel) onCancel(); };
     }
 
+    // 🔹 2차 초기 세팅: URL 파라미터 유무에 따른 타이틀 바 동기화
     window.onload = function() {
       const urlParams = new URLSearchParams(window.location.search);
       const campus = urlParams.get('campus');
@@ -425,6 +426,7 @@
         if (teacherSelect.dataset.prev) teacherSelect.dataset.prev = ""; 
         teacherSelect.disabled = true;
 
+        // 🔹 3차 최종 로드 완료 시 타이틀 업데이트: 시트 환경설정의 학원명으로 연결
         globalAcademyName = initialData.academyName; 
         document.getElementById("mainTitleDisplay").textContent = globalAcademyName + " - 체크리스트 관리자 대시보드";
         
@@ -683,7 +685,6 @@
         .getTeacherMatrixHistory({teacherName: teacherName, dateStr: dateVal});
     }
 
-    // 🔹 팝업 표 렌더링 로직 (불필요한 인라인 보더 스타일 제거)
     function renderMatrixPopup(data) {
         if (data.error) { showCustomAlert(data.error); return; }
         
@@ -727,7 +728,6 @@
                 let bgStyle = row.isOutOfBounds ? 'background-color:#f4f5f7;' : '';
                 let cellBgColor = row.isOutOfBounds ? '#f4f5f7' : '#fff';
                 
-                // 🔹 인라인으로 있던 border-right 중복 속성 제거 (CSS에서 깔끔하게 통제)
                 html += `<tr style="${bgStyle}">
                             <td style="font-weight:bold; position:sticky; left:0; background-color:${cellBgColor}; z-index:1;">${dateDisplay}</td>`;
                             
