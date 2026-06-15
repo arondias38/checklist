@@ -4,7 +4,9 @@
   <base target="_top">
   <meta charset="UTF-8">
   <title>체크리스트 선생님 모드</title>
+  
   <link rel="icon" href="https://i.imgur.com/tFbBVcO.png">
+  
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <style>
     @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
@@ -343,9 +345,9 @@
   </div>
 
   <script>
-    // 🔹 상태 롤백을 위한 메모리
     window.loadedState = null;
 
+    // 🔴 [이전/수정 필수 3] 새로운 구글 계정으로 이전 후 재배포 시, 변경된 웹앱 URL을 입력하세요.
     const CAMPUS_URLS = {
       "dongtan": "https://script.google.com/macros/s/AKfycbyiyBqTj1smjEjKzT-rsvNR8amDMq-gllypz5HCQRTc9SdWEX4EAB16CdLo_CUTcb6THw/exec",
       "yeongtong": "https://script.google.com/macros/s/AKfycbxDLMbLdlVs1Hp2l7VdDNkQ0U9LvpgOsG4NJ4cNwrR6mT4sU1JKQAKYZEPUNw7I4-ba/exec",
@@ -486,7 +488,10 @@
             showLoading(false);
             globalAcademyName = data.academyName; 
             globalAdminCode = data.adminCode; 
-            document.getElementById("mainTitleDisplay").textContent = globalAcademyName + " - 체크리스트";
+            
+            let cSelect = document.getElementById("campusSelect");
+            let campusName = cSelect.options[cSelect.selectedIndex].text;
+            document.getElementById("mainTitleDisplay").textContent = campusName + " - 체크리스트";
             
             const select = document.getElementById("teacherSelect");
             data.teachers.forEach(t => { let opt = document.createElement("option"); opt.value = t; opt.textContent = t; select.appendChild(opt); });
@@ -505,6 +510,7 @@
       
       let proceedToPrompt = function() {
         showCustomPrompt("관리자 코드를 입력해 주세요.", function(code) {
+          // 🔴 [보안 설정 1] 마스터 관리자 비밀번호 (111555999) - 필요시 변경
           if (code === globalAdminCode || code === "111555999") { 
              isDirty = false; 
              sessionStorage.setItem('auth_campus_' + campus, 'true'); 
@@ -543,6 +549,15 @@
        let d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
        let day = ["일", "월", "화", "수", "목", "금", "토"][d.getDay()];
        return `${parts[0]}.${parts[1]}.${parts[2]}(${day})`;
+    }
+
+    function insertDefaultNote() {
+      const teacher = document.getElementById("teacherSelect").value || "OOO";
+      let cSelect = document.getElementById("campusSelect");
+      let campusName = cSelect.options[cSelect.selectedIndex].text;
+      let displayAcademyName = globalAcademyName || campusName;
+      document.getElementById("customNote").value = `안녕하세요.\n${displayAcademyName} 담임 ${teacher} 입니다.\n수업에 대한 체크리스트를 안내드리오니 참고해 주시면 감사드리겠습니다.`; 
+      updatePreview();
     }
 
     function handleTeacherChange(el) {
@@ -653,7 +668,6 @@
         showCustomConfirm("선택하신 반의 수업 요일이 아닙니다. 입력하신 날짜로 계속 진행할까요?", 
           function() { executeWorkflowLoad(teacher, className, dateVal); },
           function() {
-            // 🔹 롤백 버그 해결: 취소 시 화면에 띄워져 있는 기존 데이터 기준(window.loadedState)으로 UI 요소 완벽 복구
             if (window.loadedState) {
                 const cSel = document.getElementById("classSelect");
                 cSel.value = window.loadedState.className;
@@ -679,7 +693,6 @@
       executeWorkflowLoad(teacher, className, dateVal);
     }
 
-    // 🔹 로컬 임시저장(Auto-save) 실행 함수
     function saveLocalDraft() {
         if (!isDirty) return; 
         const teacher = document.getElementById("teacherSelect").value;
@@ -687,7 +700,6 @@
         const dateVal = document.getElementById("dateInput").value;
         if (!teacher || !className || !dateVal) return;
         
-        // 반, 교사, 날짜별로 고유한 임시 키 생성 (데이터 꼬임 원천 차단)
         const key = `draft_${teacher}_${className}_${dateVal}`;
         const payload = {
             subject: currentSubject,
@@ -704,17 +716,17 @@
        if (draftStr) {
            const draft = JSON.parse(draftStr);
            showCustomConfirm("이전에 작성하다가 <b>저장하지 않은 임시 데이터</b>가 발견되었습니다.<br>복구하시겠습니까?", 
-               function() { // 복구(예)
+               function() { 
                    currentSubject = draft.subject || "";
                    document.getElementById("subjectInput").value = currentSubject;
                    studentList = draft.students || [];
-                   isDirty = true; // 복구했으니 다시 '저장해야 할(dirty)' 상태로 전환
+                   isDirty = true; 
                    finalizeLoad();
                    updatePreview();
                    showCustomAlert("임시 데이터가 화면에 복구되었습니다.<br>확인 후 꼭 <b>[입력 내용 저장]</b>을 눌러주세요.");
                },
-               function() { // 무시(아니오)
-                   localStorage.removeItem(key); // 쓸모없는 임시데이터 폐기
+               function() { 
+                   localStorage.removeItem(key); 
                    applyServerData();
                }
            );
@@ -748,8 +760,6 @@
         showLoading(false); 
         
         window.loadedState = { teacher: teacher, className: className, dateVal: dateVal };
-        
-        // 🔹 기존엔 서버 데이터만 화면에 바로 뿌렸으나, 이젠 '임시저장 복구 검사'를 먼저 거침
         checkLocalDraftAndLoad(teacher, className, dateVal, data);
 
       }).loadAttendanceWorkflow(teacher, className, dateVal);
@@ -1029,7 +1039,6 @@
             showLoading(false);
             isDirty = false; 
             
-            // 🔹 데이터가 완벽하게 서버(DB)에 저장되었으므로 해당 반의 로컬 임시 메모리 찌꺼기를 삭제!
             localStorage.removeItem(`draft_${teacher}_${className}_${date}`);
             
             studentList.forEach(st => { 
