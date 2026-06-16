@@ -256,9 +256,9 @@
       </div>
       <div class="select-group">
         <label>날짜</label>
-        <div class="custom-date-wrapper" onclick="if(checkLockdown(event)) return false; let el=document.getElementById('dateInput'); el.dataset.prev = el.value; if(!el.disabled && el.showPicker) el.showPicker();">
+        <div class="custom-date-wrapper" onclick="if(checkLockdown(event)) return false;">
           <div class="date-display" id="dateDisplayUI">날짜를 선택하세요</div>
-          <input type="date" id="dateInput" class="hidden-date-input" onchange="handleDateChange(this)" disabled required>
+          <input type="date" id="dateInput" class="hidden-date-input" onclick="this.dataset.prev = this.value;" onchange="handleDateChange(this)" disabled required>
         </div>
       </div>
       <button class="btn-search" onclick="if(checkLockdown(event)) return false; handleSearchClick(event);">명단 조회하기</button>
@@ -347,7 +347,6 @@
   <script>
     window.loadedState = null;
 
-    // 🔴 [이전/수정 필수 3] 새로운 구글 계정으로 이전 후 재배포 시, 변경된 웹앱 URL을 입력하세요.
     const CAMPUS_URLS = {
       "dongtan": "https://script.google.com/macros/s/AKfycbyiyBqTj1smjEjKzT-rsvNR8amDMq-gllypz5HCQRTc9SdWEX4EAB16CdLo_CUTcb6THw/exec",
       "yeongtong": "https://script.google.com/macros/s/AKfycbxDLMbLdlVs1Hp2l7VdDNkQ0U9LvpgOsG4NJ4cNwrR6mT4sU1JKQAKYZEPUNw7I4-ba/exec",
@@ -507,7 +506,6 @@
       
       let proceedToPrompt = function() {
         showCustomPrompt("관리자 코드를 입력해 주세요.", function(code) {
-          // 🔴 [보안 설정 1] 마스터 관리자 비밀번호 (111555999) - 필요시 변경
           if (code === globalAdminCode || code === "111555999") { 
              isDirty = false; 
              sessionStorage.setItem('auth_campus_' + campus, 'true'); 
@@ -685,6 +683,10 @@
         ); 
         return; 
       }
+      
+      const modal = document.getElementById('customModalOverlay');
+      if (modal) modal.style.display = 'none';
+
       executeWorkflowLoad(teacher, className, dateVal);
     }
 
