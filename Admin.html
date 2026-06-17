@@ -36,8 +36,9 @@
     .history-close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #888; }
     .history-close-btn:hover { color: #333; }
     .history-content { overflow-y: auto; flex: 1; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea; }
-    .history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    /* 🔴 [수정 완료] 관리자 팝업표 테두리 독립 (메인 표의 상하좌우 강제 적용 차단) */
+    
+    /* 🔴 [수정 완료] margin-bottom: 0 추가로 하단 테두리 들뜸 현상 완벽 밀착 */
+    .history-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 0; }
     .history-table th { background-color: #f8f9fa; font-weight: bold; padding: 10px 8px; text-align: center; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; color: #333; position: sticky; top: 0; z-index: 2; border-top: none; border-left: none; }
     .history-table td { padding: 8px; text-align: center; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; vertical-align: middle; border-top: none; border-left: none; }
     .history-table th:last-child, .history-table td:last-child { border-right: none; }
@@ -55,8 +56,8 @@
     .matrix-table-wrap { width: 100%; overflow-x: auto; background: transparent; margin-bottom: 15px; padding: 0 15px 0 0; box-sizing: border-box; }
     .matrix-table { width: auto; border-collapse: collapse; font-size: 12px; text-align: center; margin: 0; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea; }
     .matrix-table th, .matrix-table td { border-top: none; border-left: none; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; }
-    /* 🔴 [수정 완료] 매트릭스 표 머릿글 배경색 톤 다운 */
-    .matrix-table th { background-color: #e9ecef; font-weight: bold; padding: 8px 4px; color: #333; position: sticky; top: 0; z-index: 2; }
+    /* 🔴 [수정 완료] 배경색에 묻히지 않도록 머릿글(th) 전용으로 약간 짙은 테두리(#ced4da) 부여 */
+    .matrix-table th { background-color: #e9ecef; font-weight: bold; padding: 8px 4px; color: #333; position: sticky; top: 0; z-index: 2; border-bottom: 1px solid #ced4da; border-right: 1px solid #ced4da; }
     .matrix-table td { padding: 6px 4px; vertical-align: middle; }
     .matrix-table th:last-child, .matrix-table td:last-child { border-right: none; }
     .matrix-table tbody tr:last-child td { border-bottom: none; }
@@ -232,7 +233,6 @@
   </div>
 
   <script>
-    // 🔴 [이전/수정 필수 3] 새로운 구글 계정으로 이전 후 재배포 시, 변경된 웹앱 URL을 입력하세요.
     const CAMPUS_URLS = {
       "dongtan": "https://script.google.com/macros/s/AKfycbwMtIkLaAF85AYQgpWXsVmwftBnPKy0tOV65X8zKajto0srs4MM6pA4oRcczZHDqRcXNg/exec",
       "yeongtong": "https://script.google.com/macros/s/AKfycbwV5hXkSNGT2_jkCrQakQieov2OswU9x-zCBSkquarMujUqoKXdSZO_ih0OyQxftodu/exec",
@@ -376,8 +376,6 @@
                 } else {
                     showCustomPrompt(`보안을 위해 [${campusEl.options[campusEl.selectedIndex].text}]의<br>관리자 코드를 입력해 주세요.`, 
                     function(code) {
-                        
-                        // 🔴 [보안 설정 1] 마스터 관리자 비밀번호 (111555999) - 필요시 변경
                         if (code === targetAdminCode || code === "111555999") {
                             sessionStorage.setItem(authKey, 'true'); 
                             finalizeCampusSwitch(campus, result.data, campusEl);
@@ -579,7 +577,8 @@
                  textContent = `<span>수업개요입력: <span style="${subjColor} font-weight:900;">${subjPct}%</span></span> <span style="color:#ccc;">|</span> <span>발송완료: <span style="${sentColor} font-weight:900;">${sentPct}%</span></span>`;
                  
                  if (s.missedClasses && s.missedClasses.length > 0) {
-                     textContent += ` <span style="color:#ccc;">|</span> <span class="t-alert">미제출: ${s.missedClasses.join(', ')}</span>`;
+                     // 🔴 [수정 완료] '미제출:' 텍스트는 검정색, 누락된 반 이름만 빨간색으로 출력
+                     textContent += ` <span style="color:#ccc;">|</span> <span style="color:#333;">미제출:</span> <span class="t-alert">${s.missedClasses.join(', ')}</span>`;
                  }
              }
              
@@ -740,7 +739,6 @@
                             
                 data.classes.forEach(cName => {
                     let cellData = row.classes[cName];
-                    // 🔴 [수정 완료] 수업이 없는 경우 빈칸으로 완전 비움 처리 (기호 제거)
                     if (!cellData.isActive) {
                         html += `<td style="background-color:#f8f9fa;"></td><td style="background-color:#f8f9fa;"></td>`;
                     } else if (cellData.isHolidayEmpty) {
