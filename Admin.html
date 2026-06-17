@@ -37,8 +37,9 @@
     .history-close-btn:hover { color: #333; }
     .history-content { overflow-y: auto; flex: 1; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea; }
     .history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .history-table th { background-color: #f8f9fa; font-weight: bold; padding: 10px 8px; text-align: center; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; color: #333; position: sticky; top: 0; z-index: 2; }
-    .history-table td { padding: 8px; text-align: center; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; vertical-align: middle; }
+    /* 🔴 [수정 완료] 관리자 팝업표 테두리 독립 (메인 표의 상하좌우 강제 적용 차단) */
+    .history-table th { background-color: #f8f9fa; font-weight: bold; padding: 10px 8px; text-align: center; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; color: #333; position: sticky; top: 0; z-index: 2; border-top: none; border-left: none; }
+    .history-table td { padding: 8px; text-align: center; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; vertical-align: middle; border-top: none; border-left: none; }
     .history-table th:last-child, .history-table td:last-child { border-right: none; }
     .history-table tr:last-child td { border-bottom: none; }
     .history-note { text-align: left !important; white-space: pre-wrap; word-break: break-all; max-height: 80px; overflow-y: auto; display: block; line-height: 1.4; padding: 0 4px; }
@@ -54,7 +55,8 @@
     .matrix-table-wrap { width: 100%; overflow-x: auto; background: transparent; margin-bottom: 15px; padding: 0 15px 0 0; box-sizing: border-box; }
     .matrix-table { width: auto; border-collapse: collapse; font-size: 12px; text-align: center; margin: 0; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea; }
     .matrix-table th, .matrix-table td { border-top: none; border-left: none; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; }
-    .matrix-table th { background-color: #f8f9fa; font-weight: bold; padding: 8px 4px; color: #333; position: sticky; top: 0; z-index: 2; }
+    /* 🔴 [수정 완료] 매트릭스 표 머릿글 배경색 톤 다운 */
+    .matrix-table th { background-color: #e9ecef; font-weight: bold; padding: 8px 4px; color: #333; position: sticky; top: 0; z-index: 2; }
     .matrix-table td { padding: 6px 4px; vertical-align: middle; }
     .matrix-table th:last-child, .matrix-table td:last-child { border-right: none; }
     .matrix-table tbody tr:last-child td { border-bottom: none; }
@@ -196,9 +198,9 @@
 
       <div class="select-group">
         <label>날짜</label>
-        <div class="custom-date-wrapper" onclick="if(checkLockdown(event)) return false;">
+        <div class="custom-date-wrapper" onclick="if(checkLockdown(event)) return false; let el=document.getElementById('dateInput'); el.dataset.prev = el.value; if(el.showPicker) el.showPicker();">
           <div class="date-display" id="dateDisplayUI">날짜를 선택하세요</div>
-          <input type="date" id="dateInput" class="hidden-date-input" onclick="this.dataset.prev = this.value;" onchange="handleDateChangeAdmin(this)" required>
+          <input type="date" id="dateInput" class="hidden-date-input" onchange="handleDateChangeAdmin(this)" required>
         </div>
       </div>
       <div class="select-group">
@@ -230,10 +232,11 @@
   </div>
 
   <script>
+    // 🔴 [이전/수정 필수 3] 새로운 구글 계정으로 이전 후 재배포 시, 변경된 웹앱 URL을 입력하세요.
     const CAMPUS_URLS = {
-      "dongtan": "https://script.google.com/macros/s/AKfycbwwMqEBWCazYUs3i0ynYgBCDHYYuoaLVSLXM3yeXFUqFKHymGSgFrVRRdXobnDH8FKmCA/exec",
-      "yeongtong": "https://script.google.com/macros/s/AKfycby27H67TGNLouSED-Rec9e4Ju8NZ-90VP1UuPuqTDC1lW0vNMs4eaQI-MpZxVbkDWpS/exec",
-      "yeongcheon": "https://script.google.com/macros/s/AKfycbzDXKYZpTMXSwICHhQQXcWC5zmi57dvaoZbYa5OCqMd0blB5RgqGeIl9dW4MgbPXtWe/exec"
+      "dongtan": "https://script.google.com/macros/s/AKfycbyiyBqTj1smjEjKzT-rsvNR8amDMq-gllypz5HCQRTc9SdWEX4EAB16CdLo_CUTcb6THw/exec",
+      "yeongtong": "https://script.google.com/macros/s/AKfycbxDLMbLdlVs1Hp2l7VdDNkQ0U9LvpgOsG4NJ4cNwrR6mT4sU1JKQAKYZEPUNw7I4-ba/exec",
+      "yeongcheon": "https://script.google.com/macros/s/AKfycbxwLR-8lLCHybLe7Zy03tcqcCQe92mah9QaWsN5q_YePCJ9C1dNiJN9icVetHzI4ld4/exec"
     };
 
     function createGoogleScriptMock() {
@@ -373,6 +376,8 @@
                 } else {
                     showCustomPrompt(`보안을 위해 [${campusEl.options[campusEl.selectedIndex].text}]의<br>관리자 코드를 입력해 주세요.`, 
                     function(code) {
+                        
+                        // 🔴 [보안 설정 1] 마스터 관리자 비밀번호 (111555999) - 필요시 변경
                         if (code === targetAdminCode || code === "111555999") {
                             sessionStorage.setItem(authKey, 'true'); 
                             finalizeCampusSwitch(campus, result.data, campusEl);
@@ -707,7 +712,7 @@
                         <table class="matrix-table">
                             <thead>
                                 <tr>
-                                    <th rowspan="2" style="width:80px; position:sticky; left:0; z-index:3; background-color:#f8f9fa;">날짜</th>`;
+                                    <th rowspan="2" style="width:80px; position:sticky; left:0; z-index:3; background-color:#e9ecef;">날짜</th>`;
             
             data.classes.forEach(cName => {
                 html += `<th colspan="2" style="font-size:12px; padding:8px 4px; width:190px; max-width:190px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${cName}</th>`;
@@ -735,8 +740,9 @@
                             
                 data.classes.forEach(cName => {
                     let cellData = row.classes[cName];
+                    // 🔴 [수정 완료] 수업이 없는 경우 빈칸으로 완전 비움 처리 (기호 제거)
                     if (!cellData.isActive) {
-                        html += `<td style="color:#ccc;">-</td><td style="color:#ccc;">-</td>`;
+                        html += `<td style="background-color:#f8f9fa;"></td><td style="background-color:#f8f9fa;"></td>`;
                     } else if (cellData.isHolidayEmpty) {
                         html += `<td colspan="2" style="color:#dc3545; font-weight:bold; font-size:11px; background-color:#fff0f0;">${cellData.holidayName}</td>`;
                     } else {
