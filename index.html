@@ -217,8 +217,8 @@
               <th width="16%">날짜</th>
               <th width="8%">과제</th>
               <th width="8%">오답</th>
-              <th width="10%">일일TEST</th>
-              <th width="10%">주간TEST</th>
+              <th width="10%">일일테스트</th>
+              <th width="10%">주간테스트</th>
               <th width="48%">특이사항</th>
             </tr>
           </thead>
@@ -991,8 +991,8 @@
         let details = [];
         if (evalScore !== "" && evalScore !== "없음") details.push(`• 과제평가: ${evalScore}`); 
         if (wrongScore !== "" && wrongScore !== "없음") details.push(`• 오답노트: ${wrongScore}`);
-        if (dailyVal !== "" && dailyVal !== "없음") details.push(`• 일일TEST: ${dailyVal}`);
-        if (weeklyVal !== "" && weeklyVal !== "없음") details.push(`• 주간TEST: ${weeklyVal}`);
+        if (dailyVal !== "" && dailyVal !== "없음") details.push(`• 일일테스트: ${dailyVal}`);
+        if (weeklyVal !== "" && weeklyVal !== "없음") details.push(`• 주간테스트: ${weeklyVal}`);
         if (note !== "" && note !== "없음") details.push(`• 특이사항: ${note}`);
         if (details.length > 0) content += `\n\n${details.join('\n')}`;
         html += `<div class="card" id="card${idx}"><div class="card-header-container"><div class="card-header">${cleanName}</div><button class="copy-btn" onclick="copySingleText(${idx}, this)">복사</button></div><div id="cardContent${idx}" class="card-content">${content}</div></div>`;
