@@ -36,8 +36,8 @@
     .history-close-btn:hover { color: #333; }
     .history-content { overflow-y: auto; flex: 1; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea; }
     .history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .history-table th { background-color: #f8f9fa; font-weight: bold; padding: 10px 8px; text-align: center; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; color: #333; position: sticky; top: 0; z-index: 2; }
-    .history-table td { padding: 8px; text-align: center; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; vertical-align: middle; }
+    .history-table th { background-color: #f8f9fa; font-weight: bold; padding: 10px 8px; text-align: center; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; color: #333; position: sticky; top: 0; z-index: 2; border-top: none; border-left: none; }
+    .history-table td { padding: 8px; text-align: center; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; vertical-align: middle; border-top: none; border-left: none; }
     .history-table th:last-child, .history-table td:last-child { border-right: none; }
     .history-table tr:last-child td { border-bottom: none; }
     .history-note { text-align: left !important; white-space: pre-wrap; word-break: break-all; max-height: 80px; overflow-y: auto; display: block; line-height: 1.4; padding: 0 4px; }
@@ -347,10 +347,11 @@
   <script>
     window.loadedState = null;
 
+    // 🔴 [이전/수정 필수 3] 새로운 구글 계정으로 이전 후 재배포 시, 변경된 웹앱 URL을 입력하세요.
     const CAMPUS_URLS = {
-      "dongtan": "https://script.google.com/macros/s/AKfycbwwMqEBWCazYUs3i0ynYgBCDHYYuoaLVSLXM3yeXFUqFKHymGSgFrVRRdXobnDH8FKmCA/exec",
-      "yeongtong": "https://script.google.com/macros/s/AKfycby27H67TGNLouSED-Rec9e4Ju8NZ-90VP1UuPuqTDC1lW0vNMs4eaQI-MpZxVbkDWpS/exec",
-      "yeongcheon": "https://script.google.com/macros/s/AKfycbzDXKYZpTMXSwICHhQQXcWC5zmi57dvaoZbYa5OCqMd0blB5RgqGeIl9dW4MgbPXtWe/exec"
+      "dongtan": "https://script.google.com/macros/s/AKfycbyiyBqTj1smjEjKzT-rsvNR8amDMq-gllypz5HCQRTc9SdWEX4EAB16CdLo_CUTcb6THw/exec",
+      "yeongtong": "https://script.google.com/macros/s/AKfycbxDLMbLdlVs1Hp2l7VdDNkQ0U9LvpgOsG4NJ4cNwrR6mT4sU1JKQAKYZEPUNw7I4-ba/exec",
+      "yeongcheon": "https://script.google.com/macros/s/AKfycbxwLR-8lLCHybLe7Zy03tcqcCQe92mah9QaWsN5q_YePCJ9C1dNiJN9icVetHzI4ld4/exec"
     };
 
     function createGoogleScriptMock() {
@@ -506,6 +507,7 @@
       
       let proceedToPrompt = function() {
         showCustomPrompt("관리자 코드를 입력해 주세요.", function(code) {
+          // 🔴 [보안 설정 1] 마스터 관리자 비밀번호 (111555999) - 필요시 변경
           if (code === globalAdminCode || code === "111555999") { 
              isDirty = false; 
              sessionStorage.setItem('auth_campus_' + campus, 'true'); 
