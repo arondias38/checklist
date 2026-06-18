@@ -8,7 +8,6 @@
   <link rel="icon" href="https://i.imgur.com/3BjtJBH.png">
   
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
@@ -64,13 +63,31 @@
     .matrix-table tbody tr:last-child td { border-bottom: none; }
 
     .academy-header-bar { margin-top: 15px; background-color: #495057; color: #ffffff; padding: 10px 25px; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; justify-content: center; align-items: center; position: relative; }
-    
-    /* 🔴 [추가됨] 명단 업로드(확장형) 버튼 CSS */
-    .btn-roster-add-main { height: 26px; max-width: 26px; border-radius: 13px; padding: 0; overflow: hidden; white-space: nowrap; border: 1px solid rgba(255,255,255,0.4); color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: inline-flex; align-items: center; justify-content: flex-start; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s; background-color: #28a745; margin-right: 15px; position: relative; }
-    .btn-roster-add-main:hover { max-width: 120px; padding-right: 12px; background-color: #218838; }
-    .btn-icon-wrap { width: 26px; height: 26px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; font-style: normal; font-size: 1.3em; font-weight: 900; line-height: 0; padding-bottom: 2px; }
-    .btn-text-wrap { opacity: 0; transition: opacity 0.1s ease-in; }
-    .btn-roster-add-main:hover .btn-text-wrap { opacity: 1; transition-delay: 0.1s; }
+    .academy-header-bar a { position: absolute; right: 25px; }
+
+    /* 🔴 [수정됨] 명단 업로드(플로팅) 버튼 CSS */
+    .floating-upload-btn {
+      position: fixed; bottom: 35px; left: 35px; z-index: 9999;
+      height: 48px; width: 48px; border-radius: 24px;
+      background-color: #28a745; color: white; border: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .floating-upload-btn:hover {
+      width: 170px; background-color: #218838; border-radius: 24px;
+    }
+    .floating-upload-btn .btn-icon-wrap {
+      position: absolute; display: flex; align-items: center; justify-content: center;
+      width: 100%; height: 100%; font-size: 26px; font-weight: 300; line-height: 0;
+      transition: opacity 0.2s;
+    }
+    .floating-upload-btn:hover .btn-icon-wrap { opacity: 0; }
+    .floating-upload-btn .btn-text-wrap {
+      opacity: 0; white-space: nowrap; font-size: 14px; font-weight: bold;
+      transition: opacity 0.2s; transition-delay: 0.05s; pointer-events: none;
+    }
+    .floating-upload-btn:hover .btn-text-wrap { opacity: 1; pointer-events: auto; }
     
     .app-body { padding: 20px; }
     
@@ -139,6 +156,12 @@
 </head>
 <body>
 
+  <!-- 🔴 [추가됨] 플로팅 업로드 버튼 (좌측 하단) -->
+  <button class="floating-upload-btn" onclick="openUploadModal()" title="명단 자동 업로드">
+    <div class="btn-icon-wrap">+</div>
+    <div class="btn-text-wrap">새 학기 명단 업로드</div>
+  </button>
+
   <div class="spinner-overlay" id="globalSpinner"><div class="spinner"></div><div class="spinner-text" id="spinnerText">체크리스트 데이터를 불러오는 중입니다.</div></div>
   
   <div class="modal-overlay" id="customModalOverlay">
@@ -153,6 +176,7 @@
     </div>
   </div>
 
+  <!-- 🔴 [수정됨] 드래그앤드롭 명단 업로드 모달창 UI 통일 -->
   <div class="modal-overlay" id="uploadModalOverlay">
     <div class="modal-box" style="width: 480px; padding: 30px 25px;">
       <div style="font-size: 18px; font-weight: 900; color: #1a3978; margin-bottom: 8px;">새 학기 명단 자동 업로드</div>
@@ -161,17 +185,23 @@
       <div style="display: flex; gap: 15px; margin-bottom: 15px; text-align: left;">
          <div style="flex:1;">
             <label style="font-size:12px; color:#555; display:block; margin-bottom:4px;">시작 날짜 <span style="color:#dc3545;">*</span></label>
-            <input type="date" id="upStartDate" style="width:100%; padding:6px 10px; height: 34px;">
+            <div class="custom-date-wrapper" style="width: 100%;" onclick="let el=document.getElementById('upStartDate'); if(el.showPicker) el.showPicker();">
+               <div class="date-display empty-placeholder" id="upStartDateDisplay" style="color: #b0b0b0;">학기 적용 시작 날짜를 입력하세요.</div>
+               <input type="date" id="upStartDate" class="hidden-date-input" onchange="updateModalDate(this, 'upStartDateDisplay')">
+            </div>
          </div>
          <div style="flex:1;">
             <label style="font-size:12px; color:#555; display:block; margin-bottom:4px;">종료 날짜 <span style="color:#dc3545;">*</span></label>
-            <input type="date" id="upEndDate" style="width:100%; padding:6px 10px; height: 34px;">
+            <div class="custom-date-wrapper" style="width: 100%;" onclick="let el=document.getElementById('upEndDate'); if(el.showPicker) el.showPicker();">
+               <div class="date-display empty-placeholder" id="upEndDateDisplay" style="color: #b0b0b0;">학기 적용 종료 날짜를 입력하세요.</div>
+               <input type="date" id="upEndDate" class="hidden-date-input" onchange="updateModalDate(this, 'upEndDateDisplay')">
+            </div>
          </div>
       </div>
       <div style="text-align: left; margin-bottom: 25px;">
-         <label style="font-size:12px; color:#555; display:block; margin-bottom:4px;">학기명 <span style="color:#dc3545;">*</span></label>
-         <select id="upTermName" style="width:100%; height:34px; padding:6px 10px;">
-            <option value="" disabled selected hidden>학기명을 선택하세요</option>
+         <label style="font-size:12px; color:#555; display:block; margin-bottom:4px;">학기 <span style="color:#dc3545;">*</span></label>
+         <select id="upTermName" style="width:100%; height:38px; padding:8px 12px;">
+            <option value="" disabled selected hidden>학기를 선택하세요</option>
             <option value="봄학기">봄학기</option>
             <option value="여름학기">여름학기</option>
             <option value="가을학기">가을학기</option>
@@ -208,8 +238,8 @@
               <th width="16%">날짜</th>
               <th width="8%">과제</th>
               <th width="8%">오답</th>
-              <th width="10%">일일TEST</th>
-              <th width="10%">주간TEST</th>
+              <th width="10%">일일테스트</th>
+              <th width="10%">주간테스트</th>
               <th width="48%">특이사항</th>
             </tr>
           </thead>
@@ -232,12 +262,7 @@
 
   <div class="academy-header-bar">
     <span id="mainTitleDisplay">체크리스트 관리자 대시보드</span>
-    <div style="position: absolute; right: 25px; display: flex; align-items: center;">
-      <button class="btn-roster-add-main" onclick="openUploadModal()">
-        <span class="btn-icon-wrap">&plus;</span><span class="btn-text-wrap">명단 업로드</span>
-      </button>
-      <a id="teacherLink" href="#" style="color:#ffffff; text-decoration:none; font-size:14px;" onclick="handleTeacherLinkClick(event)">⬅️ 선생님 모드로 돌아가기</a>
-    </div>
+    <a id="teacherLink" href="#" style="color:#ffffff; text-decoration:none; font-size:14px;" onclick="handleTeacherLinkClick(event)">⬅️ 선생님 모드로 돌아가기</a>
   </div>
 
   <div class="app-body">
@@ -304,7 +329,7 @@
             saveAdminChecks: function(updates) { this._fetch('saveAdminChecks', {updates}); },
             getStudentHistory: function(teacherName, className, studentName, dateStr) { this._fetch('getStudentHistory', {teacherName, className, studentName, dateStr}); },
             getTeacherMatrixHistory: function(payload) { this._fetch('getTeacherMatrixHistory', payload); },
-            uploadNewTerm: function(payload) { this._fetch('uploadNewTerm', payload); }, // 🔴 [추가됨] 업로드 API 연결
+            uploadNewTerm: function(payload) { this._fetch('uploadNewTerm', payload); }, 
             
             _fetch: async function(action, payload = {}) {
                 const campus = document.getElementById("campusSelect").value;
@@ -490,7 +515,6 @@
         teacherSelect.disabled = true;
 
         globalAcademyName = initialData.academyName; 
-        // 🔴 [추가됨] 백엔드에서 넘겨준 가장 최신 학기의 종료일 데이터 저장
         globalLatestEndDate = initialData.latestEndDate || "등록된 학기 없음";
         document.getElementById("mainTitleDisplay").textContent = globalAcademyName + " - 체크리스트 관리자 대시보드";
         
@@ -513,15 +537,27 @@
       }
     }
 
+    // 🔴 [수정됨] innerHTML 속성 적용 (로딩창 줄바꿈 <br> 정상 표기)
     function showLoading(status, msg) {
       const spinner = document.getElementById("globalSpinner");
-      if(status) { document.getElementById("spinnerText").innerText = msg || "로딩 중입니다..."; spinner.style.display = "flex"; } 
-      else { spinner.style.display = "none"; }
+      if(status) { 
+          document.getElementById("spinnerText").innerHTML = msg || "로딩 중입니다..."; 
+          spinner.style.display = "flex"; 
+      } else { 
+          spinner.style.display = "none"; 
+      }
     }
 
     function getDayOfWeek(dateStr) {
       const parts = dateStr.split('-'); const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
       return ["일", "월", "화", "수", "목", "금", "토"][d.getDay()];
+    }
+
+    function formatDateWithDay(dateStr) {
+       let parts = dateStr.split('-');
+       let d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+       let day = ["일", "월", "화", "수", "목", "금", "토"][d.getDay()];
+       return `${parts[0]}.${parts[1]}.${parts[2]}(${day})`;
     }
 
     function formatHistoryDate(dateStr) {
@@ -657,7 +693,7 @@
              group.classChunksArray.forEach(chunk => {
                  let clsName = chunk.name;
                  html += `<div class="class-sub-header">▶ 반명: ${clsName}</div>`;
-                 html += `<table><thead><tr><th width="4%">No.</th><th width="8%">학생명</th><th width="5%">학교</th><th width="4%">학년</th><th width="20%">금일수업개요</th><th width="5%">과제</th><th width="5%">오답</th><th width="5%">일일TEST</th><th width="5%">주간TEST</th><th width="18%">학생별 특이사항 / 보강계획</th><th width="6%">발송완료</th><th width="6%">관리자 확인<br><label style="display:inline-flex; align-items:center; cursor:pointer; justify-content:center;"><input type="checkbox" class="master-checkbox" style="margin:4px 2px;" onchange="toggleAdminChunkMaster('${group.teacher}', '${clsName}', this.checked)"></label></th></tr></thead><tbody>`;
+                 html += `<table><thead><tr><th width="4%">No.</th><th width="8%">학생명</th><th width="5%">학교</th><th width="4%">학년</th><th width="20%">금일수업개요</th><th width="5%">과제</th><th width="5%">오답</th><th width="5%">일일테스트</th><th width="5%">주간테스트</th><th width="18%">학생별 특이사항 / 보강계획</th><th width="6%">발송완료</th><th width="6%">관리자 확인<br><label style="display:inline-flex; align-items:center; cursor:pointer; justify-content:center;"><input type="checkbox" class="master-checkbox" style="margin:4px 2px;" onchange="toggleAdminChunkMaster('${group.teacher}', '${clsName}', this.checked)"></label></th></tr></thead><tbody>`;
                  
                  chunk.details.forEach((r, idx) => {
                     let leadCheckHtml = `<input type="checkbox" class="lead-check-${group.teacher} chunk-${group.teacher}-${clsName.replace(/\s+/g,'_')}" data-row="${r.rowIdx}" onchange="trackLeadCheck('${group.teacher}', parseInt(this.dataset.row), this.checked)" ${r.leadCheck ? 'checked' : ''}>`;
@@ -870,13 +906,26 @@
       document.getElementById("historyOverlay").style.display = "none";
     }
 
-    // 🔴 [추가됨] 모달 열기 및 드래그앤드롭 이벤트 리스너 세팅
+    // 🔴 [추가됨] 모달 전용 커스텀 달력 UI 업데이트 함수
+    function updateModalDate(inputEl, displayId) {
+        const disp = document.getElementById(displayId);
+        if(inputEl.value) {
+            disp.innerHTML = formatDateWithDay(inputEl.value);
+            disp.style.color = '#333';
+        } else {
+            disp.innerHTML = displayId === 'upStartDateDisplay' ? '학기 적용 시작 날짜를 입력하세요.' : '학기 적용 종료 날짜를 입력하세요.';
+            disp.style.color = '#b0b0b0';
+        }
+    }
+
     function openUploadModal() {
         if(checkLockdown()) return;
         document.getElementById('latestTermInfo').innerText = "📌 최근 등록된 학기 종료일: " + globalLatestEndDate;
         document.getElementById('uploadModalOverlay').style.display = 'flex';
         document.getElementById('upStartDate').value = '';
         document.getElementById('upEndDate').value = '';
+        updateModalDate(document.getElementById('upStartDate'), 'upStartDateDisplay');
+        updateModalDate(document.getElementById('upEndDate'), 'upEndDateDisplay');
         document.getElementById('upTermName').value = '';
         document.getElementById('fileInput').value = '';
     }
@@ -900,14 +949,13 @@
         if (e.target.files.length) processExcel(e.target.files[0]);
     });
 
-    // 🔴 [추가됨] 엑셀 스마트 파싱 및 백엔드 전송 로직
     function processExcel(file) {
         let sDate = document.getElementById('upStartDate').value;
         let eDate = document.getElementById('upEndDate').value;
         let tName = document.getElementById('upTermName').value;
 
         if(!sDate || !eDate || !tName) {
-            showCustomAlert("먼저 상단의 [시작 날짜], [종료 날짜], [학기명]을<br>모두 선택해 주세요.", function() { openUploadModal(); });
+            showCustomAlert("먼저 상단의 [시작 날짜], [종료 날짜], [학기]를<br>모두 선택해 주세요.", function() { openUploadModal(); });
             return;
         }
 
@@ -926,7 +974,6 @@
                 let headerRowIdx = -1;
                 let colMap = { ban: -1, name: -1, school: -1, grade: -1, teacher: -1, room: -1 };
 
-                // 1. 머릿글 줄 찾기 (반명, 학생명 포함 여부로 스마트 탐색)
                 for (let i = 0; i < Math.min(20, jsonArr.length); i++) {
                     let row = jsonArr[i];
                     if (!row) continue;
@@ -940,7 +987,6 @@
 
                 if (headerRowIdx === -1) throw new Error("엑셀 데이터에서 머릿글(반명, 학생명 등)을 찾을 수 없습니다.<br>파일 형식을 확인해 주세요.");
 
-                // 2. 머릿글 열(Column) 매칭
                 let headers = jsonArr[headerRowIdx];
                 for (let c = 0; c < headers.length; c++) {
                     let h = String(headers[c] || '').replace(/\s+/g, '');
@@ -958,7 +1004,6 @@
                     throw new Error("필수 항목(반명, 학생명) 열(Column)을 찾을 수 없습니다.");
                 }
 
-                // 3. 학생 데이터 추출 (입학일, 퇴원일 등 불필요 데이터 완벽 제외)
                 let parsedStudents = [];
                 for (let i = headerRowIdx + 1; i < jsonArr.length; i++) {
                     let row = jsonArr[i];
@@ -978,19 +1023,20 @@
 
                 if(parsedStudents.length === 0) throw new Error("추출할 수 있는 학생 데이터가 없습니다.");
 
-                // 4. 구글 스크립트 백엔드로 데이터 전송
-                showLoading(true, `성공적으로 ${parsedStudents.length}명의 데이터를 추출했습니다.<br>구글 시트를 생성 중입니다...`);
+                // 🔴 [수정됨] 사용자 요청 로딩 텍스트 적용 (br 태그 정상 작동)
+                showLoading(true, `성공적으로 ${parsedStudents.length}명의 데이터를 추출했습니다.<br>시스템에 적용 중입니다...`);
                 
                 google.script.run
                     .withSuccessHandler(function(res) {
                         showLoading(false);
-                        showCustomAlert("✔ <b>명단 업로드 성공!</b><br>구글 시트가 완벽하게 세팅되었습니다.<br>새로고침(F5) 후 사용해 주세요.", function() {
+                        // 🔴 [수정됨] 사용자 요청 완료 팝업 텍스트 적용
+                        showCustomAlert("✔ <b>명단 업로드 성공!</b><br>명단이 시스템에 적용되었습니다.<br>새로고침(F5) 후 사용해 주세요.", function() {
                            window.location.reload(); 
                         });
                     })
                     .withFailureHandler(function(err) {
                         showLoading(false);
-                        showCustomAlert("시트 생성 중 서버 오류가 발생했습니다.<br>(" + err.message + ")");
+                        showCustomAlert("서버 오류가 발생했습니다.<br>(" + err.message + ")");
                     })
                     .uploadNewTerm({
                         termName: tName,
