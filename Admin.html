@@ -14,7 +14,6 @@
     @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
     body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; }
     
-    /* 🔴 [수정됨] 스피너의 레이어를 올려 업로드 팝업 위를 덮도록 수정 */
     .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #1366ce; border-radius: 50%; animation: spin 1s linear infinite; }
     .spinner-text { margin-top: 15px; font-weight: bold; color: #1366ce; font-size: 15px; text-align: center; line-height: 1.5; }
@@ -33,7 +32,6 @@
     .btn-no { background-color: #f1f3f5; color: #495057; } .btn-no:hover { background-color: #e2e6ea; }
     .btn-yes { background-color: #1366ce; color: white; } .btn-yes:hover { background-color: #0f52a8; }
 
-    /* 🔴 [추가됨] 에러/성공 알림창은 모든 것(스피너, 모달) 위로 강제 노출 */
     #customModalOverlay { z-index: 10006 !important; }
 
     .history-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 10001; justify-content: center; align-items: center; }
@@ -68,27 +66,27 @@
 
     .academy-header-bar { margin-top: 15px; background-color: #495057; color: #ffffff; padding: 10px 25px; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; justify-content: center; align-items: center; position: relative; }
     
-    /* 🔴 [수정됨] 플로팅 업로드 버튼 CSS (사이즈 및 정렬 개선) */
+    /* 🔴 [수정 완료] 플로팅 업로드 버튼 사이즈 축소 및 아이콘 정렬 교정 */
     .floating-upload-btn {
       position: fixed; bottom: 35px; left: 35px; z-index: 9999;
-      height: 40px; width: 40px; border-radius: 20px;
+      height: 36px; width: 36px; border-radius: 18px;
       background-color: #28a745; color: white; border: none;
       box-shadow: 0 4px 10px rgba(0,0,0,0.25); cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .floating-upload-btn:hover {
-      width: 155px; background-color: #218838; border-radius: 20px;
+      width: 145px; background-color: #218838; border-radius: 18px;
     }
     .floating-upload-btn .btn-icon-wrap {
       position: absolute; left: 0; top: 0; display: flex; align-items: center; justify-content: center;
-      width: 100%; height: 100%; font-size: 24px; font-weight: 300; line-height: 0;
+      width: 100%; height: 100%; font-size: 22px; font-weight: 300; line-height: 0;
       padding: 0; margin: 0;
       transition: opacity 0.2s;
     }
     .floating-upload-btn:hover .btn-icon-wrap { opacity: 0; }
     .floating-upload-btn .btn-text-wrap {
-      opacity: 0; white-space: nowrap; font-size: 13px; font-weight: bold;
+      opacity: 0; white-space: nowrap; font-size: 12px; font-weight: bold;
       transition: opacity 0.2s; transition-delay: 0.05s; pointer-events: none;
     }
     .floating-upload-btn:hover .btn-text-wrap { opacity: 1; pointer-events: auto; }
@@ -109,7 +107,6 @@
     select:invalid { color: #888888 !important; font-weight: normal; }
     select option { color: #000000; font-weight: normal; }
 
-    /* 🔴 [수정됨] 학기명 선택 창의 회색 폰트 색상 강제 지정 */
     #upTermName:invalid { color: #b0b0b0 !important; }
     
     .custom-date-wrapper { position: relative; width: 190px; height: 38px; cursor: pointer; overflow: hidden; }
@@ -339,6 +336,7 @@
             _fetch: async function(action, payload = {}) {
                 const campus = document.getElementById("campusSelect").value;
                 if (!campus) {
+                    // 🔴 [수정 완료] Error 문자열 필터링 추가
                     if (this.failureCb) this.failureCb(new Error("캠퍼스를 먼저 선택해 주세요."));
                     else showCustomAlert("· Error: 캠퍼스를 먼저 선택해 주세요.");
                     return;
@@ -355,11 +353,11 @@
                         if (this.successCb) this.successCb(result.data);
                     } else {
                         if (this.failureCb) this.failureCb(new Error(result.error));
-                        else showCustomAlert("· Error: 서버 오류가 발생했습니다.<br>(" + result.error + ")");
+                        else showCustomAlert("· Error: 서버 오류가 발생했습니다.<br>(" + result.error.replace(/^Error:\s*/, '').trim() + ")");
                     }
                 } catch (e) {
                     if (this.failureCb) this.failureCb(e);
-                    else showCustomAlert("· Error: 통신 오류가 발생했습니다.<br>(" + e.message + ")");
+                    else showCustomAlert("· Error: 통신 오류가 발생했습니다.<br>(" + e.message.replace(/^Error:\s*/, '').trim() + ")");
                 }
             }
         };
@@ -486,13 +484,13 @@
                     });
                 }
             } else {
-                showCustomAlert("· Error: 데이터를 불러오지 못했습니다.<br>(" + result.error + ")");
+                showCustomAlert("· Error: 데이터를 불러오지 못했습니다.<br>(" + result.error.replace(/^Error:\s*/, '').trim() + ")");
                 if(!isFirstLoad) campusEl.value = prevCampus;
             }
         })
         .catch(e => {
             showLoading(false);
-            showCustomAlert("· Error: 통신 오류가 발생했습니다.<br>(" + e.message + ")");
+            showCustomAlert("· Error: 통신 오류가 발생했습니다.<br>(" + e.message.replace(/^Error:\s*/, '').trim() + ")");
             if(!isFirstLoad) campusEl.value = prevCampus;
         });
     }
@@ -724,7 +722,7 @@
           }
         })
         .withFailureHandler(function(err) {
-          showLoading(false); showCustomAlert("· Error: 데이터를 불러오는 중 오류가 발생했습니다.<br>(" + err.message + ")");
+          showLoading(false); showCustomAlert("· Error: 데이터를 불러오는 중 오류가 발생했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
         })
         .loadAdminWorkflow(dateVal, teacher);
     }
@@ -784,13 +782,13 @@
         })
         .withFailureHandler(function(err) {
           showLoading(false);
-          showCustomAlert("· Error: 데이터를 불러오지 못했습니다.<br>(" + err.message + ")");
+          showCustomAlert("· Error: 데이터를 불러오지 못했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
         })
         .getTeacherMatrixHistory({teacherName: teacherName, dateStr: dateVal});
     }
 
     function renderMatrixPopup(data) {
-        if (data.error) { showCustomAlert("· Error: " + data.error); return; }
+        if (data.error) { showCustomAlert("· Error: " + data.error.replace(/^Error:\s*/, '').trim()); return; }
         
         document.getElementById("matrixTitle").innerHTML = `<b>${data.teacherName}</b> 선생님 학기 요약`;
         const contentArea = document.getElementById("matrixContentArea");
@@ -876,7 +874,7 @@
         })
         .withFailureHandler(function(err) {
           showLoading(false);
-          showCustomAlert("· Error: 기록을 불러오지 못했습니다.<br>(" + err.message + ")");
+          showCustomAlert("· Error: 기록을 불러오지 못했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
         })
         .getStudentHistory(teacher, className, studentName, dateVal);
     }
@@ -952,14 +950,21 @@
         if (e.target.files.length) processExcel(e.target.files[0]);
     });
 
-    // 🔴 [수정됨] 에러 메시지 서식 통일 및 모달 닫힘/유지 로직 정밀 조정
     function processExcel(file) {
         let sDate = document.getElementById('upStartDate').value;
         let eDate = document.getElementById('upEndDate').value;
         let tName = document.getElementById('upTermName').value;
 
         if(!sDate || !eDate || !tName) {
+            document.getElementById('fileInput').value = '';
             showCustomAlert("· Error: 상단의 [시작 날짜], [종료 날짜], [학기]를<br>모두 선택해 주세요.");
+            return;
+        }
+
+        // 🔴 [수정됨] 시작 날짜가 종료 날짜보다 뒤일 경우 방어(Validation)
+        if(sDate > eDate) {
+            document.getElementById('fileInput').value = '';
+            showCustomAlert("· Error: 종료 날짜가 시작 날짜보다 빠를 수 없습니다.<br>날짜를 다시 확인해 주세요.");
             return;
         }
 
@@ -1038,7 +1043,8 @@
                     })
                     .withFailureHandler(function(err) {
                         showLoading(false);
-                        showCustomAlert("· Error: " + err.message);
+                        document.getElementById('fileInput').value = '';
+                        showCustomAlert("· Error: " + err.message.replace(/^Error:\s*/, '').trim());
                     })
                     .uploadNewTerm({
                         termName: tName,
@@ -1049,7 +1055,8 @@
 
             } catch (err) {
                 showLoading(false);
-                showCustomAlert("· Error: " + err.message);
+                document.getElementById('fileInput').value = '';
+                showCustomAlert("· Error: " + err.message.replace(/^Error:\s*/, '').trim());
             }
         };
         reader.readAsArrayBuffer(file);
