@@ -66,27 +66,26 @@
 
     .academy-header-bar { margin-top: 15px; background-color: #495057; color: #ffffff; padding: 10px 25px; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; justify-content: center; align-items: center; position: relative; }
     
-    /* 🔴 [수정 완료] 플로팅 업로드 버튼 사이즈 축소 및 아이콘 정렬 교정 */
     .floating-upload-btn {
       position: fixed; bottom: 35px; left: 35px; z-index: 9999;
-      height: 36px; width: 36px; border-radius: 18px;
+      height: 40px; width: 40px; border-radius: 20px;
       background-color: #28a745; color: white; border: none;
       box-shadow: 0 4px 10px rgba(0,0,0,0.25); cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .floating-upload-btn:hover {
-      width: 145px; background-color: #218838; border-radius: 18px;
+      width: 155px; background-color: #218838; border-radius: 20px;
     }
     .floating-upload-btn .btn-icon-wrap {
       position: absolute; left: 0; top: 0; display: flex; align-items: center; justify-content: center;
-      width: 100%; height: 100%; font-size: 22px; font-weight: 300; line-height: 0;
+      width: 100%; height: 100%; font-size: 24px; font-weight: 300; line-height: 0;
       padding: 0; margin: 0;
       transition: opacity 0.2s;
     }
     .floating-upload-btn:hover .btn-icon-wrap { opacity: 0; }
     .floating-upload-btn .btn-text-wrap {
-      opacity: 0; white-space: nowrap; font-size: 12px; font-weight: bold;
+      opacity: 0; white-space: nowrap; font-size: 13px; font-weight: bold;
       transition: opacity 0.2s; transition-delay: 0.05s; pointer-events: none;
     }
     .floating-upload-btn:hover .btn-text-wrap { opacity: 1; pointer-events: auto; }
@@ -160,6 +159,7 @@
 </head>
 <body>
 
+  <!-- 플로팅 업로드 버튼 (좌측 하단) -->
   <button class="floating-upload-btn" onclick="openUploadModal()" title="명단 자동 업로드">
     <div class="btn-icon-wrap">+</div>
     <div class="btn-text-wrap">새 학기 명단 업로드</div>
@@ -180,8 +180,9 @@
   </div>
 
   <div class="modal-overlay" id="uploadModalOverlay">
-    <div class="modal-box" style="width: 480px; padding: 30px 25px;">
-      <div style="font-size: 18px; font-weight: 900; color: #1a3978; margin-bottom: 8px;">새 학기 명단 자동 업로드</div>
+    <div class="modal-box" style="width: 480px; padding: 25px;">
+      <!-- 🔴 [수정됨] 제목을 파란색 둥근 박스로 감싸고 흰색 텍스트로 강조 -->
+      <div style="font-size: 18px; font-weight: 900; background-color: #1366ce; color: white; padding: 14px 0; border-radius: 12px; margin-bottom: 15px;">새 학기 명단 자동 업로드</div>
       <div id="latestTermInfo" style="font-size: 13px; color: #dc3545; font-weight: bold; margin-bottom: 25px;">📌 최근 등록된 학기 종료일: 확인 중...</div>
 
       <div style="display: flex; gap: 15px; margin-bottom: 15px; text-align: left;">
@@ -216,7 +217,9 @@
          <div style="font-size:15px; font-weight:bold; color:#1366ce; margin-bottom:8px;">엑셀 파일을 이곳에 끌어다 놓거나 클릭하세요.</div>
          <div style="font-size:12px; color:#888; line-height: 1.4;">
             ※ ACA2000 다운로드 원본 파일 그대로 업로드 가능<br>
-            (시스템이 자동으로 열 위치를 탐색하여 정렬합니다)
+            (시스템이 자동으로 열 위치를 탐색하여 정렬합니다)<br><br>
+            <!-- 🔴 [수정됨] 기본 목록 텍스트 추가 -->
+            - 기본 목록: 반명, 학생명, 학교명, 학년, 담임, 강의실
          </div>
          <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;">
       </div>
@@ -336,7 +339,6 @@
             _fetch: async function(action, payload = {}) {
                 const campus = document.getElementById("campusSelect").value;
                 if (!campus) {
-                    // 🔴 [수정 완료] Error 문자열 필터링 추가
                     if (this.failureCb) this.failureCb(new Error("캠퍼스를 먼저 선택해 주세요."));
                     else showCustomAlert("· Error: 캠퍼스를 먼저 선택해 주세요.");
                     return;
@@ -518,7 +520,14 @@
         teacherSelect.disabled = true;
 
         globalAcademyName = initialData.academyName; 
-        globalLatestEndDate = initialData.latestEndDate || "등록된 학기 없음";
+        
+        // 🔴 [수정됨] 프론트엔드에서 최근 등록 날짜 포맷 예쁘게 변경 (YYYY.MM.DD(요일))
+        if (initialData.latestEndDate && initialData.latestEndDate !== "등록된 학기 없음") {
+            globalLatestEndDate = formatDateWithDay(initialData.latestEndDate);
+        } else {
+            globalLatestEndDate = "등록된 학기 없음";
+        }
+
         document.getElementById("mainTitleDisplay").textContent = globalAcademyName + " - 체크리스트 관리자 대시보드";
         
         teacherSelect.innerHTML = '<option value="All">All (모든 선생님)</option>';
@@ -961,7 +970,6 @@
             return;
         }
 
-        // 🔴 [수정됨] 시작 날짜가 종료 날짜보다 뒤일 경우 방어(Validation)
         if(sDate > eDate) {
             document.getElementById('fileInput').value = '';
             showCustomAlert("· Error: 종료 날짜가 시작 날짜보다 빠를 수 없습니다.<br>날짜를 다시 확인해 주세요.");
