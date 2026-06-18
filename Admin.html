@@ -65,6 +65,8 @@
     .matrix-table tbody tr:last-child td { border-bottom: none; }
 
     .academy-header-bar { margin-top: 15px; background-color: #495057; color: #ffffff; padding: 10px 25px; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; justify-content: center; align-items: center; position: relative; }
+    /* 🔴 [수정 완료] 우측 고정 CSS 복구 */
+    .academy-header-bar a { position: absolute; right: 25px; }
     
     .floating-upload-btn {
       position: fixed; bottom: 35px; left: 35px; z-index: 9999;
@@ -159,7 +161,6 @@
 </head>
 <body>
 
-  <!-- 플로팅 업로드 버튼 (좌측 하단) -->
   <button class="floating-upload-btn" onclick="openUploadModal()" title="명단 자동 업로드">
     <div class="btn-icon-wrap">+</div>
     <div class="btn-text-wrap">새 학기 명단 업로드</div>
@@ -181,7 +182,6 @@
 
   <div class="modal-overlay" id="uploadModalOverlay">
     <div class="modal-box" style="width: 480px; padding: 25px;">
-      <!-- 🔴 [수정됨] 제목을 파란색 둥근 박스로 감싸고 흰색 텍스트로 강조 -->
       <div style="font-size: 18px; font-weight: 900; background-color: #1366ce; color: white; padding: 14px 0; border-radius: 12px; margin-bottom: 15px;">새 학기 명단 자동 업로드</div>
       <div id="latestTermInfo" style="font-size: 13px; color: #dc3545; font-weight: bold; margin-bottom: 25px;">📌 최근 등록된 학기 종료일: 확인 중...</div>
 
@@ -218,7 +218,6 @@
          <div style="font-size:12px; color:#888; line-height: 1.4;">
             ※ ACA2000 다운로드 원본 파일 그대로 업로드 가능<br>
             (시스템이 자동으로 열 위치를 탐색하여 정렬합니다)<br><br>
-            <!-- 🔴 [수정됨] 기본 목록 텍스트 추가 -->
             - 기본 목록: 반명, 학생명, 학교명, 학년, 담임, 강의실
          </div>
          <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;">
@@ -521,7 +520,6 @@
 
         globalAcademyName = initialData.academyName; 
         
-        // 🔴 [수정됨] 프론트엔드에서 최근 등록 날짜 포맷 예쁘게 변경 (YYYY.MM.DD(요일))
         if (initialData.latestEndDate && initialData.latestEndDate !== "등록된 학기 없음") {
             globalLatestEndDate = formatDateWithDay(initialData.latestEndDate);
         } else {
