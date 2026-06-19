@@ -37,7 +37,6 @@
     .history-close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #888; }
     .history-close-btn:hover { color: #333; }
     .history-content { overflow-y: auto; flex: 1; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea; }
-    
     .history-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 0; }
     .history-table th { background-color: #f8f9fa; font-weight: bold; padding: 10px 8px; text-align: center; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; color: #333; position: sticky; top: 0; z-index: 2; border-top: none; border-left: none; }
     .history-table td { padding: 8px; text-align: center; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; vertical-align: middle; border-top: none; border-left: none; }
@@ -351,9 +350,9 @@
     window.loadedState = null;
 
     const CAMPUS_URLS = {
-      "yeongtong": "https://script.google.com/macros/s/AKfycbwV5hXkSNGT2_jkCrQakQieov2OswU9x-zCBSkquarMujUqoKXdSZO_ih0OyQxftodu/exec",
-      "dongtan": "https://script.google.com/macros/s/AKfycbwMtIkLaAF85AYQgpWXsVmwftBnPKy0tOV65X8zKajto0srs4MM6pA4oRcczZHDqRcXNg/exec",
-      "yeongcheon": "https://script.google.com/macros/s/AKfycbw6lnnvzOvUykYBM32FvNb66m98e0frXWuQPV0bn-GVAfvVcMNR0ne5g04qu-W763_u/exec"
+      "yeongtong": "https://script.google.com/macros/s/AKfycbzVdG6stb-OvSnFEzFm34L_4HcMr0C-hsU9xCgzp_1W0AJcsn1ykbrsq7SmWcwwaTDG/exec",
+      "dongtan": "https://script.google.com/macros/s/AKfycbzRcme0LEJ5O3PEqjekUkGSA-zBl_a1Kgb1aLR85A9DBIOA8G-u8uGWAMbx1ThLLw4ITQ/exec",
+      "yeongcheon": "https://script.google.com/macros/s/AKfycbxw9tIiVEb95yEtsCc7Zo1HkoYRAZHCi9KyUdhkXDABU_on2zK659EkjMdrlhIh_ZvC/exec"
     };
 
     function createGoogleScriptMock() {
@@ -370,7 +369,7 @@
                 const campus = document.getElementById("campusSelect").value;
                 if (!campus) {
                     if (this.failureCb) this.failureCb(new Error("캠퍼스를 먼저 선택해 주세요."));
-                    else showCustomAlert("· Error: 캠퍼스를 먼저 선택해 주세요.");
+                    else showCustomAlert("캠퍼스를 먼저 선택해 주세요.");
                     return;
                 }
                 const url = CAMPUS_URLS[campus];
@@ -440,7 +439,7 @@
     function checkLockdown(e) {
       if (!document.getElementById("campusSelect").value) {
         if(e) e.preventDefault();
-        showCustomAlert("· Error: 좌측 상단의 [캠퍼스]를 먼저 선택해 주세요.");
+        showCustomAlert("좌측 상단의 [캠퍼스]를 먼저 선택해 주세요.");
         return true;
       }
       return false;
@@ -504,8 +503,8 @@
     function promptAdminCode(e) {
       e.preventDefault();
       const campus = document.getElementById("campusSelect").value;
-      if (!campus) { showCustomAlert("· Error: 캠퍼스를 먼저 선택해 주세요."); return; }
-      if (!globalAdminCode) { showCustomAlert("· Error: 코드가 설정되지 않았습니다.<br>관리자에게 문의해 주세요."); return; }
+      if (!campus) { showCustomAlert("캠퍼스를 먼저 선택해 주세요."); return; }
+      if (!globalAdminCode) { showCustomAlert("코드가 설정되지 않았습니다.<br>관리자에게 문의해 주세요."); return; }
       
       let proceedToPrompt = function() {
         showCustomPrompt("관리자 코드를 입력해 주세요.", function(code) {
@@ -514,7 +513,7 @@
              sessionStorage.setItem('auth_campus_' + campus, 'true'); 
              window.location.href = "Admin.html?campus=" + campus;
           } 
-          else { showCustomAlert("· Error: 관리자 코드가 일치하지 않습니다."); }
+          else { showCustomAlert("관리자 코드가 일치하지 않습니다."); }
         });
       };
 
@@ -582,7 +581,20 @@
         classMetaSchedule = {};
         scheduleArray.forEach(item => {
            classMetaSchedule[item.name] = item.details;
-           let opt = document.createElement("option"); opt.value = item.name; opt.textContent = item.name; 
+           let opt = document.createElement("option"); 
+           opt.value = item.name; 
+           
+           let dispName = item.name;
+           if(item.details.status === "past") dispName += " (지난 학기)";
+           else if(item.details.status === "future") dispName += " (예정 학기)";
+           opt.textContent = dispName;
+           
+           if(item.details.status !== "current") {
+               opt.style.color = "#b0b0b0";
+           } else {
+               opt.style.color = "#333";
+           }
+           
            classSelect.appendChild(opt); 
         });
         classSelect.disabled = false;
@@ -592,12 +604,47 @@
     function handleClassChange(el) {
         let attemptVal = el.value;
         let prevVal = el.dataset.prev || "";
+        
+        let checkDirty = function() {
+            let status = classMetaSchedule[attemptVal]?.status || "current";
+            if(status === "past") {
+                showCustomConfirm("지난 학기의 반입니다. 계속 진행할까요?", function() {
+                    finalizeClassChange(attemptVal);
+                }, function() {
+                    el.value = prevVal; 
+                    if(prevVal) { el.style.color = (classMetaSchedule[prevVal]?.status !== "current") ? "#b0b0b0" : "#333"; } 
+                    else { el.style.color = ""; }
+                });
+            } else if (status === "future") {
+                showCustomConfirm("예정 학기의 반입니다. 계속 진행할까요?", function() {
+                    finalizeClassChange(attemptVal);
+                }, function() {
+                    el.value = prevVal; 
+                    if(prevVal) { el.style.color = (classMetaSchedule[prevVal]?.status !== "current") ? "#b0b0b0" : "#333"; } 
+                    else { el.style.color = ""; }
+                });
+            } else {
+                finalizeClassChange(attemptVal);
+            }
+        };
+
         if (isDirty) {
             el.value = prevVal; 
             showCustomConfirm("저장되지 않은 변경 사항이 있습니다.<br>무시하고 반을 변경하시겠습니까?", function() {
-                isDirty = false; el.value = attemptVal; onClassSelectAutoTrigger();
+                isDirty = false; el.value = attemptVal; checkDirty();
             });
-        } else { onClassSelectAutoTrigger(); }
+        } else { checkDirty(); }
+    }
+
+    function finalizeClassChange(val) {
+        const classSelect = document.getElementById("classSelect");
+        classSelect.dataset.prev = val;
+        if(classMetaSchedule[val].status !== "current") {
+            classSelect.style.color = "#b0b0b0"; 
+        } else {
+            classSelect.style.color = "#333";
+        }
+        onClassSelectAutoTrigger();
     }
 
     function onClassChange() {
@@ -653,7 +700,7 @@
 
     function onSearchClick() {
       const teacher = document.getElementById("teacherSelect").value; const className = document.getElementById("classSelect").value; const dateVal = document.getElementById("dateInput").value;
-      if (!teacher || !className || !dateVal) { showCustomAlert("· Error: 담임명, 반명, 날짜를 모두 선택해 주세요."); return; }
+      if (!teacher || !className || !dateVal) { showCustomAlert("담임명, 반명, 날짜를 모두 선택해 주세요."); return; }
       
       const dayNum = new Date(dateVal).getDay(); 
       const isM = /(M)([012])/.test(className); const isTS = /(TS)(1|2)/.test(className); const isT = /(?<!S)(T)([012])/.test(className); const isS = /(?<!T)(S)(1|2)/.test(className);
@@ -1025,7 +1072,7 @@
 
     function saveData() {
       const teacher = document.getElementById("teacherSelect").value; const date = document.getElementById("dateInput").value; const className = document.getElementById("classSelect").value;
-      if(studentList.length === 0) { showCustomAlert("· Error: 저장할 데이터가 없습니다."); return; }
+      if(studentList.length === 0) { showCustomAlert("저장할 데이터가 없습니다."); return; }
       
       const emptyNew = studentList.filter(st => st.isNew && st.name.trim() === "");
       if (emptyNew.length > 0) { 
