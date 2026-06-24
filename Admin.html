@@ -12,7 +12,7 @@
 
   <style>
     @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
-    body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; }
+    body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
     
     .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #1366ce; border-radius: 50%; animation: spin 1s linear infinite; }
@@ -26,13 +26,22 @@
     .prompt-input::placeholder { color: #b0b0b0; font-weight: normal; }
     .prompt-input:focus { border-color: #1366ce; box-shadow: 0 0 0 3px rgba(19,102,206,0.2); }
     
-    .modal-buttons { display: flex; justify-content: center; gap: 10px; }
-    .modal-btn { padding: 10px 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; cursor: pointer; flex: 1; transition: 0.2s; }
+    .modal-buttons { display: flex; justify-content: center; gap: 10px; width: 100%; }
+    
+    .modal-btn { padding: 10px 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
+    #modalBtnNo, #modalBtnYes, #modalBtnOk { flex: 1; }
+    
     .btn-ok { background-color: #1366ce; color: white; } .btn-ok:hover { background-color: #0f52a8; }
     .btn-no { background-color: #f1f3f5; color: #495057; } .btn-no:hover { background-color: #e2e6ea; }
     .btn-yes { background-color: #1366ce; color: white; } .btn-yes:hover { background-color: #0f52a8; }
 
     #customModalOverlay { z-index: 10006 !important; }
+
+    .setting-section { text-align: left; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eaeaea; height: 120px; box-sizing: border-box; display: flex; flex-direction: column; }
+    .setting-section.last { border-bottom: none; margin-bottom: 0; padding-bottom: 0; height: 104px; }
+    .setting-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0; }
+    .setting-desc { font-size: 12px; color: #666; line-height: 1.4; margin-bottom: auto; }
+    .setting-input { display: flex; gap: 10px; align-items: center; flex-shrink: 0; height: 30px; }
 
     .history-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 10001; justify-content: center; align-items: center; }
     .history-box { background: white; width: 90%; max-width: 800px; max-height: 80vh; border-radius: 8px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
@@ -67,46 +76,37 @@
     .academy-header-bar { margin-top: 15px; background-color: #495057; color: #ffffff; padding: 10px 25px; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; justify-content: center; align-items: center; position: relative; }
     .academy-header-bar a { position: absolute; right: 25px; }
     
-    .floating-upload-btn {
-      position: fixed; bottom: 35px; left: 35px; z-index: 9999;
-      height: 40px; width: 40px; border-radius: 20px;
-      background-color: #28a745; color: white; border: none;
+    .floating-btn-container { position: fixed; bottom: 25px; left: 25px; z-index: 9999; display: flex; flex-direction: row; gap: 12px; }
+
+    .floating-setting-btn, .floating-upload-btn {
+      height: 36px; width: 36px; border-radius: 18px;
+      color: white; border: none;
       box-shadow: 0 4px 10px rgba(0,0,0,0.25); cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
     }
-    .floating-upload-btn:hover {
-      width: 155px; background-color: #218838; border-radius: 20px;
-    }
-    .floating-upload-btn .btn-icon-wrap {
+    .floating-setting-btn { background-color: #6c757d; }
+    .floating-upload-btn { background-color: #28a745; }
+
+    .floating-setting-btn:hover { width: 95px; background-color: #5a6268; border-radius: 18px; }
+    .floating-upload-btn:hover { width: 145px; background-color: #218838; border-radius: 18px; }
+
+    .floating-setting-btn .btn-icon-wrap, .floating-upload-btn .btn-icon-wrap {
       position: absolute; left: 0; top: 0; display: flex; align-items: center; justify-content: center;
-      width: 100%; height: 100%; font-size: 24px; font-weight: 300; line-height: 0;
+      width: 100%; height: 100%; font-size: 16px; font-weight: 400; line-height: 0;
       padding: 0; margin: 0;
       transition: opacity 0.2s;
     }
-    .floating-upload-btn:hover .btn-icon-wrap { opacity: 0; }
-    .floating-upload-btn .btn-text-wrap {
-      opacity: 0; white-space: nowrap; font-size: 13px; font-weight: bold;
-      transition: opacity 0.2s; transition-delay: 0.05s; pointer-events: none;
-    }
-    .floating-upload-btn:hover .btn-text-wrap { opacity: 1; pointer-events: auto; }
+    .floating-upload-btn .btn-icon-wrap { font-size: 22px; padding-bottom: 2px; }
 
-    /* 🔴 [수정됨] 마우스 오버 시 - 아이콘이 완벽히 사라지고 텍스트만 보이도록 구조 변경 */
-    .btn-term-delete {
-      height: 34px; width: 34px; border-radius: 17px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); background-color: #dc3545; position: relative;
-    }
-    .btn-term-delete:hover { width: 145px; background-color: #c82333; border-radius: 17px; }
-    .btn-term-delete .btn-icon-wrap {
-      position: absolute; left: 0; top: 0; display: flex; align-items: center; justify-content: center;
-      width: 100%; height: 100%; font-size: 20px; font-weight: 900; line-height: 0; padding: 0; margin: 0; padding-bottom: 2px;
-      transition: opacity 0.2s;
-    }
-    .btn-term-delete:hover .btn-icon-wrap { opacity: 0; }
-    .btn-term-delete .btn-text-wrap {
-      opacity: 0; white-space: nowrap; font-size: 13px; font-weight: bold;
+    .floating-setting-btn:hover .btn-icon-wrap, .floating-upload-btn:hover .btn-icon-wrap { opacity: 0; }
+    
+    .floating-setting-btn .btn-text-wrap, .floating-upload-btn .btn-text-wrap {
+      opacity: 0; white-space: nowrap; font-size: 12px; font-weight: bold;
       transition: opacity 0.2s; transition-delay: 0.05s; pointer-events: none;
     }
-    .btn-term-delete:hover .btn-text-wrap { opacity: 1; pointer-events: auto; }
+    .floating-setting-btn:hover .btn-text-wrap, .floating-upload-btn:hover .btn-text-wrap { opacity: 1; pointer-events: auto; }
     
     .app-body { padding: 20px; }
     
@@ -173,14 +173,37 @@
     
     input[type="checkbox"] { transform: scale(1.3); cursor: pointer; margin: 4px 2px; }
     .master-checkbox { transform: scale(1.3); margin-top: 12px; cursor: pointer; }
+
+    .term-row { display: flex; align-items: center; gap: 8px; background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #ced4da; transition: 0.2s; }
+    .term-row.deleted { opacity: 0.6; filter: grayscale(50%); border-color: #dc3545; }
+    
+    .term-input { width: 100%; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; font-family: 'Pretendard', sans-serif; outline: none; height: 38px; box-sizing: border-box; text-align: center; }
+    .term-input:disabled { background-color: #e9ecef; color: #6c757d; }
+    .term-input:focus { border-color: #1366ce; }
+    
+    .term-del-btn { 
+      background-color: #dc3545; color: white; border: none; border-radius: 4px; font-size: 13px; cursor: pointer; font-weight: bold; transition: 0.2s; 
+      height: 38px; width: 80px; min-width: 80px; flex-shrink: 0; white-space: nowrap; box-sizing: border-box; display: flex; align-items: center; justify-content: center;
+    }
+    .term-del-btn.active { background-color: #6c757d; box-shadow: inset 0 3px 5px rgba(0,0,0,0.2); }
   </style>
 </head>
 <body>
 
-  <button class="floating-upload-btn" onclick="openUploadModal()" title="명단 자동 업로드">
-    <div class="btn-icon-wrap">+</div>
-    <div class="btn-text-wrap">새 학기 명단 업로드</div>
-  </button>
+  <div class="floating-btn-container">
+    <button class="floating-setting-btn" onclick="openSettingsModal()" title="환경설정">
+      <div class="btn-icon-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white">
+          <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+        </svg>
+      </div>
+      <div class="btn-text-wrap">환경설정</div>
+    </button>
+    <button class="floating-upload-btn" onclick="openUploadModal()" title="명단 자동 업로드">
+      <div class="btn-icon-wrap">+</div>
+      <div class="btn-text-wrap">새 학기 명단 업로드</div>
+    </button>
+  </div>
 
   <div class="spinner-overlay" id="globalSpinner"><div class="spinner"></div><div class="spinner-text" id="spinnerText">체크리스트 데이터를 불러오는 중입니다.</div></div>
   
@@ -193,6 +216,93 @@
         <button id="modalBtnYes" class="modal-btn btn-yes" style="display:none;">예</button>
         <button id="modalBtnOk" class="modal-btn btn-ok" style="display:inline-block;">확인</button>
       </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="settingsModalOverlay">
+    <div class="modal-box" style="width: 480px; padding: 20px 25px;">
+      <div style="font-size: 18px; font-weight: 900; background-color: #6c757d; color: white; padding: 12px 0; border-radius: 12px; margin-bottom: 20px;">환경설정</div>
+      
+      <div class="setting-section">
+         <div class="setting-header">
+           <div style="font-size:14px; font-weight:bold; color:#333;">🏢 학원명 설정</div>
+           <button class="modal-btn btn-ok" style="padding: 4px 15px; font-size: 12px; height: 28px; border-radius: 50px; min-width: 60px; line-height: 1;" onclick="saveAcademyNameSetting()">저장</button>
+         </div>
+         <div class="setting-desc">메인 학원명 및 복사 항목에 들어갈 학원명을 설정합니다.<br>(캠퍼스 선택의 학원명은 수정되지 않습니다.)</div>
+         <div class="setting-input">
+           <input type="text" id="settingAcademyName" style="width: 150px; padding: 6px 10px; border: 1px solid #ced4da; border-radius: 4px; text-align: center; font-weight:bold;" placeholder="학원명 입력">
+         </div>
+      </div>
+
+      <div class="setting-section">
+         <div class="setting-header">
+           <div style="font-size:14px; font-weight:bold; color:#333;">🔑 관리자 코드 설정</div>
+           <button class="modal-btn btn-ok" style="padding: 4px 15px; font-size: 12px; height: 28px; border-radius: 50px; min-width: 60px; line-height: 1;" onclick="saveAdminCodeSetting()">저장</button>
+         </div>
+         <div class="setting-desc">선생님 앱에서 관리자 모드로 진입할 때 사용하는 암호를 설정합니다.</div>
+         <div class="setting-input">
+           <input type="text" id="settingAdminCode" style="width: 150px; padding: 6px 10px; border: 1px solid #ced4da; border-radius: 4px; text-align: center; font-weight:bold;" placeholder="코드 입력">
+         </div>
+      </div>
+
+      <div class="setting-section">
+         <div class="setting-header">
+           <div style="font-size:14px; font-weight:bold; color:#333;">🕒 선생님 앱 지난 학기 표시</div>
+           <button class="modal-btn btn-ok" style="padding: 4px 15px; font-size: 12px; height: 28px; border-radius: 50px; min-width: 60px; line-height: 1;" onclick="savePastDaysSetting()">저장</button>
+         </div>
+         <div class="setting-desc">현재 학기 시작일로부터 며칠 동안 노출할지 설정합니다.<br>(지정된 일수가 지나면 선생님 앱 목록에서 숨겨집니다.)</div>
+         <div class="setting-input">
+           <input type="number" id="settingPastDays" style="width: 100px; padding: 6px 10px; border: 1px solid #ced4da; border-radius: 4px; text-align: center; font-weight:bold;" min="0">
+           <span style="font-size:13px; font-weight:bold; color:#555;">일 동안 노출</span>
+         </div>
+      </div>
+
+      <div class="setting-section">
+         <div class="setting-header">
+           <div style="font-size:14px; font-weight:bold; color:#333;">📋 특정 학기 명단 관리</div>
+           <button class="modal-btn" style="background-color:#dc3545; color:white; border-radius: 50px; padding: 4px 15px; font-size: 12px; height: 28px; min-width: 60px; border:none; cursor:pointer; line-height: 1;" onclick="openTermManageModal()">명단 수정 / 삭제</button>
+         </div>
+         <div class="setting-desc">선택한 학기의 명단 파일을 수정 또는 삭제 합니다.<br>(※ <span style="color:#dc3545; font-weight:bold;">명단 삭제 후에는 복구가 불가능</span>)</div>
+         <div class="setting-input"></div>
+      </div>
+
+      <div class="setting-section last">
+         <div class="setting-header">
+           <div style="font-size:14px; font-weight:bold; color:#333;">💾 데이터 통합 백업 및 삭제</div>
+           <button class="modal-btn" style="background-color:#dc3545; color:white; border-radius: 50px; padding: 4px 15px; font-size: 12px; height: 28px; min-width: 60px; border:none; cursor:pointer; line-height: 1;" onclick="runIntegratedBackup()">데이터 백업 / 삭제</button>
+         </div>
+         <div class="setting-desc">오늘 기준 <b>1년 전</b> 과거 데이터를 백업하고 원본에서 영구 삭제합니다.<br>(※ <span style="color:#dc3545; font-weight:bold;">백업 후 삭제된 학기는 추후 조회 불가</span>)</div>
+         <div class="setting-input"></div> 
+      </div>
+
+      <div class="modal-buttons" style="display: flex; width: 100%; margin-top: 15px;">
+        <button class="modal-btn btn-no" style="flex:none; width: 120px; border-radius: 50px; padding: 10px 20px;" onclick="closeSettingsModal()">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="termManageModalOverlay" style="z-index: 10001;">
+    <div class="modal-box" style="width: 750px; padding: 0; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; background-color: #f4f6f9;">
+      
+      <div style="background-color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ced4da; box-shadow: 0 2px 4px rgba(0,0,0,0.05); z-index: 10;">
+        <div style="font-size: 16px; font-weight: 900; color: #1a3978;">📋 특정 학기 명단 수정 및 삭제</div>
+        <div style="display: flex; gap: 10px;">
+          <button class="modal-btn btn-no" style="padding: 6px 20px; font-size: 14px; min-width: 70px; flex: none;" onclick="closeTermManageModal()">닫기</button>
+          <button class="modal-btn btn-ok" style="padding: 6px 20px; font-size: 14px; min-width: 70px; flex: none;" onclick="applyTermChanges()">적용</button>
+        </div>
+      </div>
+      
+      <div style="display: flex; gap: 8px; padding: 15px 36px 0 31px; font-size: 12px; font-weight: bold; color: #555; align-items: center;">
+        <div style="width: 32px; flex-shrink: 0; text-align: center;">선택</div>
+        <div style="flex: 1; text-align: center;">학기 명단 이름</div>
+        <div style="flex: 1; text-align: center;">시작 날짜</div>
+        <div style="flex: 1; text-align: center;">종료 날짜</div>
+        <div style="width: 80px; flex-shrink: 0; text-align: center;">삭제 관리</div>
+      </div>
+
+      <div id="termManageContent" style="flex: 1; overflow-y: auto; padding: 8px 20px 15px 20px;">
+        </div>
+      
     </div>
   </div>
 
@@ -239,16 +349,9 @@
          <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;">
       </div>
 
-      <div class="modal-buttons" style="margin-bottom: 15px;">
-        <button class="modal-btn btn-no" onclick="closeUploadModal()">취소</button>
+      <div class="modal-buttons" style="margin-bottom: 5px; display: flex; width: 100%;">
+        <button class="modal-btn btn-no" style="flex:none; width: 120px; border-radius: 50px; padding: 10px 20px;" onclick="closeUploadModal()">닫기</button>
       </div>
-      
-      <div style="border-top: 1px solid #eaeaea; padding-top: 15px; display: flex; justify-content: flex-start;">
-         <button class="btn-term-delete" onclick="checkAndDeletePastTerms()" title="지난 학기 명단 삭제">
-            <span class="btn-icon-wrap">&minus;</span><span class="btn-text-wrap">지난 학기 명단 삭제</span>
-         </button>
-      </div>
-
     </div>
   </div>
 
@@ -342,12 +445,16 @@
 
   <script>
     const CAMPUS_URLS = {
-      "yeongtong": "https://script.google.com/macros/s/AKfycbwV5hXkSNGT2_jkCrQakQieov2OswU9x-zCBSkquarMujUqoKXdSZO_ih0OyQxftodu/exec",
-      "dongtan": "https://script.google.com/macros/s/AKfycbwMtIkLaAF85AYQgpWXsVmwftBnPKy0tOV65X8zKajto0srs4MM6pA4oRcczZHDqRcXNg/exec",
-      "yeongcheon": "https://script.google.com/macros/s/AKfycbw6lnnvzOvUykYBM32FvNb66m98e0frXWuQPV0bn-GVAfvVcMNR0ne5g04qu-W763_u/exec"
+      "yeongtong": "https://script.google.com/macros/s/AKfycbzVdG6stb-OvSnFEzFm34L_4HcMr0C-hsU9xCgzp_1W0AJcsn1ykbrsq7SmWcwwaTDG/exec",
+      "dongtan": "https://script.google.com/macros/s/AKfycbzRcme0LEJ5O3PEqjekUkGSA-zBl_a1Kgb1aLR85A9DBIOA8G-u8uGWAMbx1ThLLw4ITQ/exec",
+      "yeongcheon": "https://script.google.com/macros/s/AKfycbxw9tIiVEb95yEtsCc7Zo1HkoYRAZHCi9KyUdhkXDABU_on2zK659EkjMdrlhIh_ZvC/exec"
     };
 
     let globalTermSheets = [];
+    let currentBackupPayload = null;
+
+    let termManageData = [];
+    let termModifications = {};
 
     function createGoogleScriptMock() {
         return {
@@ -359,7 +466,14 @@
             getStudentHistory: function(teacherName, className, studentName, dateStr) { this._fetch('getStudentHistory', {teacherName, className, studentName, dateStr}); },
             getTeacherMatrixHistory: function(payload) { this._fetch('getTeacherMatrixHistory', payload); },
             uploadNewTerm: function(payload) { this._fetch('uploadNewTerm', payload); }, 
-            deletePastTerms: function(payload) { this._fetch('deletePastTerms', payload); }, 
+            
+            getSettings: function() { this._fetch('getSettings'); },
+            saveSettings: function(payload) { this._fetch('saveSettings', payload); },
+            apiIntegratedBackup: function() { this._fetch('apiIntegratedBackup'); },
+            apiIntegratedDelete: function(payload) { this._fetch('apiIntegratedDelete', payload); },
+            
+            getTermListForEdit: function() { this._fetch('getTermListForEdit'); },
+            applyTermModifications: function(payload) { this._fetch('applyTermModifications', payload); },
             
             _fetch: async function(action, payload = {}) {
                 const campus = document.getElementById("campusSelect").value;
@@ -586,12 +700,17 @@
     }
 
     function getDayOfWeek(dateStr) {
-      const parts = dateStr.split('-'); const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+      if(!dateStr) return "";
+      const parts = dateStr.split('-'); 
+      if(parts.length < 3) return "";
+      const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
       return ["일", "월", "화", "수", "목", "금", "토"][d.getDay()];
     }
 
     function formatDateWithDay(dateStr) {
+       if(!dateStr) return "";
        let parts = dateStr.split('-');
+       if(parts.length < 3) return dateStr;
        let d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
        let day = ["일", "월", "화", "수", "목", "금", "토"][d.getDay()];
        return `${parts[0]}.${parts[1]}.${parts[2]}(${day})`;
@@ -954,6 +1073,288 @@
         }
     }
 
+    function openSettingsModal() {
+        if(checkLockdown()) return;
+        document.getElementById('settingsModalOverlay').style.display = 'flex';
+        showLoading(true, "환경설정을 불러오는 중입니다...");
+        google.script.run.withSuccessHandler(function(res) {
+            showLoading(false);
+            document.getElementById('settingAcademyName').value = res.academyName || globalAcademyName;
+            document.getElementById('settingAdminCode').value = res.adminCode;
+            document.getElementById('settingPastDays').value = res.pastTermDays;
+        }).withFailureHandler(function(err){
+            showLoading(false);
+            showCustomAlert("· Error: 설정을 불러오지 못했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+        }).getSettings();
+    }
+    
+    function closeSettingsModal() {
+        document.getElementById('settingsModalOverlay').style.display = 'none';
+    }
+
+    function saveAcademyNameSetting() {
+        let name = document.getElementById('settingAcademyName').value.trim();
+        if(name === "") { showCustomAlert("학원명을 입력해 주세요."); return; }
+        
+        showLoading(true, "학원명을 저장 중입니다...");
+        google.script.run.withSuccessHandler(function() {
+            showLoading(false);
+            globalAcademyName = name; 
+            document.getElementById("mainTitleDisplay").textContent = globalAcademyName + " - 체크리스트 관리자 대시보드";
+            showCustomAlert("학원명이 성공적으로 저장되었습니다.");
+        }).withFailureHandler(function(err){
+            showLoading(false);
+            showCustomAlert("· Error: 저장에 실패했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+        }).saveSettings({ academyName: name });
+    }
+
+    function saveAdminCodeSetting() {
+        let code = document.getElementById('settingAdminCode').value.trim();
+        if(code === "") { showCustomAlert("관리자 코드를 입력해 주세요."); return; }
+        
+        showLoading(true, "관리자 코드를 저장 중입니다...");
+        google.script.run.withSuccessHandler(function() {
+            showLoading(false);
+            showCustomAlert("관리자 코드가 안전하게 저장되었습니다.");
+        }).withFailureHandler(function(err){
+            showLoading(false);
+            showCustomAlert("· Error: 저장에 실패했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+        }).saveSettings({ adminCode: code });
+    }
+
+    function savePastDaysSetting() {
+        let days = document.getElementById('settingPastDays').value;
+        if(days === "" || days < 0) { showCustomAlert("올바른 일수(숫자)를 입력해 주세요."); return; }
+        
+        showLoading(true, "표시 일정을 저장 중입니다...");
+        google.script.run.withSuccessHandler(function() {
+            showLoading(false);
+            showCustomAlert("지난 학기 표시 일정이 저장되었습니다.");
+        }).withFailureHandler(function(err){
+            showLoading(false);
+            showCustomAlert("· Error: 저장에 실패했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+        }).saveSettings({ pastTermDays: days });
+    }
+
+    function openTermManageModal() {
+        if(checkLockdown()) return;
+        document.getElementById('settingsModalOverlay').style.display = 'none'; 
+        document.getElementById('termManageModalOverlay').style.display = 'flex';
+        showLoading(true, "명단 목록을 불러오는 중입니다...");
+        
+        google.script.run.withSuccessHandler(function(res) {
+            showLoading(false);
+            termManageData = res;
+            termModifications = {};
+            renderTermManageList();
+        }).withFailureHandler(function(err){
+            showLoading(false);
+            showCustomAlert("· Error: 명단 목록을 불러오지 못했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+        }).getTermListForEdit();
+    }
+    
+    function closeTermManageModal() {
+        document.getElementById('termManageModalOverlay').style.display = 'none';
+    }
+
+    function renderTermManageList() {
+        const container = document.getElementById('termManageContent');
+        container.innerHTML = "";
+        
+        if(termManageData.length === 0) {
+            container.innerHTML = '<div style="padding: 40px; text-align:center; color:#888; font-weight:bold;">등록된 학기 명단이 없습니다.</div>';
+            return;
+        }
+
+        let html = "";
+        termManageData.forEach((term, idx) => {
+            let isDeleted = termModifications[idx] && termModifications[idx].isDeleted;
+            let rowClass = isDeleted ? "term-row deleted" : "term-row";
+            let btnClass = isDeleted ? "term-del-btn active" : "term-del-btn";
+            let btnText = isDeleted ? "삭제 대기" : "삭제";
+            
+            let isChecked = termModifications[idx] ? true : false;
+            let nameVal = isChecked && termModifications[idx].newName ? termModifications[idx].newName : term.name;
+            let startVal = isChecked && termModifications[idx].newStart ? termModifications[idx].newStart : term.start;
+            let endVal = isChecked && termModifications[idx].newEnd ? termModifications[idx].newEnd : term.end;
+
+            let startDispVal = formatDateWithDay(startVal);
+            let endDispVal = formatDateWithDay(endVal);
+
+            let disableInputs = (!isChecked || isDeleted) ? "disabled" : "";
+            let bgCol = (!isChecked || isDeleted) ? "#e9ecef" : "#fff";
+            let txtCol = (!isChecked || isDeleted) ? "#6c757d" : "#333";
+
+            html += `<div class="${rowClass}" id="termRow_${idx}">
+                <div style="width: 32px; flex-shrink: 0; display: flex; justify-content: center; align-items: center;">
+                    <input type="checkbox" onchange="toggleTermEdit(this, ${idx})" style="transform: scale(1.3); margin:0;" ${isChecked ? 'checked' : ''} ${isDeleted ? 'disabled' : ''}>
+                </div>
+                <div style="flex: 1;">
+                    <input type="text" class="term-input" id="editName_${idx}" value="${nameVal}" ${disableInputs} oninput="updateTermMod(${idx}, 'newName', this.value)">
+                </div>
+                <div style="flex: 1;">
+                    <div class="custom-date-wrapper" style="width: 100%;" onclick="if(!document.getElementById('editStart_${idx}').disabled) { let el=document.getElementById('editStart_${idx}'); if(el.showPicker) el.showPicker(); }">
+                        <div class="date-display" id="editStartDisp_${idx}" style="background-color: ${bgCol}; color: ${txtCol}; justify-content: center; padding-right: 25px;">${startDispVal}</div>
+                        <input type="date" class="hidden-date-input" id="editStart_${idx}" value="${startVal}" ${disableInputs} onchange="updateTermMod(${idx}, 'newStart', this.value); document.getElementById('editStartDisp_${idx}').innerText=formatDateWithDay(this.value);">
+                    </div>
+                </div>
+                <div style="flex: 1;">
+                    <div class="custom-date-wrapper" style="width: 100%;" onclick="if(!document.getElementById('editEnd_${idx}').disabled) { let el=document.getElementById('editEnd_${idx}'); if(el.showPicker) el.showPicker(); }">
+                        <div class="date-display" id="editEndDisp_${idx}" style="background-color: ${bgCol}; color: ${txtCol}; justify-content: center; padding-right: 25px;">${endDispVal}</div>
+                        <input type="date" class="hidden-date-input" id="editEnd_${idx}" value="${endVal}" ${disableInputs} onchange="updateTermMod(${idx}, 'newEnd', this.value); document.getElementById('editEndDisp_${idx}').innerText=formatDateWithDay(this.value);">
+                    </div>
+                </div>
+                <button class="${btnClass}" id="delBtn_${idx}" onclick="markTermDelete(${idx})">${btnText}</button>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function toggleTermEdit(cb, idx) {
+        let isChecked = cb.checked;
+        let nameInput = document.getElementById(`editName_${idx}`);
+        let startInput = document.getElementById(`editStart_${idx}`);
+        let endInput = document.getElementById(`editEnd_${idx}`);
+        let startDisp = document.getElementById(`editStartDisp_${idx}`);
+        let endDisp = document.getElementById(`editEndDisp_${idx}`);
+
+        nameInput.disabled = !isChecked;
+        startInput.disabled = !isChecked;
+        endInput.disabled = !isChecked;
+        
+        let bgCol = isChecked ? "#fff" : "#e9ecef";
+        let txtCol = isChecked ? "#333" : "#6c757d";
+        startDisp.style.backgroundColor = bgCol;
+        startDisp.style.color = txtCol;
+        endDisp.style.backgroundColor = bgCol;
+        endDisp.style.color = txtCol;
+
+        if (isChecked) {
+            if(!termModifications[idx]) termModifications[idx] = { originalName: termManageData[idx].name };
+            termModifications[idx].newName = nameInput.value;
+            termModifications[idx].newStart = startInput.value;
+            termModifications[idx].newEnd = endInput.value;
+        } else {
+            if(termModifications[idx]) {
+                delete termModifications[idx].newName;
+                delete termModifications[idx].newStart;
+                delete termModifications[idx].newEnd;
+                if(!termModifications[idx].isDeleted) delete termModifications[idx];
+            }
+            nameInput.value = termManageData[idx].name;
+            startInput.value = termManageData[idx].start;
+            startDisp.innerText = formatDateWithDay(termManageData[idx].start);
+            endInput.value = termManageData[idx].end;
+            endDisp.innerText = formatDateWithDay(termManageData[idx].end);
+        }
+    }
+
+    function updateTermMod(idx, field, val) {
+        if(!termModifications[idx]) termModifications[idx] = { originalName: termManageData[idx].name };
+        termModifications[idx][field] = val;
+    }
+
+    function markTermDelete(idx) {
+        let termName = termManageData[idx].name;
+        let isCurrentlyDeleted = termModifications[idx] && termModifications[idx].isDeleted;
+
+        if (isCurrentlyDeleted) {
+            termModifications[idx].isDeleted = false;
+            renderTermManageList(); 
+        } else {
+            showCustomConfirm(`<b>[${termName}]</b> 명단을 삭제하시겠습니까?<br>(상단의 적용 버튼을 눌러야 최종 적용 됩니다.)`, function() {
+                if(!termModifications[idx]) termModifications[idx] = { originalName: termManageData[idx].name };
+                termModifications[idx].isDeleted = true;
+                renderTermManageList(); 
+            });
+        }
+    }
+
+    function applyTermChanges() {
+        let mods = Object.values(termModifications);
+        if(mods.length === 0) {
+            showCustomAlert("수정 또는 삭제된 항목이 없습니다.");
+            return;
+        }
+
+        let existingNames = termManageData.map(t => t.name);
+        let finalNames = [...existingNames];
+        
+        for(let mod of mods) {
+            if(mod.isDeleted) {
+                finalNames = finalNames.filter(n => n !== mod.originalName);
+                continue; 
+            }
+            if(mod.newName && mod.newName !== mod.originalName) {
+                if(existingNames.includes(mod.newName)) {
+                    showCustomAlert(`'${mod.newName}'은(는) 이미 존재하는 명단 이름입니다.<br>다른 이름으로 수정해 주세요.`);
+                    return;
+                }
+                let idx = finalNames.indexOf(mod.originalName);
+                if(idx !== -1) finalNames[idx] = mod.newName;
+            }
+            let sD = mod.newStart || termManageData.find(t=>t.name === mod.originalName).start;
+            let eD = mod.newEnd || termManageData.find(t=>t.name === mod.originalName).end;
+            if(sD > eD) {
+                let n = mod.newName || mod.originalName;
+                showCustomAlert(`[${n}]의 종료 날짜가 시작 날짜보다 빠를 수 없습니다.`);
+                return;
+            }
+        }
+
+        if(new Set(finalNames).size !== finalNames.length) {
+            showCustomAlert("수정할 명단 이름에 중복이 존재합니다.<br>각 시트는 고유한 이름을 가져야 합니다.");
+            return;
+        }
+
+        showLoading(true, "변경 사항을 일괄 적용 중입니다...");
+        google.script.run.withSuccessHandler(function() {
+            showLoading(false);
+            closeTermManageModal();
+            showCustomAlert("✔ <b>적용 완료!</b><br>명단 수정 및 삭제가 성공적으로 반영되었습니다.", function() {
+                window.location.reload(); 
+            });
+        }).withFailureHandler(function(err){
+            showLoading(false);
+            showCustomAlert("· Error: 변경 사항 적용에 실패했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+        }).applyTermModifications(mods);
+    }
+
+    function runIntegratedBackup() {
+        showCustomConfirm("오늘 기준 <b>1년 전</b> 과거 데이터를<br>통합 백업하시겠습니까?", function() {
+            closeSettingsModal();
+            showLoading(true, "과거 데이터를 수집하여<br>백업 파일을 생성 중입니다...<br>(시간이 다소 소요될 수 있습니다.)");
+            
+            google.script.run.withSuccessHandler(function(res) {
+                showLoading(false);
+                if(res.status === "none") {
+                    showCustomAlert("백업할 1년 전 과거 데이터가 없습니다.");
+                } else if(res.status === "success") {
+                    currentBackupPayload = { targetTermNames: res.targetTermNames, maxEndDate: res.maxEndDate };
+                    showCustomConfirm(`✔ <b>데이터 백업 성공!</b> <a href="${res.fileUrl}" target="_blank" style="color:#1366ce; font-weight:bold;">[백업 파일 확인하기]</a><br><br>• 백업된 과거 학기: ${res.termCount}개<br>• 백업된 선생님 기록: ${res.rowCount}행<br><br><span style="color:#dc3545; font-weight:bold;">원본 시트에서 방금 백업한 과거 기록들을<br>완전히 삭제할까요?</span><br><span style="font-size:12px; color:#666; font-weight:normal;">(유지하려면 '아니오'를 누르세요)</span>`, 
+                    function() { 
+                        showLoading(true, "원본에서 과거 데이터를 영구 삭제 중입니다...");
+                        google.script.run.withSuccessHandler(function() {
+                            showLoading(false);
+                            showCustomAlert("✔ <b>삭제 완료!</b><br>과거 데이터가 원본 시트에서<br>안전하게 삭제되었습니다.", function() {
+                                window.location.reload();
+                            });
+                        }).withFailureHandler(function(err) {
+                            showLoading(false);
+                            showCustomAlert("· Error: 데이터 삭제 중 오류가 발생했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+                        }).apiIntegratedDelete(currentBackupPayload);
+                    }, 
+                    function() { 
+                        showCustomAlert("백업만 성공적으로 완료되었으며,<br>원본 데이터는 유지합니다.");
+                    });
+                }
+            }).withFailureHandler(function(err) {
+                showLoading(false);
+                showCustomAlert("· Error: 데이터 백업 중 오류가 발생했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+            }).apiIntegratedBackup();
+        });
+    }
+
     function openUploadModal() {
         if(checkLockdown()) return;
         document.getElementById('latestTermInfo').innerText = "📌 최근 등록된 학기 종료일: " + globalLatestEndDate;
@@ -1067,7 +1468,19 @@
 
                 showLoading(false);
 
-                showCustomConfirm(`성공적으로 ${parsedStudents.length}명의 데이터를 추출했습니다.<br>명단을 적용할까요?`, function() {
+                let formattedStart = sDate.replace(/-/g, '.');
+                let formattedEnd = eDate.replace(/-/g, '.');
+                let dPartsPopup = sDate.split('-');
+                let expectedSheetName = `${dPartsPopup[0]}.${dPartsPopup[1]}-${tName}`;
+                
+                let confirmMsg = `성공적으로 ${parsedStudents.length}명의 데이터를 추출했습니다.<br><br>` +
+                                 `<div style="text-align: left; display: inline-block; font-size: 14px; line-height: 1.6; color: #333;">` +
+                                 `· 학기명단이름: ${expectedSheetName}<br>` +
+                                 `· 학기시작날짜: ${formattedStart}<br>` +
+                                 `· 학기종료날짜: ${formattedEnd}` +
+                                 `</div><br><br>명단을 작성할까요?`;
+
+                showCustomConfirm(confirmMsg, function() {
                     
                     showLoading(true, "명단을 생성중입니다...<br>화면을 닫지 마세요.");
                     
@@ -1106,55 +1519,10 @@
         reader.readAsArrayBuffer(file);
     }
 
-    function checkAndDeletePastTerms() {
-        if (!globalTermSheets || globalTermSheets.length === 0) {
-            showCustomAlert("시스템에 등록된 학기 명단 시트가 없습니다.");
-            return;
-        }
-
-        let todayD = new Date();
-        todayD.setHours(0,0,0,0);
-
-        let pastSheets = [];
-        globalTermSheets.forEach(term => {
-            if (term.end) {
-                let parts = term.end.split('-');
-                let ed = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
-                ed.setHours(0,0,0,0);
-                if (ed < todayD) {
-                    pastSheets.push(term.name);
-                }
-            }
-        });
-
-        if (pastSheets.length === 0) {
-            showCustomAlert("삭제할 지난 학기 명단 시트가 없습니다.");
-            return;
-        }
-
-        let sheetListHtml = pastSheets.map(name => `• ${name}`).join('<br>');
-        showCustomConfirm(`지난 학기의 반 명단을 모두 삭제할까요?<br><br><div style="text-align:left; background:#f4f5f7; padding:10px; border-radius:6px; font-size:13px; max-height:100px; overflow-y:auto;"><b>[삭제 대상 시트]</b><br>${sheetListHtml}</div>`, function() {
-            
-            closeUploadModal();
-            showLoading(true, "지난 학기 명단을 삭제 중입니다...");
-            
-            google.script.run
-                .withSuccessHandler(function(count) {
-                    showLoading(false);
-                    showCustomAlert(`✔ <b>삭제 완료!</b><br>총 ${count}개의 지난 학기 명단이 삭제되었습니다.<br>새로고침(F5) 후 사용해 주세요.`, function() {
-                       window.location.reload(); 
-                    });
-                })
-                .withFailureHandler(function(err) {
-                    showLoading(false);
-                    showCustomAlert("· Error: 삭제 중 오류가 발생했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
-                })
-                .deletePastTerms({ sheetNames: pastSheets });
-        });
-    }
-
     window.addEventListener('keydown', function(e) {
       const modal = document.getElementById('customModalOverlay');
+      const settingModal = document.getElementById('settingsModalOverlay');
+      const termManageModal = document.getElementById('termManageModalOverlay');
       
       if (e.key === 'Escape') {
           const matrixOverlay = document.getElementById('matrixOverlay');
@@ -1168,6 +1536,12 @@
           const uploadOverlay = document.getElementById('uploadModalOverlay');
           if (uploadOverlay && uploadOverlay.style.display === 'flex') {
               closeUploadModal(); return;
+          }
+          if (termManageModal && termManageModal.style.display === 'flex') {
+              closeTermManageModal(); return;
+          }
+          if (settingModal && settingModal.style.display === 'flex') {
+              closeSettingsModal(); return;
           }
       }
 
