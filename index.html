@@ -162,11 +162,12 @@
     .egg-bubble::after { content: ''; position: absolute; bottom: -8px; left: 15px; border-width: 8px 8px 0; border-style: solid; border-color: #1a3978 transparent transparent transparent; }
     .egg-bubble.show { opacity: 1; transform: translateY(0); } 
 
+    /* 원장님께서 업로드해주신 파스텔 초록색 잎 완벽 반영 */
     .cherry-petal {
       position: fixed; top: -10%; z-index: 10001; 
-      background: linear-gradient(135deg, #ffd1dc 0%, #ffb7c5 100%); 
+      background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%); /* 파스텔 초록 그라데이션 */
       border-radius: 15px 0 15px 0; 
-      box-shadow: 0 0 4px rgba(255, 183, 197, 0.6);
+      box-shadow: 0 0 4px rgba(165, 214, 167, 0.6); /* 초록빛 그림자 */
       pointer-events: none; 
       animation-name: fall, sway;
       animation-timing-function: linear, ease-in-out;
@@ -181,6 +182,28 @@
     @keyframes sway {
       0% { margin-left: -100px; }
       100% { margin-left: 100px; } 
+    }
+
+    /* 🔴 [수정] 중앙에서 튀어나와 점프하고 사라지는 강아지 애니메이션 CSS */
+    .popup-dog-gif {
+      position: fixed; 
+      left: 50%; 
+      transform: translateX(-50%); /* 정확히 화면 중앙 정렬 */
+      bottom: -100px; /* 처음엔 화면 아래에 숨김 */
+      height: 80px; 
+      z-index: 10002; 
+      pointer-events: none;
+      image-rendering: pixelated; 
+      animation: dogPopAndJump 6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    @keyframes dogPopAndJump {
+      0%   { bottom: -100px; }            /* 시작: 화면 아래 숨김 */
+      4%   { bottom: 30px; }              /* 등장 점프! (목표치보다 높이 솟구침) */
+      8%   { bottom: 15px; }              /* 착지: 바닥에 안착해서 대기 시작 */
+      88%  { bottom: 15px; }              /* 약 5초간 꼬리 치며 대기 */
+      93%  { bottom: 80px; }              /* 퇴장 직전 위로 살짝 폴짝! */
+      100% { bottom: -100px; }            /* 끝: 다시 화면 아래로 퇴장 */
     }
 
     @media screen and (max-width: 1024px) {
@@ -270,7 +293,7 @@
       <div class="left-panel">
 
         <div class="easter-egg-zone" onclick="triggerEasterEgg()"></div>
-        <div class="egg-bubble" id="eggBubble">🎉 창문이 없어 답답하시면 벚꽃 보면서 힐링하세요</div>
+        <div class="egg-bubble" id="eggBubble">🎉 오늘도 화이팅!!!</div>
 
         <div class="dashboard-banner" id="metaDashboard">
           <div class="db-grid">
@@ -317,7 +340,7 @@
           
           <div class="bottom-controls">
             <div class="left-controls">
-              <button class="btn-roster-add-main" onclick="addNewStudentRow()"><span class="btn-icon-wrap">&plus;</span><span class="btn-text-wrap">신규추가</span></button>
+              <button class="btn-roster-add-main" onclick="addNewStudentRow()"><span class="btn-icon-wrap">&plus;</span><span class="btn-text-wrap">신입추가</span></button>
               <button class="btn-roster-delete-main" id="deleteModeBtn" onclick="toggleDeleteMode()"><span class="btn-icon-wrap">&minus;</span><span class="btn-text-wrap">퇴원삭제</span></button>
             </div>
             <button class="btn-save-master" id="saveBtn" onclick="saveData()">
@@ -350,9 +373,9 @@
     window.loadedState = null;
 
     const CAMPUS_URLS = {
-      "yeongtong": "https://script.google.com/macros/s/AKfycbwV5hXkSNGT2_jkCrQakQieov2OswU9x-zCBSkquarMujUqoKXdSZO_ih0OyQxftodu/exec",
-      "dongtan": "https://script.google.com/macros/s/AKfycbwMtIkLaAF85AYQgpWXsVmwftBnPKy0tOV65X8zKajto0srs4MM6pA4oRcczZHDqRcXNg/exec",
-      "yeongcheon": "https://script.google.com/macros/s/AKfycbw6lnnvzOvUykYBM32FvNb66m98e0frXWuQPV.,mn bv0bn-GVAfvVcMNR0ne5g04qu-W763_u/exec"
+      "yeongtong": "https://script.google.com/macros/s/AKfycbzVdG6stb-OvSnFEzFm34L_4HcMr0C-hsU9xCgzp_1W0AJcsn1ykbrsq7SmWcwwaTDG/exec",
+      "dongtan": "https://script.google.com/macros/s/AKfycbzRcme0LEJ5O3PEqjekUkGSA-zBl_a1Kgb1aLR85A9DBIOA8G-u8uGWAMbx1ThLLw4ITQ/exec",
+      "yeongcheon": "https://script.google.com/macros/s/AKfycbxw9tIiVEb95yEtsCc7Zo1HkoYRAZHCi9KyUdhkXDABU_on2zK659EkjMdrlhIh_ZvC/exec"
     };
 
     function createGoogleScriptMock() {
@@ -379,7 +402,17 @@
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify({ action: action, ...payload })
                     });
-                    const result = await response.json();
+                    
+                    if (!response.ok) throw new Error(`서버 상태 이상 (${response.status})`);
+                    
+                    let text = await response.text();
+                    let result;
+                    try {
+                        result = JSON.parse(text);
+                    } catch (e) {
+                        throw new Error("JSON_PARSE_ERROR");
+                    }
+
                     if (result.success) {
                         if (this.successCb) this.successCb(result.data);
                     } else {
@@ -387,8 +420,18 @@
                         else showCustomAlert("· Error: 서버 오류가 발생했습니다.<br>(" + result.error.replace(/^Error:\s*/, '').trim() + ")");
                     }
                 } catch (e) {
-                    if (this.failureCb) this.failureCb(e);
-                    else showCustomAlert("· Error: 통신 오류가 발생했습니다.<br>(" + e.message.replace(/^Error:\s*/, '').trim() + ")");
+                    let errorMsg = "";
+                    let rawError = e.message || String(e);
+                    if (rawError.includes("JSON_PARSE_ERROR") || rawError.includes("Unexpected token") || rawError.includes("SyntaxError")) {
+                        errorMsg = "서버 통신이 지연되었거나 보안 세션이 만료되었습니다.<br>키보드의 <b>[새로고침(F5)]</b>을 눌러 다시 시도해 주세요.";
+                    } else if (rawError.includes("Failed to fetch") || rawError.includes("NetworkError")) {
+                        errorMsg = "인터넷 연결이 원활하지 않습니다.<br>Wi-Fi 등 <b>네트워크 상태를 확인</b>한 후 다시 시도해 주세요.";
+                    } else {
+                        errorMsg = `일시적인 통신 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.<br><span style="font-size:11px; color:#888;">(${rawError})</span>`;
+                    }
+                    
+                    if (this.failureCb) this.failureCb(new Error(errorMsg));
+                    else showCustomAlert(errorMsg);
                 }
             }
         };
@@ -1035,14 +1078,14 @@
         const cleanName = st.name.replace(/\s*\(.*?\)\s*/g, "").trim(); const evalScore = String(st.evalScore).trim() || "없음"; const wrongScore = String(st.wrongScore).trim() || "없음";
         const dailyVal = String(st.dailyTest).trim(); const weeklyVal = String(st.weeklyTest).trim(); const note = String(st.note).trim() || "없음";
         
-        let content = `${formattedDateStr}\n\n✔ ${cleanName} 학생 체크리스트\n\n● 반명: ${className}\n- 수업개요: ${currentSubject}`;
+        let content = `${formattedDateStr}\n\n✔ ${cleanName} 학생 체크리스트\n\n● 반명: ${className}\n\n● 수업개요: ${currentSubject}`;
         let details = [];
-        if (evalScore !== "" && evalScore !== "없음") details.push(`• 과제평가: ${evalScore}`); 
-        if (wrongScore !== "" && wrongScore !== "없음") details.push(`• 오답노트: ${wrongScore}`);
-        if (dailyVal !== "" && dailyVal !== "없음") details.push(`• 일일테스트: ${dailyVal}`);
-        if (weeklyVal !== "" && weeklyVal !== "없음") details.push(`• 주간테스트: ${weeklyVal}`);
-        if (note !== "" && note !== "없음") details.push(`• 특이사항: ${note}`);
-        if (details.length > 0) content += `\n\n${details.join('\n')}`;
+        if (evalScore !== "" && evalScore !== "없음") details.push(`● 과제평가: ${evalScore}`); 
+        if (wrongScore !== "" && wrongScore !== "없음") details.push(`● 오답노트: ${wrongScore}`);
+        if (dailyVal !== "" && dailyVal !== "없음") details.push(`● 일일테스트: ${dailyVal}`);
+        if (weeklyVal !== "" && weeklyVal !== "없음") details.push(`● 주간테스트: ${weeklyVal}`);
+        if (note !== "" && note !== "없음") details.push(`● 특이사항: ${note}`);
+        if (details.length > 0) content += `\n\n${details.join('\n\n')}`;
         html += `<div class="card" id="card${idx}"><div class="card-header-container"><div class="card-header">${cleanName}</div><button class="copy-btn" onclick="copySingleText(${idx}, this)">복사</button></div><div id="cardContent${idx}" class="card-content">${content}</div></div>`;
       });
       area.innerHTML = html;
@@ -1231,6 +1274,17 @@
         const bubble = document.getElementById("eggBubble");
         bubble.classList.add("show");
         createCherryBlossoms();
+
+        // 🔴 [NEW] 강아지 GIF 애니메이션 추가
+        const dogImg = document.createElement("img");
+        // 투명 배경의 달리는 픽셀 강아지(요크셔테리어 픽셀아트) GIF (GitHub 오픈소스 100% 무중단 링크)
+        dogImg.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/506.gif"; 
+        dogImg.classList.add("popup-dog-gif");
+        document.body.appendChild(dogImg);
+        
+        // 화면을 완전히 지나간 후 삭제 (6초)
+        setTimeout(() => { dogImg.remove(); }, 6000);
+
         setTimeout(() => { bubble.classList.remove("show"); }, 3000); 
       }
     } 
