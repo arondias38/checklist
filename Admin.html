@@ -398,7 +398,8 @@
     <a id="teacherLink" href="#" style="color:#ffffff; text-decoration:none; font-size:14px;" onclick="handleTeacherLinkClick(event)">⬅️ 선생님 모드로 돌아가기</a>
   </div>
 
-  <div style="position: absolute; right: 25px; margin-top: 6px; font-size: 11px; color: #adb5bd; font-family: 'Pretendard', sans-serif; letter-spacing: 0.5px; z-index: 10;">v.26.07.02-02</div>
+  <!-- 🟢 버전 표시 영역 -->
+  <div style="position: absolute; right: 25px; margin-top: 6px; font-size: 11px; color: #adb5bd; font-family: 'Pretendard', sans-serif; letter-spacing: 0.5px; z-index: 10;">v.26.07.02-03</div>
 
   <div class="app-body">
     <div class="header-bar">
@@ -998,7 +999,13 @@
         
         let sumHtml = "";
         if (data.summary) {
-            sumHtml = ` <span style="font-size:14px; font-weight:normal;">( 이번 학기 수업개요입력 ${data.summary.subjDone}/${data.summary.subjExpected} &nbsp;|&nbsp; 발송완료체크 ${data.summary.sentDone}/${data.summary.sentExpected} )</span>`;
+            let subjPct = data.summary.subjExpected > 0 ? Math.min(100, Math.round((data.summary.subjDone / data.summary.subjExpected) * 100)) : 0;
+            let sentPct = data.summary.sentExpected > 0 ? Math.min(100, Math.round((data.summary.sentDone / data.summary.sentExpected) * 100)) : 100;
+            
+            let subjStyle = subjPct < 100 ? "color:#dc3545; font-weight:bold;" : "color:inherit;";
+            let sentStyle = sentPct < 100 ? "color:#dc3545; font-weight:bold;" : "color:inherit;";
+            
+            sumHtml = ` <span style="font-size:14px; font-weight:normal;">( 이번 학기 수업개요입력 <span style="${subjStyle}">${subjPct}%</span> &nbsp;|&nbsp; 발송완료체크 <span style="${sentStyle}">${sentPct}%</span> )</span>`;
         }
         document.getElementById("matrixTitle").innerHTML = `<b>${data.teacherName}</b> 선생님 학기 요약${sumHtml}`;
         
@@ -1354,7 +1361,7 @@
             let eD = mod.newEnd || termManageData.find(t=>t.name === mod.originalName).end;
             if(sD > eD) {
                 let n = mod.newName || mod.originalName;
-                showCustomAlert(`[${n}]의 종료 날짜가 시작 날짜보다 빠를 수 없습니다.`);
+                showCustomAlert(`[${n}]의 종료 날짜가 시작 날짜보다 빠를 수문을 수 없습니다.`);
                 return;
             }
         }
