@@ -283,7 +283,7 @@
     <a id="adminLink" href="#" oncontextmenu="return false;" style="color:#a0bfdc; text-decoration:none; font-size:12px; font-weight:normal; user-select:none; -webkit-user-select:none; cursor:pointer;" onclick="if(checkLockdown(event)) return false; promptAdminCode(event);">⚙️ 관리자</a>
   </div>
 
-  <div style="position: absolute; right: 25px; margin-top: 6px; font-size: 11px; color: #adb5bd; font-family: 'Pretendard', sans-serif; letter-spacing: 0.5px; z-index: 10;">v.26.07.02-02</div>
+  <div style="position: absolute; right: 25px; margin-top: 6px; font-size: 11px; color: #adb5bd; font-family: 'Pretendard', sans-serif; letter-spacing: 0.5px; z-index: 10;">v.26.07.02-03</div>
 
   <div class="app-body">
     <div class="header-bar">
@@ -1044,11 +1044,13 @@
              }
           };
 
+          // 🟢 [NEW] 엑셀 스마트 다중 붙여넣기 로직 (줄바꿈/큰따옴표 완벽 해독 및 빈 줄 방어)
           input.onpaste = function(e) {
              e.preventDefault();
              let pasteData = (e.clipboardData || window.clipboardData).getData('text');
              if (!pasteData) return;
 
+             // 엑셀 클립보드 데이터를 한 글자씩 읽어내는 스마트 파서 로직
              let rows = [];
              let currentRow = [];
              let currentCell = "";
@@ -1059,27 +1061,36 @@
                  let nextChar = pasteData[i + 1];
 
                  if (inQuotes) {
+                     // 큰따옴표 내부일 때
                      if (char === '"' && nextChar === '"') {
+                         // 엑셀이 겹쳐놓은 진짜 큰따옴표("")는 하나(")로 복원
                          currentCell += '"';
-                         i++; 
+                         i++; // 겹쳐진 따옴표 하나는 건너뜀
                      } else if (char === '"') {
+                         // 겉면을 감싸던 가짜 큰따옴표가 끝나는 지점
                          inQuotes = false;
                      } else {
+                         // 일반 글자나 줄바꿈은 그대로 유지
                          currentCell += char;
                      }
                  } else {
+                     // 큰따옴표 외부일 때
                      if (char === '"' && currentCell === "") {
+                         // 셀의 시작이 큰따옴표라면 엑셀이 씌운 가짜 겉면으로 인식
                          inQuotes = true;
                      } else if (char === '\t') {
+                         // 탭을 만나면 다음 칸(열)으로 이동
                          currentRow.push(currentCell);
                          currentCell = "";
                      } else if (char === '\r' && nextChar === '\n') {
+                         // 윈도우 줄바꿈(CRLF)을 만나면 다음 줄(행)로 이동
                          currentRow.push(currentCell);
                          rows.push(currentRow);
                          currentRow = [];
                          currentCell = "";
-                         i++; 
+                         i++; // \n 건너뜀
                      } else if (char === '\n' || char === '\r') {
+                         // 일반 줄바꿈을 만나면 다음 줄(행)로 이동
                          currentRow.push(currentCell);
                          rows.push(currentRow);
                          currentRow = [];
@@ -1089,11 +1100,13 @@
                      }
                  }
              }
+             // 마지막 남은 데이터 밀어넣기
              if (currentCell !== "" || currentRow.length > 0) {
                  currentRow.push(currentCell);
                  rows.push(currentRow);
              }
 
+             // 엑셀에서 복사 시 마지막에 생기는 의미 없는 빈 줄 완벽 제거
              if (rows.length > 0 && rows[rows.length - 1].length === 1 && rows[rows.length - 1][0] === "") {
                  rows.pop();
              }
@@ -1105,9 +1118,12 @@
 
              for (let i = 0; i < rows.length; i++) {
                  let targetRowIdx = startRow + i;
+                 // 앱에 띄워진 학생 수를 초과하면 방어
                  if (targetRowIdx >= studentList.length) break;
+                 // 퇴원생 등 입력 불가 칸 통과(Skip)
                  if (studentList[targetRowIdx].isDischarged || studentList[targetRowIdx].pendingDischarge) continue;
 
+                 // 실수로 복사된 완전히 텅 빈 줄(행)은 데이터 덮어쓰기 방지
                  let isRowEmpty = rows[i].every(cell => cell.trim() === "");
                  if (isRowEmpty) continue;
 
@@ -1294,7 +1310,13 @@
         
         let sumHtml = "";
         if (data.summary) {
-            sumHtml = ` <span style="font-size:14px; font-weight:normal;">( 이번 학기 수업개요입력 ${data.summary.subjDone}/${data.summary.subjExpected} &nbsp;|&nbsp; 발송완료체크 ${data.summary.sentDone}/${data.summary.sentExpected} )</span>`;
+            let subjPct = data.summary.subjExpected > 0 ? Math.min(100, Math.round((data.summary.subjDone / data.summary.subjExpected) * 100)) : 0;
+            let sentPct = data.summary.sentExpected > 0 ? Math.min(100, Math.round((data.summary.sentDone / data.summary.sentExpected) * 100)) : 100;
+            
+            let subjStyle = subjPct < 100 ? "color:#dc3545; font-weight:bold;" : "color:inherit;";
+            let sentStyle = sentPct < 100 ? "color:#dc3545; font-weight:bold;" : "color:inherit;";
+            
+            sumHtml = ` <span style="font-size:14px; font-weight:normal;">( 이번 학기 수업개요입력 <span style="${subjStyle}">${subjPct}%</span> &nbsp;|&nbsp; 발송완료체크 <span style="${sentStyle}">${sentPct}%</span> )</span>`;
         }
         document.getElementById("matrixTitle").innerHTML = `<b>${data.teacherName}</b> 선생님 학기 요약${sumHtml}`;
         
