@@ -3,16 +3,14 @@
 <head>
   <base target="_top">
   <meta charset="UTF-8">
-  <title>체크리스트 관리자 모드</title>
+  <title>체크리스트 선생님 모드</title>
 
-  <link rel="icon" href="https://i.imgur.com/3BjtJBH.png">
-  
+  <link rel="icon" href="https://i.imgur.com/tFbBVcO.png">
+
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
   <style>
     @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
-    body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; position: relative; }
     
     .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #1366ce; border-radius: 50%; animation: spin 1s linear infinite; }
@@ -20,36 +18,25 @@
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center; }
-    .modal-box { background: white; width: 340px; max-width: 90vw; border-radius: 12px; padding: 25px 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: width 0.2s ease-in-out; }
+    .modal-box { background: white; width: 340px; border-radius: 12px; padding: 25px 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
     .modal-message { font-size: 15px; font-weight: 600; color: #333; line-height: 1.5; margin-bottom: 20px; white-space: pre-wrap; word-break: keep-all; }
     .prompt-input { width: 80%; padding: 10px; margin-bottom: 20px; border: 1px solid #ced4da; border-radius: 6px; font-size: 16px; font-weight: bold; text-align: center; outline: none; font-family: 'Pretendard', sans-serif; letter-spacing: 2px; }
     .prompt-input::placeholder { color: #b0b0b0; font-weight: normal; }
     .prompt-input:focus { border-color: #1366ce; box-shadow: 0 0 0 3px rgba(19,102,206,0.2); }
     
-    .modal-buttons { display: flex; justify-content: center; gap: 10px; width: 100%; }
-    
-    .modal-btn { padding: 10px 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
-    #modalBtnNo, #modalBtnYes, #modalBtnOk { flex: 1; }
-    
-    .btn-ok { background-color: #1366ce; color: white; } .btn-ok:hover { background-color: #0f52a8; }
+    .modal-buttons { display: flex; justify-content: center; gap: 10px; }
+    .modal-btn { padding: 10px 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; cursor: pointer; flex: 1; transition: 0.2s; }
     .btn-no { background-color: #f1f3f5; color: #495057; } .btn-no:hover { background-color: #e2e6ea; }
-    .btn-yes { background-color: #1366ce; color: white; } .btn-yes:hover { background-color: #0f52a8; }
+    .btn-yes, .btn-ok { background-color: #1366ce; color: white; } .btn-yes:hover, .btn-ok:hover { background-color: #0f52a8; }
 
     #customModalOverlay { z-index: 10006 !important; }
 
-    .setting-section { text-align: left; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eaeaea; height: 120px; box-sizing: border-box; display: flex; flex-direction: column; }
-    .setting-section.last { border-bottom: none; margin-bottom: 0; padding-bottom: 0; height: 104px; }
-    .setting-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0; }
-    .setting-desc { font-size: 12px; color: #666; line-height: 1.4; margin-bottom: auto; }
-    .setting-input { display: flex; gap: 10px; align-items: center; flex-shrink: 0; height: 30px; }
-
     .history-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 10001; justify-content: center; align-items: center; }
     .history-box { background: white; width: 90%; max-width: 800px; max-height: 80vh; border-radius: 8px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
-    .history-header { font-size: 16px; font-weight: 800; color: #1a3978; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+    .history-header { font-size: 16px; font-weight: 800; color: #1366ce; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
     .history-close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #888; }
     .history-close-btn:hover { color: #333; }
     .history-content { overflow-y: auto; flex: 1; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea; }
-    
     .history-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 0; }
     .history-table th { background-color: #f8f9fa; font-weight: bold; padding: 10px 8px; text-align: center; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; color: #333; position: sticky; top: 0; z-index: 2; border-top: none; border-left: none; }
     .history-table td { padding: 8px; text-align: center; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; vertical-align: middle; border-top: none; border-left: none; }
@@ -59,11 +46,11 @@
 
     .matrix-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10002; justify-content: center; align-items: center; }
     .matrix-box { background: white; width: 95%; max-width: 1100px; max-height: 85vh; border-radius: 8px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; box-sizing: border-box; }
-    .matrix-header { font-size: 18px; font-weight: 900; color: #1a3978; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1a3978; padding-bottom: 10px; }
+    .matrix-header { font-size: 18px; font-weight: 900; color: #1366ce; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1366ce; padding-bottom: 10px; }
     .matrix-close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #888; }
     .matrix-close-btn:hover { color: #333; }
     .matrix-content { overflow-y: auto; flex: 1; }
-    .matrix-month-title { font-size: 16px; font-weight: 800; color: #495057; margin: 20px 0 10px 0; border-left: 4px solid #d32f2f; padding-left: 8px; }
+    .matrix-month-title { font-size: 16px; font-weight: 800; color: #495057; margin: 20px 0 10px 0; border-left: 4px solid #1366ce; padding-left: 8px; text-align: left; }
     
     .matrix-table-wrap { width: 100%; overflow-x: auto; background: transparent; margin-bottom: 15px; padding: 0 15px 0 0; box-sizing: border-box; }
     .matrix-table { width: auto; border-collapse: collapse; font-size: 12px; text-align: center; margin: 0; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea; }
@@ -73,287 +60,185 @@
     .matrix-table th:last-child, .matrix-table td:last-child { border-right: none; }
     .matrix-table tbody tr:last-child td { border-bottom: none; }
 
-    .academy-header-bar { margin-top: 15px; background-color: #495057; color: #ffffff; padding: 10px 25px; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; justify-content: center; align-items: center; position: relative; }
+    .academy-header-bar { margin-top: 15px; background-color: #1366ce; color: #ffffff; padding: 10px 25px; font-size: 18px; font-weight: bold; display: flex; justify-content: center; align-items: center; position: relative; }
     .academy-header-bar a { position: absolute; right: 25px; }
-    
-    .floating-btn-container { position: fixed; bottom: 25px; left: 25px; z-index: 9999; display: flex; flex-direction: row; gap: 12px; }
-
-    .floating-setting-btn, .floating-upload-btn {
-      height: 36px; width: 36px; border-radius: 18px;
-      color: white; border: none;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.25); cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-    }
-    .floating-setting-btn { background-color: #6c757d; }
-    .floating-upload-btn { background-color: #28a745; }
-
-    .floating-setting-btn:hover { width: 95px; background-color: #5a6268; border-radius: 18px; }
-    .floating-upload-btn:hover { width: 145px; background-color: #218838; border-radius: 18px; }
-
-    .floating-setting-btn .btn-icon-wrap, .floating-upload-btn .btn-icon-wrap {
-      position: absolute; left: 0; top: 0; display: flex; align-items: center; justify-content: center;
-      width: 100%; height: 100%; font-size: 16px; font-weight: 400; line-height: 0;
-      padding: 0; margin: 0;
-      transition: opacity 0.2s;
-    }
-    .floating-upload-btn .btn-icon-wrap { font-size: 22px; padding-bottom: 2px; }
-
-    .floating-setting-btn:hover .btn-icon-wrap, .floating-upload-btn:hover .btn-icon-wrap { opacity: 0; }
-    
-    .floating-setting-btn .btn-text-wrap, .floating-upload-btn .btn-text-wrap {
-      opacity: 0; white-space: nowrap; font-size: 12px; font-weight: bold;
-      transition: opacity 0.2s; transition-delay: 0.05s; pointer-events: none;
-    }
-    .floating-setting-btn:hover .btn-text-wrap, .floating-upload-btn:hover .btn-text-wrap { opacity: 1; pointer-events: auto; }
     
     .app-body { padding: 20px; }
     
-    .header-bar { background-color: #fff; padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; gap: 20px; align-items: center; margin-bottom: 15px; border-left: 5px solid #d32f2f; flex-wrap: wrap; }
+    .header-bar { background-color: #fff; padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; gap: 20px; align-items: center; margin-bottom: 15px; border-left: 5px solid #1366ce; flex-wrap: wrap; }
     .select-group { display: flex; align-items: center; gap: 10px; position: relative; }
-    label { font-weight: bold; font-size: 14px; color: #333; }
+    label { font-weight: bold; font-size: 14px; color: #1366ce; }
     
-    select, input[type="date"] { 
+    select { 
       width: 190px; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: normal; color: #333; outline: none; height: 38px; box-sizing: border-box; cursor: pointer; 
-    }
-    select {
       appearance: none; -webkit-appearance: none;
       background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23333"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center; background-size: 20px;
     }
-    select:invalid { color: #888888 !important; font-weight: normal; }
+    select:invalid, select option[value=""][disabled] { color: #888888 !important; font-weight: normal; }
     select option { color: #000000; font-weight: normal; }
-
-    #upTermName:invalid { color: #b0b0b0 !important; }
     
-    .custom-date-wrapper { position: relative; width: 190px; height: 38px; cursor: pointer; overflow: hidden; }
-    .date-display { width: 100%; height: 100%; border: 1px solid #ced4da; border-radius: 4px; padding: 8px 12px; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: normal; color: #888888; background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23333"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center; background-size: 20px; display: flex; align-items: center; box-sizing: border-box; position: absolute; top:0; left:0; z-index: 1; pointer-events: none; }
-    .date-display.selected { color: #333; }
-    .hidden-date-input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; box-sizing: border-box; border: none; padding: 0; margin: 0; }
+    .custom-date-wrapper { position: relative; width: 190px; height: 38px; cursor: pointer; }
+    .date-display { 
+      width: 100%; height: 100%; border: 1px solid #ced4da; border-radius: 4px; padding: 8px 12px; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: normal; color: #888888; background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23333"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center; background-size: 20px; display: flex; align-items: center; box-sizing: border-box; position: absolute; top:0; left:0; z-index: 1; pointer-events: none;
+    }
+    .date-display.selected { color: #333 !important; }
+    .hidden-date-input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; border: none; padding: 0; margin: 0; box-sizing: border-box; }
     .hidden-date-input::-webkit-calendar-picker-indicator { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; margin: 0; padding: 0; }
     
     .btn-search { padding: 0 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; background-color: #1366ce; color: white; transition: 0.2s; height: 38px; cursor: pointer; box-sizing: border-box; }
     .btn-search:hover { background-color: #0f52a8; }
     
-    .btn-save-admin { height: 38px; width: 190px; padding: 0; box-sizing: border-box; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 14px; background-color: #d32f2f; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transition: 0.2s; display: none; flex-direction: column; align-items: center; justify-content: center; }
-    .btn-save-admin:hover { background-color: #b71c1c; }
-    
-    .summary-banner { background: #fff; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; font-weight: bold; color: #333; border: 1px solid #dee2e6; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: none; flex-wrap: wrap; gap: 10px; }
-    .summary-card { flex: 0 0 calc(50% - 5px); width: calc(50% - 5px); min-width: 340px; display: flex; align-items: center; background-color: #f8f9fa; border: 1px solid #e9ecef; padding: 6px 12px; border-radius: 6px; box-sizing: border-box; }
-    
-    .t-badge { 
-        background-color: #495057; color: white; border-radius: 4px; font-size: 13px; font-weight: bold; 
-        width: 120px; min-width: 120px; height: 26px; 
-        display: flex; justify-content: center; align-items: center; position: relative; 
-        margin-right: 12px; box-sizing: border-box; flex-shrink: 0; 
-    }
-    .t-badge-btn {
-        position: absolute; right: 0; top: 0; bottom: 0; width: 35px;
-        display: flex; justify-content: center; align-items: center;
-        cursor: pointer; border-radius: 0 4px 4px 0; transition: 0.2s;
-    }
-    .t-badge-btn:hover { background-color: rgba(255,255,255,0.2); }
-    
-    .t-info { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: bold; flex-wrap: wrap; flex: 1; }
-    .t-alert { color: #dc3545; font-weight: 900; }
-    
-    .main-container { background-color: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); min-height: 500px; }
-    .empty-state { display: flex; justify-content: center; align-items: center; color: #888; border: 2px dashed #dee2e6; border-radius: 6px; height: 300px; font-weight: bold; }
-    
-    .teacher-group { margin-bottom: 40px; }
-    .teacher-header { font-size: 18px; font-weight: 900; color: #1a3978; margin-bottom: 15px; border-bottom: 2px solid #1a3978; padding-bottom: 5px; }
-    .class-sub-header { font-size: 15px; font-weight: 700; color: #495057; margin: 15px 0 6px 0; background-color: #f1f3f5; padding: 6px 12px; border-radius: 4px; border-left: 4px solid #1a3978; text-align: left;}
+    .dashboard-banner { display: none; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 12px 20px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; color: #495057; border: 1px solid #dee2e6; }
+    .db-grid { display: flex; gap: 0; width: 100%; } 
+    .db-item { display: flex; gap: 8px; align-items: center; font-size: 14px; width: 25%; box-sizing: border-box; }
+    .db-title { font-weight: bold; color: #ffffff; background: #1366ce; padding: 3px 12px; border-radius: 4px; min-width: 60px; text-align: center; }
+    .db-value { font-weight: 800; color: #111; word-break: break-all; white-space: pre-wrap; }
 
-    table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; margin-bottom: 25px; }
-    th, td { border: 1px solid #dee2e6; padding: 8px 4px; text-align: center; vertical-align: middle; }
-    th { background-color: #f8f9fa; font-weight: bold; color: #333; }
+    .main-container { display: flex; gap: 20px; min-height: 550px; }
+    .left-panel { flex: 0 0 calc(70% - 10px); max-width: calc(70% - 10px); display: flex; flex-direction: column; background-color: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); box-sizing: border-box; }
+    .right-panel { flex: 0 0 calc(30% - 10px); max-width: calc(30% - 10px); display: flex; flex-direction: column; background-color: #fff; border-radius: 8px; padding: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-left: 4px solid #1366ce; box-sizing: border-box; }
     
-    .readonly-text { width: 100%; box-sizing: border-box; font-family: 'Pretendard', sans-serif; font-size: 13px; color: #333; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .readonly-note { width: 100%; box-sizing: border-box; font-family: 'Pretendard', sans-serif; font-size: 13px; color: #333; text-align: left; padding: 0 4px; max-height: 40px; overflow-y: auto; overflow-x: hidden; display: block; line-height: 1.4; word-break: break-all; }
+    .empty-state { flex: 1; display: flex; justify-content: center; align-items: center; color: #888; border: 2px dashed #dee2e6; border-radius: 6px; text-align: center; line-height: 1.5; min-height: 300px; font-weight: bold; }
     
+    .table-fixed-wrapper { width: 100%; overflow-y: auto; overflow-x: hidden; max-height: 825px; border-top: 1px solid #dee2e6; border-left: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12.5px; table-layout: fixed; margin-top: 0; }
+    
+    th, td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 4px; text-align: center; vertical-align: middle; box-sizing: border-box; }
+    
+    thead th { background-color: #f8f9fa; white-space: nowrap; line-height: 1.2; border-top: none; }
+    thead tr:nth-child(1) { height: 32px; }
+    thead tr:nth-child(2) { height: 28px; }
+    thead tr:nth-child(1) th { position: sticky; top: 0; z-index: 12; }
+    thead tr:nth-child(2) th { position: sticky; top: 32px; z-index: 11; }
+    
+    .input-mini { width: 100%; padding: 4px; border: 1px solid #ccc; border-radius: 3px; text-align: center; box-sizing: border-box; font-family: 'Pretendard', sans-serif; font-weight: normal; color: #333; background-color: transparent;}
+    .input-mini.empty-placeholder { color: #888888 !important; font-weight: normal; }
+    
+    .note-textarea { 
+      width: 100%; padding: 4px 6px; border: 1px solid #ccc; border-radius: 3px; box-sizing: border-box; 
+      font-family: 'Pretendard', sans-serif; 
+      resize: none; 
+      height: 28px; 
+      min-height: 28px; 
+      line-height: 1.35; 
+      overflow-y: hidden; 
+      vertical-align: middle; 
+      display: block; background-color: transparent; 
+    }
+    .note-textarea:disabled { background-color: #dc3545; color: white; font-weight: bold; text-align: center; resize: none; }
+
     input[type="checkbox"] { transform: scale(1.3); cursor: pointer; margin: 4px 2px; }
-    .master-checkbox { transform: scale(1.3); margin-top: 12px; cursor: pointer; }
+    .master-checkbox { transform: scale(1.3); margin: 0; vertical-align: middle; cursor: pointer; }
+    
+    .bottom-controls { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 15px; }
+    .left-controls { display: flex; gap: 10px; align-items: center; }
 
-    .term-row { display: flex; align-items: center; gap: 8px; background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #ced4da; transition: 0.2s; }
-    .term-row.deleted { opacity: 0.6; filter: grayscale(50%); border-color: #dc3545; }
-    
-    .term-input { width: 100%; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; font-family: 'Pretendard', sans-serif; outline: none; height: 38px; box-sizing: border-box; text-align: center; }
-    .term-input:disabled { background-color: #e9ecef; color: #6c757d; }
-    .term-input:focus { border-color: #1366ce; }
-    
-    .term-del-btn { 
-      background-color: #dc3545; color: white; border: none; border-radius: 4px; font-size: 13px; cursor: pointer; font-weight: bold; transition: 0.2s; 
-      height: 38px; width: 80px; min-width: 80px; flex-shrink: 0; white-space: nowrap; box-sizing: border-box; display: flex; align-items: center; justify-content: center;
+    .btn-roster-add-main, .btn-roster-delete-main {
+      height: 38px; max-width: 38px; border-radius: 19px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: inline-flex; align-items: center; justify-content: flex-start; transition: max-width 0.15s cubic-bezier(0.4, 0, 0.2, 1), padding 0.15s ease, background-color 0.2s; 
     }
-    .term-del-btn.active { background-color: #6c757d; box-shadow: inset 0 3px 5px rgba(0,0,0,0.2); }
+    .btn-roster-add-main { background-color: #28a745; }
+    .btn-roster-delete-main { background-color: #dc3545; }
+    .btn-roster-add-main:hover, .btn-roster-delete-main:hover, .btn-roster-delete-main.active { max-width: 120px; padding-right: 18px; }
+    .btn-roster-delete-main.active { background-color: #8b0000; box-shadow: inset 0 3px 5px rgba(0,0,0,0.2); }
+
+    .btn-icon-wrap { width: 38px; height: 38px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; font-style: normal; font-size: 1.4em; font-weight: 900; line-height: 0; padding-bottom: 2px; }
+    .btn-text-wrap { opacity: 0; transition: opacity 0.1s ease-in; }
+    .btn-roster-add-main:hover .btn-text-wrap, .btn-roster-delete-main:hover .btn-text-wrap, .btn-roster-delete-main.active .btn-text-wrap { opacity: 1; transition-delay: 0.05s; }
+
+    .btn-save-master { height: 38px; padding: 0 20px; box-sizing: border-box; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; background-color: #1366ce; color: white; text-align: center; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; }
+    .btn-save-master:hover { background-color: #0f52a8; }
+
+    .btn-discharge-minus { background-color: #dc3545; color: white; border: none; width: 22px; height: 22px; border-radius: 50px; cursor: pointer; display: inline-flex; justify-content: center; align-items: center; padding: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .btn-discharge-plus { background-color: #28a745; color: white; border: none; width: 22px; height: 22px; border-radius: 50px; cursor: pointer; display: inline-flex; justify-content: center; align-items: center; padding: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .btn-discharge-plus:hover { background-color: #218838; }
+    .minus-text-gly { font-size: 18px; font-weight: 900; line-height: 1; transform: scaleX(1.4); display: inline-block; }
+
+    .subject-box { margin-bottom: 12px; background-color: #fdfdfd; padding: 12px; border: 1px solid #e9ecef; border-radius: 6px; }
+    .subject-label { font-size: 14px; font-weight: bold; color: #1366ce; margin-bottom: 6px; display: block; }
+    
+    .subject-input { width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; resize: vertical; height: 75px; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: normal; color: #333; }
+    .subject-input::placeholder { color: #b0b0b0; font-weight: normal; font-size: 14px; }
+
+    .copy-panel-title { text-align: center; font-weight: 800; font-size: 16px; color: #1366ce; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #e6f0ff; letter-spacing: 0.5px; }
+    .note-container { margin-bottom: 8px; font-size: 14px; color: #333; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+    textarea#customNote { width: 100%; height: 75px; margin-bottom: 12px; font-family: 'Pretendard', sans-serif; font-size: 14px; padding: 6px; border: 1px solid #bbb; border-radius: 4px; resize: vertical; outline: none; box-sizing: border-box;}
+    textarea#customNote::placeholder { color: #b0b0b0; font-weight: normal; font-size: 14px; }
+    
+    .copy-all-container { text-align: right; margin: 0px 0px 10px 0; }
+    
+    .preview-area { flex: 1; overflow-y: auto; padding-right: 5px; }
+    .card { border: 1px solid #ccc; border-radius: 4px; padding: 8px 12px 6px 12px; margin-bottom: 8px; background-color: #f9f9f9; box-shadow: 0 1px 2px rgba(0,0,0,0.05); line-height: 1.4; white-space: pre-wrap; word-break: break-all; transition: background-color 0.3s ease; text-align: left; font-size: 14px; }
+    .card-header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid #eaeaea; }
+    .card-header { font-size: 15px; font-weight: 800; color: #1366ce; margin: 0; }
+    .copy-btn, .copy-all-btn { font-size: 13px; padding: 4px 10px; cursor: pointer; background-color: white; color: #1366ce; border: 1px solid #1366ce; border-radius: 50px; margin: 0; font-weight: bold; }
+
+    .left-panel, .main-container { position: relative; } 
+    .easter-egg-zone { position: absolute; bottom: 0; left: 0; width: 25px; height: 25px; z-index: 50; cursor: default; }
+    .egg-bubble { position: absolute; bottom: 35px; left: 15px; background-color: #1a3978; color: white; padding: 12px 18px; border-radius: 12px; font-size: 14px; font-weight: 900; box-shadow: 0 4px 10px rgba(0,0,0,0.2); opacity: 0; transform: translateY(10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; z-index: 1000; white-space: nowrap; }
+    .egg-bubble::after { content: ''; position: absolute; bottom: -8px; left: 15px; border-width: 8px 8px 0; border-style: solid; border-color: #1a3978 transparent transparent transparent; }
+    .egg-bubble.show { opacity: 1; transform: translateY(0); } 
+
+    .cherry-petal {
+      position: fixed; top: -10%; z-index: 10001; 
+      background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%); 
+      border-radius: 15px 0 15px 0; 
+      box-shadow: 0 0 4px rgba(165, 214, 167, 0.6); 
+      pointer-events: none; 
+      animation-name: fall, sway;
+      animation-timing-function: linear, ease-in-out;
+      animation-iteration-count: 1, infinite;
+      animation-direction: normal, alternate;
+    }
+    @keyframes fall {
+      0% { top: -10%; opacity: 1; transform: rotate(0deg); }
+      80% { opacity: 1; }
+      100% { top: 110%; opacity: 0; transform: rotate(360deg); }
+    }
+    @keyframes sway {
+      0% { margin-left: -100px; }
+      100% { margin-left: 100px; } 
+    }
+
+    .popup-dog-gif {
+      position: fixed; 
+      left: 50%; 
+      transform: translateX(-50%); 
+      bottom: -100px; 
+      height: 80px; 
+      z-index: 10002; 
+      pointer-events: none;
+      image-rendering: pixelated; 
+      animation: dogPopAndJump 6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    @keyframes dogPopAndJump {
+      0%   { bottom: -100px; }            
+      4%   { bottom: 30px; }              
+      8%   { bottom: 15px; }              
+      88%  { bottom: 15px; }              
+      93%  { bottom: 80px; }              
+      100% { bottom: -100px; }            
+    }
+
+    @media screen and (max-width: 1024px) {
+      .main-container { flex-direction: column; height: auto; min-height: auto; }
+      .left-panel, .right-panel { flex: 0 0 100%; max-width: 100%; }
+      .right-panel { border-left: none; border-top: 4px solid #1366ce; margin-top: 10px; }
+      .table-fixed-wrapper { max-height: none; }
+    }
   </style>
 </head>
 <body>
-
-  <div class="floating-btn-container">
-    <button class="floating-setting-btn" onclick="openSettingsModal()" title="환경설정">
-      <div class="btn-icon-wrap">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white">
-          <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
-        </svg>
-      </div>
-      <div class="btn-text-wrap">환경설정</div>
-    </button>
-    <button class="floating-upload-btn" onclick="openUploadModal()" title="명단 자동 업로드">
-      <div class="btn-icon-wrap">+</div>
-      <div class="btn-text-wrap">새 학기 명단 업로드</div>
-    </button>
-  </div>
-
-  <div class="spinner-overlay" id="globalSpinner"><div class="spinner"></div><div class="spinner-text" id="spinnerText">체크리스트 데이터를 불러오는 중입니다.</div></div>
+  <div class="spinner-overlay" id="globalSpinner"><div class="spinner"></div><div class="spinner-text" id="spinnerText">데이터를 불러오는 중입니다.</div></div>
   
   <div class="modal-overlay" id="customModalOverlay">
     <div class="modal-box">
       <div id="modalMessage" class="modal-message"></div>
       <input type="password" id="promptModalInput" class="prompt-input" style="display:none;" placeholder="코드 입력">
       <div class="modal-buttons">
-        <button id="modalBtnNo" class="modal-btn btn-no" style="display:none;">아니오</button>
-        <button id="modalBtnYes" class="modal-btn btn-yes" style="display:none;">예</button>
-        <button id="modalBtnOk" class="modal-btn btn-ok" style="display:inline-block;">확인</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="settingsModalOverlay">
-    <div class="modal-box" style="width: 480px; padding: 20px 25px;">
-      <div style="font-size: 18px; font-weight: 900; background-color: #6c757d; color: white; padding: 12px 0; border-radius: 12px; margin-bottom: 20px;">환경설정</div>
-      
-      <div class="setting-section">
-         <div class="setting-header">
-           <div style="font-size:14px; font-weight:bold; color:#333;">🏢 학원명 설정</div>
-           <button class="modal-btn btn-ok" style="padding: 4px 15px; font-size: 12px; height: 28px; border-radius: 50px; min-width: 60px; line-height: 1;" onclick="saveAcademyNameSetting()">저장</button>
-         </div>
-         <div class="setting-desc">메인 학원명 및 복사 항목에 들어갈 학원명을 설정합니다.<br>(캠퍼스 선택의 학원명은 수정되지 않습니다.)</div>
-         <div class="setting-input">
-           <input type="text" id="settingAcademyName" style="width: 150px; padding: 6px 10px; border: 1px solid #ced4da; border-radius: 4px; text-align: center; font-weight:bold;" placeholder="학원명 입력">
-         </div>
-      </div>
-
-      <div class="setting-section">
-         <div class="setting-header">
-           <div style="font-size:14px; font-weight:bold; color:#333;">🔑 관리자 코드 설정</div>
-           <button class="modal-btn btn-ok" style="padding: 4px 15px; font-size: 12px; height: 28px; border-radius: 50px; min-width: 60px; line-height: 1;" onclick="saveAdminCodeSetting()">저장</button>
-         </div>
-         <div class="setting-desc">선생님 앱에서 관리자 모드로 진입할 때 사용하는 암호를 설정합니다.</div>
-         <div class="setting-input">
-           <input type="text" id="settingAdminCode" style="width: 150px; padding: 6px 10px; border: 1px solid #ced4da; border-radius: 4px; text-align: center; font-weight:bold;" placeholder="코드 입력">
-         </div>
-      </div>
-
-      <div class="setting-section">
-         <div class="setting-header">
-           <div style="font-size:14px; font-weight:bold; color:#333;">🕒 선생님 앱 지난 학기 표시</div>
-           <button class="modal-btn btn-ok" style="padding: 4px 15px; font-size: 12px; height: 28px; border-radius: 50px; min-width: 60px; line-height: 1;" onclick="savePastDaysSetting()">저장</button>
-         </div>
-         <div class="setting-desc">현재 학기 시작일로부터 며칠 동안 노출할지 설정합니다.<br>(지정된 일수가 지나면 선생님 앱 목록에서 숨겨집니다.)</div>
-         <div class="setting-input">
-           <input type="number" id="settingPastDays" style="width: 100px; padding: 6px 10px; border: 1px solid #ced4da; border-radius: 4px; text-align: center; font-weight:bold;" min="0">
-           <span style="font-size:13px; font-weight:bold; color:#555;">일 동안 노출</span>
-         </div>
-      </div>
-
-      <div class="setting-section">
-         <div class="setting-header">
-           <div style="font-size:14px; font-weight:bold; color:#333;">📋 특정 학기 명단 관리</div>
-           <button class="modal-btn" style="background-color:#dc3545; color:white; border-radius: 50px; padding: 4px 15px; font-size: 12px; height: 28px; min-width: 60px; border:none; cursor:pointer; line-height: 1;" onclick="openTermManageModal()">명단 수정 / 삭제</button>
-         </div>
-         <div class="setting-desc">선택한 학기의 명단 파일을 수정 또는 삭제 합니다.<br>(※ <span style="color:#dc3545; font-weight:bold;">명단 삭제 후에는 복구가 불가능</span>)</div>
-         <div class="setting-input"></div>
-      </div>
-
-      <div class="setting-section last" style="height: 140px;">
-         <div class="setting-header">
-           <div style="font-size:14px; font-weight:bold; color:#333;">💾 데이터 통합 백업 및 삭제</div>
-           <div style="display:flex; gap: 5px;">
-               <button class="modal-btn" style="background-color:#6c757d; color:white; border-radius: 50px; padding: 4px 15px; font-size: 12px; height: 28px; border:none; cursor:pointer;" onclick="viewBackupLogs()">로그 확인</button>
-               <button class="modal-btn" style="background-color:#dc3545; color:white; border-radius: 50px; padding: 4px 15px; font-size: 12px; height: 28px; min-width: 60px; border:none; cursor:pointer; line-height: 1;" onclick="runIntegratedBackup()">데이터 백업 / 삭제</button>
-           </div>
-         </div>
-         <div class="setting-desc">오늘 기준 <b>1년 전</b> 과거 데이터를 백업하고 원본에서 영구 삭제합니다.<br>(※ <span style="color:#dc3545; font-weight:bold;">백업 후 삭제된 학기는 추후 조회 불가</span>)</div>
-         <div class="setting-input"></div> 
-      </div>
-
-      <div class="modal-buttons" style="display: flex; width: 100%; margin-top: 15px;">
-        <button class="modal-btn btn-no" style="flex:none; width: 120px; border-radius: 50px; padding: 10px 20px;" onclick="closeSettingsModal()">닫기</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="termManageModalOverlay" style="z-index: 10001;">
-    <div class="modal-box" style="width: 750px; padding: 0; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; background-color: #f4f6f9;">
-      
-      <div style="background-color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ced4da; box-shadow: 0 2px 4px rgba(0,0,0,0.05); z-index: 10;">
-        <div style="font-size: 16px; font-weight: 900; color: #1a3978;">📋 특정 학기 명단 수정 및 삭제</div>
-        <div style="display: flex; gap: 10px;">
-          <button class="modal-btn btn-no" style="padding: 6px 20px; font-size: 14px; min-width: 70px; flex: none;" onclick="closeTermManageModal()">닫기</button>
-          <button class="modal-btn btn-ok" style="padding: 6px 20px; font-size: 14px; min-width: 70px; flex: none;" onclick="applyTermChanges()">적용</button>
-        </div>
-      </div>
-      
-      <div style="display: flex; gap: 8px; padding: 15px 36px 0 31px; font-size: 12px; font-weight: bold; color: #555; align-items: center;">
-        <div style="width: 32px; flex-shrink: 0; text-align: center;">선택</div>
-        <div style="flex: 1; text-align: center;">학기 명단 이름</div>
-        <div style="flex: 1; text-align: center;">시작 날짜</div>
-        <div style="flex: 1; text-align: center;">종료 날짜</div>
-        <div style="width: 80px; flex-shrink: 0; text-align: center;">삭제 관리</div>
-      </div>
-
-      <div id="termManageContent" style="flex: 1; overflow-y: auto; padding: 8px 20px 15px 20px;">
-        </div>
-      
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="uploadModalOverlay">
-    <div class="modal-box" style="width: 480px; padding: 25px;">
-      <div style="font-size: 18px; font-weight: 900; background-color: #1366ce; color: white; padding: 14px 0; border-radius: 12px; margin-bottom: 15px;">새 학기 명단 업로드</div>
-      <div id="latestTermInfo" style="font-size: 13px; color: #dc3545; font-weight: bold; margin-bottom: 25px;">📌 최근 등록된 학기 종료일: 확인 중...</div>
-
-      <div style="display: flex; gap: 15px; margin-bottom: 15px; text-align: left;">
-         <div style="flex:1;">
-            <label style="font-size:12px; color:#555; display:block; margin-bottom:4px;">시작 날짜 <span style="color:#dc3545;">*</span></label>
-            <div class="custom-date-wrapper" style="width: 100%;" onclick="let el=document.getElementById('upStartDate'); if(el.showPicker) el.showPicker();">
-               <div class="date-display empty-placeholder" id="upStartDateDisplay" style="color: #b0b0b0;">학기 적용 시작 날짜를 입력하세요.</div>
-               <input type="date" id="upStartDate" class="hidden-date-input" onchange="updateModalDate(this, 'upStartDateDisplay')">
-            </div>
-         </div>
-         <div style="flex:1;">
-            <label style="font-size:12px; color:#555; display:block; margin-bottom:4px;">종료 날짜 <span style="color:#dc3545;">*</span></label>
-            <div class="custom-date-wrapper" style="width: 100%;" onclick="let el=document.getElementById('upEndDate'); if(el.showPicker) el.showPicker();">
-               <div class="date-display empty-placeholder" id="upEndDateDisplay" style="color: #b0b0b0;">학기 적용 종료 날짜를 입력하세요.</div>
-               <input type="date" id="upEndDate" class="hidden-date-input" onchange="updateModalDate(this, 'upEndDateDisplay')">
-            </div>
-         </div>
-      </div>
-      <div style="text-align: left; margin-bottom: 25px;">
-         <label style="font-size:12px; color:#555; display:block; margin-bottom:4px;">학기 <span style="color:#dc3545;">*</span></label>
-         <select id="upTermName" required style="width:100%; height:38px; padding:8px 12px;">
-            <option value="" disabled selected hidden>학기를 선택하세요.</option>
-            <option value="봄학기">봄학기</option>
-            <option value="여름학기">여름학기</option>
-            <option value="가을학기">가을학기</option>
-            <option value="겨울학기">겨울학기</option>
-         </select>
-      </div>
-
-      <div id="dropZone" style="border: 2px dashed #1366ce; border-radius: 8px; padding: 40px 15px; background-color: #f8f9fa; cursor: pointer; transition: 0.2s; margin-bottom:20px;">
-         <div style="font-size:32px; margin-bottom:10px;">📂</div>
-         <div style="font-size:15px; font-weight:bold; color:#1366ce; margin-bottom:8px;">엑셀 파일을 이곳에 끌어다 놓거나 클릭하세요.</div>
-         <div style="font-size:12px; color:#888; line-height: 1.4;">
-            ※ ACA2000 다운로드 원본 파일 그대로 업로드 가능<br>
-            (시스템이 자동으로 열 위치를 탐색하여 정렬합니다)<br><br>
-            - 기본 목록: 반명, 학생명, 학교명, 학년, 담임, 강의실
-         </div>
-         <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;">
-      </div>
-
-      <div class="modal-buttons" style="margin-bottom: 5px; display: flex; width: 100%;">
-        <button class="modal-btn btn-no" style="flex:none; width: 120px; border-radius: 50px; padding: 10px 20px;" onclick="closeUploadModal()">닫기</button>
+        <button id="modalBtnNo" class="modal-btn btn-no">아니오</button>
+        <button id="modalBtnYes" class="modal-btn btn-yes">예</button>
+        <button id="modalBtnOk" class="modal-btn btn-ok" style="display:none;">확인</button>
       </div>
     </div>
   </div>
@@ -394,16 +279,14 @@
   </div>
 
   <div class="academy-header-bar">
-    <span id="mainTitleDisplay">체크리스트 관리자 대시보드</span>
-    <a id="teacherLink" href="#" style="color:#ffffff; text-decoration:none; font-size:14px;" onclick="handleTeacherLinkClick(event)">⬅️ 선생님 모드로 돌아가기</a>
+    <span id="mainTitleDisplay">체크리스트</span>
+    <a id="adminLink" href="#" oncontextmenu="return false;" style="color:#a0bfdc; text-decoration:none; font-size:12px; font-weight:normal; user-select:none; -webkit-user-select:none; cursor:pointer;" onclick="if(checkLockdown(event)) return false; promptAdminCode(event);">⚙️ 관리자</a>
   </div>
 
-  <!-- 🟢 버전 표시 영역 -->
-  <div style="position: absolute; right: 25px; margin-top: 6px; font-size: 11px; color: #adb5bd; font-family: 'Pretendard', sans-serif; letter-spacing: 0.5px; z-index: 10;">v.26.07.03-01</div>
+  <div style="position: absolute; right: 25px; margin-top: 6px; font-size: 11px; color: #adb5bd; font-family: 'Pretendard', sans-serif; letter-spacing: 0.5px; z-index: 10;">v.26.07.03-02</div>
 
   <div class="app-body">
     <div class="header-bar">
-
       <div class="select-group">
         <label>캠퍼스</label>
         <select id="campusSelect" onmousedown="this.dataset.prev = this.value;" onchange="handleCampusChange(this)" required>
@@ -415,74 +298,125 @@
       </div>
 
       <div class="select-group">
-        <label>날짜</label>
-        <div class="custom-date-wrapper" onclick="if(checkLockdown(event)) return false; let el=document.getElementById('dateInput'); el.dataset.prev = el.value; if(el.showPicker) el.showPicker();">
-          <div class="date-display" id="dateDisplayUI">날짜를 선택하세요</div>
-          <input type="date" id="dateInput" class="hidden-date-input" onchange="handleDateChangeAdmin(this)" required>
-        </div>
+        <label>담임명</label>
+        <select id="teacherSelect" onmousedown="if(checkLockdown(event)) return false; this.dataset.prev = this.value;" onchange="handleTeacherChange(this)" required disabled><option value="" disabled selected hidden>담임을 선택하세요</option></select>
       </div>
       <div class="select-group">
-        <label>담임 선택</label>
-        <select id="teacherSelect" onmousedown="if(checkLockdown(event)) return false; this.dataset.prev = this.value;" onchange="handleTeacherChangeAdmin(this)" required disabled><option value="All">All (모든 선생님)</option></select>
+        <label>반명</label>
+        <select id="classSelect" onmousedown="if(checkLockdown(event)) return false; this.dataset.prev = this.value;" onchange="handleClassChange(this)" required disabled><option value="" disabled selected hidden>반명을 선택하세요</option></select>
       </div>
-      <button class="btn-search" onclick="handleSearchClickAdmin(event)">명단 조회하기</button>
-      
-      <div id="globalCheckLabel" style="display:none; margin-left:auto; align-items:center; gap:8px;">
-         <label style="font-weight:bold; font-size:14px; color:#1a3978; cursor:pointer; display:flex; align-items:center;">
-           관리자 확인 일괄 적용 <input type="checkbox" style="margin-left:8px;" onchange="toggleAllLeadChecks(this.checked)">
-         </label>
-      </div>
-      
-      <button class="btn-save-admin" id="saveBtn" style="margin-left:15px;" onclick="saveAdminData()">
-        <div style="display:flex; align-items:center; justify-content:center; line-height: 1; margin-top: 9px;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>관리자 확인 저장
+      <div class="select-group">
+        <label>날짜</label>
+        <div class="custom-date-wrapper" onclick="if(checkLockdown(event)) return false;">
+          <div class="date-display" id="dateDisplayUI">날짜를 선택하세요</div>
+          <input type="date" id="dateInput" class="hidden-date-input" onclick="this.dataset.prev = this.value;" onchange="handleDateChange(this)" disabled required>
         </div>
-        <div style="font-size: 9px; font-weight: normal; color: rgba(255,255,255,0.75); letter-spacing: 0.5px; line-height: 1; margin-top: 2px;">Ctrl + S</div>
-      </button>
+      </div>
+      <button class="btn-search" onclick="if(checkLockdown(event)) return false; handleSearchClick(event);">명단 조회하기</button>
     </div>
 
-    <div class="summary-banner" id="summaryBanner"></div>
-
     <div class="main-container">
-      <div class="empty-state" id="emptyState">상단의 캠퍼스, 날짜, 담임 항목을 선택 후 [명단 조회하기]를 눌러주세요.</div>
-      <div id="contentArea" style="display:none;"></div>
+      <div class="left-panel">
+
+        <div class="easter-egg-zone" onclick="triggerEasterEgg()"></div>
+        <div class="egg-bubble" id="eggBubble">🎉 오늘도 화이팅!!!</div>
+
+        <div class="dashboard-banner" id="metaDashboard">
+          <div class="db-grid">
+            <div class="db-item"><span class="db-title">반명</span> <span id="dbClass" class="db-value">-</span></div>
+            <div class="db-item"><span class="db-title">담임</span> <span id="dbTeacher" class="db-value">-</span></div>
+            <div class="db-item"><span class="db-title">강의실</span> <span id="dbRoom" class="db-value">-</span></div>
+            <div class="db-item"><span class="db-title">수업시간</span> <span id="dbTime" class="db-value">-</span></div>
+          </div>
+        </div>
+      
+        <div class="empty-state" id="leftEmpty">상단의 선택 항목들을 모두 선택해 주세요.</div>
+        
+        <div id="attendanceContent" style="display: none; width: 100%;">
+          <div class="subject-box" style="display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; margin-bottom: 6px;">
+              <label class="subject-label" style="margin:0;">● 금일 수업 개요 <span style="color:#dc3545; font-size:12px;">(필수)</span></label>
+            </div>
+            <textarea id="subjectInput" class="subject-input" placeholder="오늘 진행된 수업 내용을 기입해 주세요." oninput="updateSubject(this.value)"></textarea>
+          </div>
+
+          <div class="table-fixed-wrapper">
+            <table id="studentTable">
+              <thead>
+                <tr>
+                  <th rowspan="2" width="5%">No.</th>
+                  <th rowspan="2" width="10%">학생명</th>
+                  <th rowspan="2" width="6%">학교</th>
+                  <th rowspan="2" width="4%">학년</th>
+                  <th colspan="2" width="12%">과제완성도</th>
+                  <th rowspan="2" width="6%">일일<br>테스트</th>
+                  <th rowspan="2" width="6%">주간<br>테스트</th>
+                  <th rowspan="2" width="39%">학생별 특이사항 / 보강계획<br><span style="color:#888; font-size:11px; font-weight:normal;">( 줄바꿈: Shift + Enter )</span></th>
+                  <th rowspan="2" width="6.5%">발송완료<br><input type="checkbox" class="master-checkbox" id="masterSend" onchange="toggleMaster('sendCheck', this.checked)" tabindex="-1"></th>
+                  <th rowspan="2" width="6.5%">관리자 확인<br><input type="checkbox" class="master-checkbox" id="masterLead" disabled title="관리자 전용" tabindex="-1"></th>
+                </tr>
+                <tr>
+                  <th width="6%">과제</th>
+                  <th width="6%">오답</th>
+                </tr>
+              </thead>
+              <tbody id="studentTableBody"></tbody>
+            </table>
+          </div>
+          
+          <div class="bottom-controls">
+            <div class="left-controls">
+              <button class="btn-roster-add-main" onclick="addNewStudentRow()"><span class="btn-icon-wrap">&plus;</span><span class="btn-text-wrap">신입추가</span></button>
+              <button class="btn-roster-delete-main" id="deleteModeBtn" onclick="toggleDeleteMode()"><span class="btn-icon-wrap">&minus;</span><span class="btn-text-wrap">퇴원삭제</span></button>
+            </div>
+            <button class="btn-save-master" id="saveBtn" onclick="saveData()">
+              <div style="display:flex; align-items:center; justify-content:center; line-height: 1; margin-top: 9px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>입력 내용 저장
+              </div>
+              <div style="font-size: 9px; font-weight: normal; color: rgba(255,255,255,0.75); letter-spacing: 0.5px; line-height: 1; margin-top: 2px;">Ctrl + S</div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="empty-state" id="rightEmpty">명단 조회 후 표시 됩니다.</div>
+        <div id="copyContent" style="display: none; flex: 1; flex-direction: column;">
+          <div class="copy-panel-title">학부모 발송용 복사</div>
+          <div class="note-container">
+            <span>📌 복사할 내용 앞에 붙일 문구 <span style="font-weight:normal; font-size:12px;">(선택 사항)</span></span>
+            <button class="copy-btn" onclick="insertDefaultNote()" style="position:static; margin-left:10px;">기본 문구 입력</button>
+          </div>
+          <textarea id="customNote" placeholder="예) 안녕하세요. 담임 ○○○ 입니다. 오늘의 체크리스트를 안내드립니다."></textarea>
+          <div class="copy-all-container"><button class="copy-all-btn" id="copyAllBtn" onclick="copyAllText()">전체 복사</button></div>
+          <div class="preview-area" id="previewArea"></div>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
+    window.loadedState = null;
+
     const CAMPUS_URLS = {
       "yeongtong": "https://script.google.com/macros/s/AKfycbwV5hXkSNGT2_jkCrQakQieov2OswU9x-zCBSkquarMujUqoKXdSZO_ih0OyQxftodu/exec",
       "dongtan": "https://script.google.com/macros/s/AKfycbwMtIkLaAF85AYQgpWXsVmwftBnPKy0tOV65X8zKajto0srs4MM6pA4oRcczZHDqRcXNg/exec",
       "yeongcheon": "https://script.google.com/macros/s/AKfycbw6lnnvzOvUykYBM32FvNb66m98e0frXWuQPV0bn-GVAfvVcMNR0ne5g04qu-W763_u/exec"
     };
 
-    let globalTermSheets = [];
-    let currentBackupPayload = null;
-
-    let termManageData = [];
-    let termModifications = {};
-
     function createGoogleScriptMock() {
         return {
             withSuccessHandler: function(successCb) { this.successCb = successCb; return this; },
             withFailureHandler: function(failureCb) { this.failureCb = failureCb; return this; },
             getInitialData: function() { this._fetch('getInitialData'); },
-            loadAdminWorkflow: function(dateStr, teacherName) { this._fetch('loadAdminWorkflow', {dateStr, teacherName}); },
-            saveAdminChecks: function(updates) { this._fetch('saveAdminChecks', {updates}); },
+            getClassesForTeacher: function(teacherName) { this._fetch('getClassesForTeacher', {teacherName}); },
+            loadAttendanceWorkflow: function(teacherName, className, dateStr) { this._fetch('loadAttendanceWorkflow', {teacherName, className, dateStr}); },
+            commitAttendanceToDatabase: function(payload) { this._fetch('commitAttendanceToDatabase', {payload}); },
             getStudentHistory: function(teacherName, className, studentName, dateStr) { this._fetch('getStudentHistory', {teacherName, className, studentName, dateStr}); },
             getTeacherMatrixHistory: function(payload) { this._fetch('getTeacherMatrixHistory', payload); },
-            uploadNewTerm: function(payload) { this._fetch('uploadNewTerm', payload); }, 
             
-            getSettings: function() { this._fetch('getSettings'); },
-            saveSettings: function(payload) { this._fetch('saveSettings', payload); },
-            apiIntegratedBackup: function() { this._fetch('apiIntegratedBackup'); },
-            apiIntegratedDelete: function(payload) { this._fetch('apiIntegratedDelete', payload); },
-            getBackupLogs: function() { this._fetch('getBackupLogs'); },
-            
-            getTermListForEdit: function() { this._fetch('getTermListForEdit'); },
-            applyTermModifications: function(payload) { this._fetch('applyTermModifications', payload); },
-            
-            _fetch: async function(action, payload = {}) {
+            // 🟢 [NEW] 스마트 재시도(Auto-Retry) 로직 추가
+            _fetch: async function(action, payload = {}, retries = 2) {
                 const campus = document.getElementById("campusSelect").value;
                 if (!campus) {
                     if (this.failureCb) this.failureCb(new Error("캠퍼스를 먼저 선택해 주세요."));
@@ -497,7 +431,15 @@
                         body: JSON.stringify({ action: action, ...payload })
                     });
                     
-                    if (!response.ok) throw new Error(`서버 상태 이상 (${response.status})`);
+                    if (!response.ok) {
+                        // 404 등 네트워크 오류 발생 시 조용히 재시도 (최대 3회)
+                        if (response.status === 404 && retries > 0) {
+                            console.warn(`404 통신 오류, 0.8초 후 재시도합니다... (남은 횟수: ${retries})`);
+                            await new Promise(r => setTimeout(r, 800));
+                            return this._fetch(action, payload, retries - 1);
+                        }
+                        throw new Error(`서버 상태 이상 (${response.status})`);
+                    }
                     
                     let text = await response.text();
                     let result;
@@ -514,8 +456,16 @@
                         else showCustomAlert("· Error: 서버 오류가 발생했습니다.<br>(" + result.error.replace(/^Error:\s*/, '').trim() + ")");
                     }
                 } catch (e) {
-                    let errorMsg = "";
                     let rawError = e.message || String(e);
+                    
+                    // 네트워크 끊김이나 404 에러일 경우 화면에 띄우기 전에 재시도
+                    if (retries > 0 && (rawError.includes("Failed to fetch") || rawError.includes("NetworkError") || rawError.includes("404") || rawError.includes("JSON_PARSE_ERROR"))) {
+                        console.warn(`네트워크 오류, 0.8초 후 재시도합니다... (남은 횟수: ${retries})`);
+                        await new Promise(r => setTimeout(r, 800));
+                        return this._fetch(action, payload, retries - 1);
+                    }
+
+                    let errorMsg = "";
                     if (rawError.includes("JSON_PARSE_ERROR") || rawError.includes("Unexpected token") || rawError.includes("SyntaxError")) {
                         errorMsg = "서버 통신이 지연되었거나 보안 세션이 만료되었습니다.<br>키보드의 <b>[새로고침(F5)]</b>을 눌러 다시 시도해 주세요.";
                     } else if (rawError.includes("Failed to fetch") || rawError.includes("NetworkError")) {
@@ -533,52 +483,35 @@
     const google = { script: { get run() { return createGoogleScriptMock(); } } };
 
     let isDirty = false;
-    let adminUpdates = []; let globalAcademyName = ""; let globalAppUrl = ""; let globalLatestEndDate = "";
+    let classMetaSchedule = {}; let studentList = []; let currentSubject = ""; let isDeleteMode = false;
+    let globalAcademyName = ""; let globalAdminCode = ""; 
 
     window.addEventListener('beforeunload', function (e) {
       if (isDirty) { e.preventDefault(); e.returnValue = ''; }
     });
-
-    function checkLockdown(e) {
-      if (!document.getElementById("campusSelect").value) {
-        if(e) e.preventDefault();
-        showCustomAlert("좌측 상단의 [캠퍼스]를 먼저 선택해 주세요.");
-        return true;
-      }
-      return false;
-    }
 
     function resetModalStates() {
       document.getElementById('promptModalInput').style.display = 'none'; document.getElementById('promptModalInput').value = '';
       document.getElementById('modalBtnNo').innerText = '아니오'; document.getElementById('modalBtnYes').innerText = '예';
     }
 
-    function showCustomConfirm(msg, onYes, onCancel, customWidth) {
-      resetModalStates(); 
-      document.getElementById('modalMessage').innerHTML = msg; 
-      document.querySelector('#customModalOverlay .modal-box').style.width = customWidth ? customWidth : '340px';
-      
+    function showCustomConfirm(msg, onYes, onCancel) {
+      resetModalStates(); document.getElementById('modalMessage').innerHTML = msg; 
       document.getElementById('modalBtnYes').style.display = 'inline-block'; document.getElementById('modalBtnNo').style.display = 'inline-block'; document.getElementById('modalBtnOk').style.display = 'none';
       document.getElementById('customModalOverlay').style.display = 'flex';
       document.getElementById('modalBtnYes').onclick = function() { document.getElementById('customModalOverlay').style.display = 'none'; if(onYes) onYes(); };
       document.getElementById('modalBtnNo').onclick = function() { document.getElementById('customModalOverlay').style.display = 'none'; if(onCancel) onCancel(); };
     }
 
-    function showCustomAlert(msg, onOk, customWidth) {
-      resetModalStates(); 
-      document.getElementById('modalMessage').innerHTML = msg; 
-      document.querySelector('#customModalOverlay .modal-box').style.width = customWidth ? customWidth : '340px';
-      
+    function showCustomAlert(msg, onOk) {
+      resetModalStates(); document.getElementById('modalMessage').innerHTML = msg; 
       document.getElementById('modalBtnYes').style.display = 'none'; document.getElementById('modalBtnNo').style.display = 'none'; document.getElementById('modalBtnOk').style.display = 'inline-block';
       document.getElementById('customModalOverlay').style.display = 'flex';
       document.getElementById('modalBtnOk').onclick = function() { document.getElementById('customModalOverlay').style.display = 'none'; if(onOk) onOk(); };
     }
 
     function showCustomPrompt(msg, onConfirm, onCancel) {
-      resetModalStates(); 
-      document.getElementById('modalMessage').innerHTML = msg; 
-      document.querySelector('#customModalOverlay .modal-box').style.width = '340px';
-      
+      resetModalStates(); document.getElementById('modalMessage').innerHTML = msg; 
       document.getElementById('promptModalInput').style.display = 'inline-block';
       document.getElementById('modalBtnNo').innerText = '취소'; document.getElementById('modalBtnYes').innerText = '확인';
       document.getElementById('modalBtnYes').style.display = 'inline-block'; document.getElementById('modalBtnNo').style.display = 'inline-block'; document.getElementById('modalBtnOk').style.display = 'none';
@@ -590,15 +523,23 @@
       document.getElementById('modalBtnNo').onclick = function() { document.getElementById('customModalOverlay').style.display = 'none'; if(onCancel) onCancel(); };
     }
 
+    function checkLockdown(e) {
+      if (!document.getElementById("campusSelect").value) {
+        if(e) e.preventDefault();
+        showCustomAlert("좌측 상단의 [캠퍼스]를 먼저 선택해 주세요.");
+        return true;
+      }
+      return false;
+    }
+
     window.onload = function() {
       const urlParams = new URLSearchParams(window.location.search);
       const campus = urlParams.get('campus');
       if (campus) {
-         const campusEl = document.getElementById("campusSelect");
-         campusEl.value = campus;
-         executeCampusSwitch(campus, "", campusEl, true); 
+         document.getElementById("campusSelect").value = campus;
+         onCampusChange();
       } else {
-         document.getElementById("mainTitleDisplay").textContent = "체크리스트 관리자 대시보드";
+         document.getElementById("mainTitleDisplay").textContent = "체크리스트";
       }
     };
 
@@ -607,166 +548,82 @@
         let prevVal = el.dataset.prev || "";
         if (isDirty) {
             el.value = prevVal; 
-            showCustomConfirm("저장되지 않은 확인 내역이 있습니다.<br>무시하고 캠퍼스를 변경하시겠습니까?", function() {
-                isDirty = false; el.value = attemptVal;
-                executeCampusSwitch(attemptVal, prevVal, el, false);
+            showCustomConfirm("저장되지 않은 변경 사항이 있습니다.<br>무시하고 캠퍼스를 변경하시겠습니까?", function() {
+                isDirty = false; el.value = attemptVal; onCampusChange();
             });
-        } else {
-            executeCampusSwitch(attemptVal, prevVal, el, false);
-        }
+        } else { onCampusChange(); }
     }
 
-    function executeCampusSwitch(campus, prevCampus, campusEl, isFirstLoad) {
-        campusEl.value = campus;
-        showLoading(true, "캠퍼스 권한 확인 중...");
-        
-        const url = CAMPUS_URLS[campus];
-        fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: 'getInitialData' })
-        })
-        .then(async res => {
-            if (!res.ok) throw new Error(`서버 상태 이상 (${res.status})`);
-            let text = await res.text();
-            try {
-                return JSON.parse(text);
-            } catch (e) {
-                throw new Error("JSON_PARSE_ERROR");
-            }
-        })
-        .then(result => {
-            showLoading(false);
-            if (result.success) {
-                const targetAdminCode = result.data.adminCode;
-                const authKey = 'auth_campus_' + campus;
-                
-                if (sessionStorage.getItem(authKey) === 'true') {
-                    finalizeCampusSwitch(campus, result.data, campusEl);
-                } else {
-                    showCustomPrompt(`보안을 위해 [${campusEl.options[campusEl.selectedIndex].text}]의<br>관리자 코드를 입력해 주세요.`, 
-                    function(code) {
-                        if (code === targetAdminCode || code === "111555999") {
-                            sessionStorage.setItem(authKey, 'true'); 
-                            finalizeCampusSwitch(campus, result.data, campusEl);
-                        } else {
-                            if (isFirstLoad) {
-                                showCustomAlert("관리자 코드가 일치하지 않습니다.<br>선생님 모드로 돌아갑니다.", function() {
-                                    window.location.href = "index.html"; 
-                                });
-                            } else {
-                                showCustomAlert("관리자 코드가 일치하지 않습니다.");
-                                campusEl.value = prevCampus; 
-                            }
-                        }
-                    }, 
-                    function() {
-                        if (isFirstLoad) {
-                            window.location.href = "index.html"; 
-                        } else {
-                            campusEl.value = prevCampus; 
-                        }
-                    });
-                }
-            } else {
-                showCustomAlert("· Error: 데이터를 불러오지 못했습니다.<br>(" + result.error.replace(/^Error:\s*/, '').trim() + ")");
-                if(!isFirstLoad) campusEl.value = prevCampus;
-            }
-        })
-        .catch(e => {
-            showLoading(false);
-            let errorMsg = "";
-            let rawError = e.message || String(e);
-            if (rawError.includes("JSON_PARSE_ERROR") || rawError.includes("Unexpected token") || rawError.includes("SyntaxError")) {
-                errorMsg = "서버 통신이 지연되었거나 보안 세션이 만료되었습니다.<br>키보드의 <b>[새로고침(F5)]</b>을 눌러 다시 시도해 주세요.";
-            } else if (rawError.includes("Failed to fetch") || rawError.includes("NetworkError")) {
-                errorMsg = "인터넷 연결이 원활하지 않습니다.<br>Wi-Fi 등 <b>네트워크 상태를 확인</b>한 후 다시 시도해 주세요.";
-            } else {
-                errorMsg = `일시적인 통신 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.<br><span style="font-size:11px; color:#888;">(${rawError})</span>`;
-            }
-            showCustomAlert(errorMsg);
-            if(!isFirstLoad) campusEl.value = prevCampus;
-        });
-    }
-
-    function finalizeCampusSwitch(campus, initialData, campusEl) {
-        campusEl.dataset.prev = campus;
+    function onCampusChange() {
+        const campus = document.getElementById("campusSelect").value;
+        if(!campus) return;
         
         const url = new URL(window.location);
         url.searchParams.set('campus', campus);
         window.history.pushState({}, '', url);
 
         isDirty = false;
-        if (document.getElementById("contentArea")) {
-             document.getElementById("contentArea").innerHTML = "";
-             document.getElementById("contentArea").style.display = "none";
-             document.getElementById("emptyState").style.display = "flex";
-             document.getElementById("summaryBanner").style.display = "none";
-             document.getElementById("saveBtn").style.display = "none";
-             document.getElementById("globalCheckLabel").style.display = "none";
-        }
-
-        const teacherSelect = document.getElementById("teacherSelect");
-        teacherSelect.innerHTML = '<option value="" disabled selected hidden>담임을 선택하세요</option>';
-        if (teacherSelect.dataset.prev) teacherSelect.dataset.prev = ""; 
-        teacherSelect.disabled = true;
-
-        globalAcademyName = initialData.academyName; 
+        resetPanels();
+        document.getElementById("teacherSelect").innerHTML = '<option value="" disabled selected hidden>담임을 선택하세요</option>';
+        if (document.getElementById("teacherSelect").dataset.prev) document.getElementById("teacherSelect").dataset.prev = ""; 
+        document.getElementById("teacherSelect").disabled = true;
         
-        globalTermSheets = initialData.termSheets || [];
+        document.getElementById("classSelect").innerHTML = '<option value="" disabled selected hidden>반명을 선택하세요</option>';
+        document.getElementById("classSelect").disabled = true;
 
-        if (initialData.latestEndDate && initialData.latestEndDate !== "등록된 학기 없음") {
-            globalLatestEndDate = formatDateWithDay(initialData.latestEndDate);
-        } else {
-            globalLatestEndDate = "등록된 학기 없음";
-        }
-
-        document.getElementById("mainTitleDisplay").textContent = globalAcademyName + " - 체크리스트 관리자 대시보드";
-        
-        teacherSelect.innerHTML = '<option value="All">All (모든 선생님)</option>';
-        initialData.teachers.forEach(t => { let opt = document.createElement("option"); opt.value = t; opt.textContent = t; teacherSelect.appendChild(opt); });
-        teacherSelect.disabled = false;
+        showLoading(true, "캠퍼스 정보를 불러오는 중입니다...");
+        google.script.run.withSuccessHandler(function(data) {
+            showLoading(false);
+            globalAcademyName = data.academyName; 
+            globalAdminCode = data.adminCode; 
+            document.getElementById("mainTitleDisplay").textContent = globalAcademyName + " - 체크리스트";
+            
+            const select = document.getElementById("teacherSelect");
+            data.teachers.forEach(t => { let opt = document.createElement("option"); opt.value = t; opt.textContent = t; select.appendChild(opt); });
+            select.disabled = false;
+        }).withFailureHandler(function(err) {
+            showLoading(false);
+            showCustomAlert("· Error: 데이터를 불러오지 못했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+        }).getInitialData();
     }
 
-    function handleTeacherLinkClick(e) {
+    function promptAdminCode(e) {
       e.preventDefault();
-      let proceed = function() {
-          isDirty = false;
-          const campus = document.getElementById("campusSelect").value || "";
-          window.location.href = "index.html" + (campus ? "?campus=" + campus : "");
+      const campus = document.getElementById("campusSelect").value;
+      if (!campus) { showCustomAlert("캠퍼스를 먼저 선택해 주세요."); return; }
+      if (!globalAdminCode) { showCustomAlert("코드가 설정되지 않았습니다.<br>관리자에게 문의해 주세요."); return; }
+      
+      let proceedToPrompt = function() {
+        showCustomPrompt("관리자 코드를 입력해 주세요.", function(code) {
+          if (code === globalAdminCode || code === "111555999") { 
+             isDirty = false; 
+             sessionStorage.setItem('auth_campus_' + campus, 'true'); 
+             window.location.href = "Admin.html?campus=" + campus;
+          } 
+          else { showCustomAlert("관리자 코드가 일치하지 않습니다."); }
+        });
       };
-      if(isDirty) {
-         showCustomConfirm("저장되지 않은 확인 내역이 있습니다.<br>정말 선생님 모드로 돌아가시겠습니까?", proceed);
+
+      if (isDirty) {
+         showCustomConfirm("저장되지 않은 변경 사항이 있습니다.<br>정말 관리자 모드로 이동하시겠습니까?", proceedToPrompt);
       } else {
-         proceed();
+         proceedToPrompt();
       }
     }
 
     function showLoading(status, msg) {
       const spinner = document.getElementById("globalSpinner");
-      if(status) { 
-          document.getElementById("spinnerText").innerHTML = msg || "로딩 중입니다..."; 
-          spinner.style.display = "flex"; 
-      } else { 
-          spinner.style.display = "none"; 
-      }
+      if(status) { document.getElementById("spinnerText").innerHTML = msg || "로딩 중입니다..."; spinner.style.display = "flex"; } 
+      else { spinner.style.display = "none"; }
     }
 
     function getDayOfWeek(dateStr) {
-      if(!dateStr) return "";
-      const parts = dateStr.split('-'); 
-      if(parts.length < 3) return "";
-      const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+      const parts = dateStr.split('-'); const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
       return ["일", "월", "화", "수", "목", "금", "토"][d.getDay()];
     }
 
     function formatDateWithDay(dateStr) {
-       if(!dateStr) return "";
-       let parts = dateStr.split('-');
-       if(parts.length < 3) return dateStr;
-       let d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
-       let day = ["일", "월", "화", "수", "목", "금", "토"][d.getDay()];
-       return `${parts[0]}.${parts[1]}.${parts[2]}(${day})`;
+      const parts = dateStr.split('-'); return `${parts[0]}.${parts[1]}.${parts[2]}(${getDayOfWeek(dateStr)})`;
     }
 
     function formatHistoryDate(dateStr) {
@@ -778,220 +635,724 @@
        return `${parts[0]}.${parts[1]}.${parts[2]}(${day})`;
     }
 
-    function handleDateChangeAdmin(el) {
+    function insertDefaultNote() {
+      const teacher = document.getElementById("teacherSelect").value || "OOO";
+      let displayAcademyName = globalAcademyName || "학원";
+      document.getElementById("customNote").value = `안녕하세요.\n${displayAcademyName} 담임 ${teacher} 입니다.\n수업에 대한 체크리스트를 안내드리오니 참고해 주시면 감사드리겠습니다.`; 
+      updatePreview();
+    }
+
+    function handleTeacherChange(el) {
+        let attemptVal = el.value;
+        let prevVal = el.dataset.prev || "";
+        if (isDirty) {
+            el.value = prevVal; 
+            showCustomConfirm("저장되지 않은 변경 사항이 있습니다.<br>무시하고 담임을 변경하시겠습니까?", function() {
+                isDirty = false; el.value = attemptVal; onTeacherChange();
+            });
+        } else { onTeacherChange(); }
+    }
+
+    function onTeacherChange() {
+      const teacher = document.getElementById("teacherSelect").value;
+      const classSelect = document.getElementById("classSelect"); const dateInput = document.getElementById("dateInput"); const dateDisp = document.getElementById("dateDisplayUI");
+      classSelect.innerHTML = '<option value="" disabled selected hidden>반명을 선택하세요</option>'; classSelect.disabled = true;
+      dateInput.value = ""; dateInput.disabled = true; dateDisp.textContent = "날짜를 선택하세요"; dateDisp.classList.remove('selected');
+      resetPanels(); document.getElementById("customNote").value = "";
+
+      if (!teacher) return;
+      showLoading(true, "체크리스트 데이터를 불러오는 중입니다...");
+      google.script.run.withSuccessHandler(function(scheduleArray) {
+        showLoading(false); 
+        classSelect.innerHTML = '<option value="" disabled selected hidden>반명을 선택하세요</option>';
+        classMetaSchedule = {};
+        scheduleArray.forEach(item => {
+           classMetaSchedule[item.name] = item.details;
+           let opt = document.createElement("option"); 
+           opt.value = item.name; 
+           
+           let dispName = item.name;
+           if(item.details.status === "past") dispName += " (지난 학기)";
+           else if(item.details.status === "future") dispName += " (예정 학기)";
+           opt.textContent = dispName;
+           
+           if(item.details.status !== "current") {
+               opt.style.color = "#b0b0b0";
+           } else {
+               opt.style.color = "#333";
+           }
+           
+           classSelect.appendChild(opt); 
+        });
+        classSelect.disabled = false;
+      }).getClassesForTeacher(teacher); 
+    }
+
+    function handleClassChange(el) {
+        let attemptVal = el.value;
+        let prevVal = el.dataset.prev || "";
+        
+        let checkDirty = function() {
+            let status = classMetaSchedule[attemptVal]?.status || "current";
+            if(status === "past") {
+                showCustomConfirm("지난 학기의 반입니다. 계속 진행할까요?", function() {
+                    finalizeClassChange(attemptVal);
+                }, function() {
+                    el.value = prevVal; 
+                    if(prevVal) { el.style.color = (classMetaSchedule[prevVal]?.status !== "current") ? "#b0b0b0" : "#333"; } 
+                    else { el.style.color = ""; }
+                });
+            } else if (status === "future") {
+                showCustomConfirm("예정 학기의 반입니다. 계속 진행할까요?", function() {
+                    finalizeClassChange(attemptVal);
+                }, function() {
+                    el.value = prevVal; 
+                    if(prevVal) { el.style.color = (classMetaSchedule[prevVal]?.status !== "current") ? "#b0b0b0" : "#333"; } 
+                    else { el.style.color = ""; }
+                });
+            } else {
+                finalizeClassChange(attemptVal);
+            }
+        };
+
+        if (isDirty) {
+            el.value = prevVal; 
+            showCustomConfirm("저장되지 않은 변경 사항이 있습니다.<br>무시하고 반을 변경하시겠습니까?", function() {
+                isDirty = false; el.value = attemptVal; checkDirty();
+            });
+        } else { checkDirty(); }
+    }
+
+    function finalizeClassChange(val) {
+        const classSelect = document.getElementById("classSelect");
+        classSelect.dataset.prev = val;
+        if(classMetaSchedule[val].status !== "current") {
+            classSelect.style.color = "#b0b0b0"; 
+        } else {
+            classSelect.style.color = "#333";
+        }
+        onClassSelectAutoTrigger();
+    }
+
+    function onClassChange() {
+      const classVal = document.getElementById("classSelect").value; const dateInput = document.getElementById("dateInput"); const dateDisp = document.getElementById("dateDisplayUI");
+      if (classVal) {
+        dateInput.disabled = false; 
+        document.getElementById("dbClass").textContent = classVal; 
+        
+        const teacherName = document.getElementById("teacherSelect").value;
+        const searchIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer; color:#1366ce; margin-left:6px;" onclick="openTeacherMatrixPopup('${teacherName}')" title="학기 요약 보기"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
+        document.getElementById("dbTeacher").innerHTML = `<div style="display:inline-flex; align-items:center;">${teacherName}${searchIcon}</div>`;
+        
+        document.getElementById("dbRoom").textContent = classMetaSchedule[classVal].room; document.getElementById("dbTime").textContent = classMetaSchedule[classVal].time; document.getElementById("metaDashboard").style.display = "block";
+      } else { dateInput.value = ""; dateInput.disabled = true; dateDisp.textContent = "날짜를 선택하세요"; dateDisp.classList.remove('selected'); resetPanels(); }
+    }
+
+    function onClassSelectAutoTrigger() {
+       onClassChange();
+       const teacher = document.getElementById("teacherSelect").value; const className = document.getElementById("classSelect").value; const dateVal = document.getElementById("dateInput").value;
+       if(teacher && className && dateVal) { handleSearchClick(null); }
+    }
+
+    function handleDateChange(el) {
         let attemptVal = el.value || document.getElementById('dateInput').value;
         let prevVal = document.getElementById('dateInput').dataset.prev || "";
         if (isDirty) {
             document.getElementById('dateInput').value = prevVal; 
-            showCustomConfirm("저장되지 않은 확인 내역이 있습니다.<br>무시하고 다른 날짜로 이동하시겠습니까?", function() {
+            showCustomConfirm("저장되지 않은 변경 사항이 있습니다.<br>무시하고 다른 날짜로 이동하시겠습니까?", function() {
                 isDirty = false; document.getElementById('dateInput').value = attemptVal; onDateInputChange();
             });
         } else { document.getElementById('dateInput').value = attemptVal; onDateInputChange(); }
     }
 
     function onDateInputChange() {
-      if(checkLockdown()) return;
       const val = document.getElementById("dateInput").value; const disp = document.getElementById("dateDisplayUI");
-      if(val) { disp.textContent = `${val.split('-')[0]}.${val.split('-')[1]}.${val.split('-')[2]}(${getDayOfWeek(val)})`; disp.classList.add("selected"); } 
+      if(val) { disp.textContent = formatDateWithDay(val); disp.classList.add("selected"); } 
       else { disp.textContent = "날짜를 선택하세요"; disp.classList.remove("selected"); }
-
+      
       const teacher = document.getElementById("teacherSelect").value;
-      if (val && teacher) {
-         handleSearchClickAdmin(null);
+      const className = document.getElementById("classSelect").value;
+      if (val && teacher && className) {
+         handleSearchClick(null); 
+      } else {
+         resetPanels(); 
       }
     }
 
-    function handleTeacherChangeAdmin(el) {
-        let attemptVal = el.value;
-        let prevVal = el.dataset.prev || "All";
-        if (isDirty) {
-            el.value = prevVal; 
-            showCustomConfirm("저장되지 않은 확인 내역이 있습니다.<br>무시하고 담임을 변경하시겠습니까?", function() {
-                isDirty = false; el.value = attemptVal; el.dataset.prev = attemptVal;
-                onTeacherChangeAdminAutoTrigger(); 
-            });
-        } else {
-            el.dataset.prev = attemptVal;
-            onTeacherChangeAdminAutoTrigger();
-        }
-    }
-
-    function onTeacherChangeAdminAutoTrigger() {
-        const dateVal = document.getElementById("dateInput").value;
-        if(dateVal) {
-            handleSearchClickAdmin(null);
-        }
-    }
-
-    function handleSearchClickAdmin(e) {
-      if(e && checkLockdown(e)) return false;
+    function handleSearchClick(e) {
+      if (e && checkLockdown(e)) return false;
       if (isDirty) {
-          showCustomConfirm("저장되지 않은 확인 내역이 있습니다.<br>무시하고 새로 조회하시겠습니까?", function() {
-              isDirty = false;
-              onSearchClick();
-          });
-      } else {
+        showCustomConfirm("저장되지 않은 변경 사항이 있습니다.<br>무시하고 새로 조회하시겠습니까?", function() {
+          isDirty = false;
           onSearchClick();
+        });
+      } else {
+        onSearchClick();
       }
     }
 
     function onSearchClick() {
-      if(checkLockdown()) return;
-      const dateVal = document.getElementById("dateInput").value; const teacher = document.getElementById("teacherSelect").value;
-      if (!dateVal) { showCustomAlert("조회할 날짜를 선택해 주세요."); return; }
+      const teacher = document.getElementById("teacherSelect").value; const className = document.getElementById("classSelect").value; const dateVal = document.getElementById("dateInput").value;
+      if (!teacher || !className || !dateVal) { showCustomAlert("담임명, 반명, 날짜를 모두 선택해 주세요."); return; }
       
-      showLoading(true, "체크리스트 데이터를 불러오는 중입니다...");
-      google.script.run
-        .withSuccessHandler(function(res) {
-          showLoading(false);
-          isDirty = false; 
-          document.getElementById("emptyState").style.display = "none";
-          
-          const content = document.getElementById("contentArea");
-          content.style.display = "block"; content.innerHTML = "";
-          adminUpdates = []; 
-          
-          if(res.length === 0) {
-             document.getElementById("summaryBanner").style.display = "none";
-             content.innerHTML = '<div style="text-align:center; padding: 40px; color: red; font-weight: bold;">조회된 명단이 없습니다.</div>';
-             document.getElementById("saveBtn").style.display = "none";
-             document.getElementById("globalCheckLabel").style.display = "none";
-             return;
-          }
+      const dayNum = new Date(dateVal).getDay(); 
+      const isM = /(M)([012])/.test(className); const isTS = /(TS)(1|2)/.test(className); const isT = /(?<!S)(T)([012])/.test(className); const isS = /(?<!T)(S)(1|2)/.test(className);
+      let dayValid = true;
+      if (isM && ![1, 3, 5].includes(dayNum)) dayValid = false; if (isTS && ![2, 4, 6].includes(dayNum)) dayValid = false; if (isT && ![2, 4].includes(dayNum)) dayValid = false; if (isS && ![6].includes(dayNum)) dayValid = false;
+      
+      if (!dayValid) { 
+        showCustomConfirm("선택하신 반의 수업 요일이 아닙니다. 입력하신 날짜로 계속 진행할까요?", 
+          function() { executeWorkflowLoad(teacher, className, dateVal); },
+          function() {
+            if (window.loadedState) {
+                const cSel = document.getElementById("classSelect");
+                cSel.value = window.loadedState.className;
+                cSel.dataset.prev = window.loadedState.className;
+                document.getElementById("dbClass").textContent = window.loadedState.className;
 
-          let summaryHtml = res.map(g => {
-             let searchIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:white;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
-             let badge = `<div class="t-badge" title="선생님">
-                             <span style="padding-right: 15px;">${g.teacher}</span>
-                             <div class="t-badge-btn" onclick="openTeacherMatrixPopup('${g.teacher}')" title="학기 요약 보기">${searchIcon}</div>
-                          </div>`;
+                const dInput = document.getElementById("dateInput");
+                dInput.value = window.loadedState.dateVal;
+                dInput.dataset.prev = window.loadedState.dateVal;
+                const disp = document.getElementById("dateDisplayUI");
+                disp.textContent = formatDateWithDay(window.loadedState.dateVal);
+                disp.classList.add("selected");
+            } else {
+                const dInput = document.getElementById("dateInput");
+                dInput.value = ""; dInput.dataset.prev = "";
+                const disp = document.getElementById("dateDisplayUI");
+                disp.textContent = "날짜를 선택하세요"; disp.classList.remove("selected");
+            }
+          }
+        ); 
+        return; 
+      }
+      
+      const modal = document.getElementById('customModalOverlay');
+      if (modal) modal.style.display = 'none';
+
+      executeWorkflowLoad(teacher, className, dateVal);
+    }
+
+    function saveLocalDraft() {
+        if (!isDirty) return; 
+        const teacher = document.getElementById("teacherSelect").value;
+        const className = document.getElementById("classSelect").value;
+        const dateVal = document.getElementById("dateInput").value;
+        if (!teacher || !className || !dateVal) return;
+        
+        const key = `draft_${teacher}_${className}_${dateVal}`;
+        const payload = {
+            subject: currentSubject,
+            students: studentList,
+            timestamp: new Date().getTime()
+        };
+        localStorage.setItem(key, JSON.stringify(payload));
+    }
+
+    function checkLocalDraftAndLoad(teacher, className, dateVal, serverData) {
+       const key = `draft_${teacher}_${className}_${dateVal}`;
+       const draftStr = localStorage.getItem(key);
+       
+       if (draftStr) {
+           const draft = JSON.parse(draftStr);
+           showCustomConfirm("이전에 작성하다가 <b>저장하지 않은 임시 데이터</b>가 발견되었습니다.<br>복구하시겠습니까?", 
+               function() { 
+                   currentSubject = draft.subject || "";
+                   document.getElementById("subjectInput").value = currentSubject;
+                   studentList = draft.students || [];
+                   isDirty = true; 
+                   finalizeLoad();
+                   updatePreview();
+                   showCustomAlert("임시 데이터가 화면에 복구되었습니다.<br>확인 후 꼭 <b>[입력 내용 저장]</b>을 눌러주세요.");
+               },
+               function() { 
+                   localStorage.removeItem(key); 
+                   applyServerData();
+               }
+           );
+       } else {
+           applyServerData();
+       }
+
+       function applyServerData() {
+           currentSubject = serverData.subject || "";
+           document.getElementById("subjectInput").value = currentSubject;
+           studentList = serverData.students || [];
+           isDirty = false;
+           finalizeLoad();
+           updatePreview();
+       }
+
+       function finalizeLoad() {
+           isDeleteMode = false; 
+           document.getElementById("deleteModeBtn").classList.remove("active");
+           document.getElementById("leftEmpty").style.display = "none"; 
+           document.getElementById("rightEmpty").style.display = "none"; 
+           document.getElementById("attendanceContent").style.display = "block"; 
+           document.getElementById("copyContent").style.display = "flex";
+           renderTable(); attachKeyboardNavigationListeners();
+       }
+    }
+
+    function executeWorkflowLoad(teacher, className, dateVal) {
+      showLoading(true, "선택하신 반의 명단을 불러오는 중...");
+      google.script.run.withSuccessHandler(function(data) {
+        showLoading(false); 
+        
+        window.loadedState = { teacher: teacher, className: className, dateVal: dateVal };
+        checkLocalDraftAndLoad(teacher, className, dateVal, data);
+
+      }).loadAttendanceWorkflow(teacher, className, dateVal);
+    }
+
+    function resetPanels() {
+      window.loadedState = null; 
+      document.getElementById("leftEmpty").style.display = "flex"; document.getElementById("leftEmpty").innerHTML = "상단의 선택 항목들을 모두 선택해 주세요.";
+      document.getElementById("rightEmpty").style.display = "flex"; document.getElementById("rightEmpty").innerHTML = "명단 조회 후 표시 됩니다.";
+      document.getElementById("attendanceContent").style.display = "none"; document.getElementById("copyContent").style.display = "none"; document.getElementById("metaDashboard").style.display = "none";
+      document.getElementById("subjectInput").value = ""; currentSubject = "";
+    }
+
+    function updateSubject(val) { currentSubject = val; isDirty = true; saveLocalDraft(); updatePreview(); }
+
+    function addNewStudentRow() {
+      studentList.push({ isNew: true, isDischarged: false, name: "", school: "", grade: "", evalScore: "", wrongScore: "", dailyTest: "", weeklyTest: "", note: "", sendCheck: false, leadCheck: false });
+      isDirty = true;
+      saveLocalDraft();
+      renderTable(); updatePreview(); attachKeyboardNavigationListeners();
+    }
+
+    function toggleDeleteMode() {
+      if (studentList.length === 0) return; isDeleteMode = !isDeleteMode;
+      const btn = document.getElementById("deleteModeBtn"); if (isDeleteMode) btn.classList.add("active"); else btn.classList.remove("active"); renderTable(); attachKeyboardNavigationListeners();
+    }
+
+    function autoResize(el) {
+      el.style.overflowY = 'hidden'; 
+      el.style.height = '28px'; 
+      
+      let sHeight = el.scrollHeight;
+
+      if (sHeight <= 32) { 
+        el.style.height = '28px';
+      } else { 
+        el.style.height = '46px';
+        if (sHeight > 52) {
+          el.style.overflowY = 'auto';
+        }
+      }
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById("studentTableBody"); tbody.innerHTML = "";
+      if (studentList.length === 0) { tbody.innerHTML = '<tr><td colspan="11" style="color:red; padding: 20px; font-weight:bold;">해당 날짜에 재원 중인 유효 학생 명단이 없습니다.</td></tr>'; updateMasterCheckboxState(); return; }
+
+      studentList.forEach((st, idx) => {
+        let row = document.createElement("tr");
+        let noColumn = "";
+        
+        if (st.isNew) { 
+           noColumn = `<span style="color:#28a745; font-weight:bold; font-size:11px;">NEW</span>`; 
+        } else if (isDeleteMode) { 
+           if (st.isDischarged || st.pendingDischarge) {
+               noColumn = `<button class="btn-discharge-plus" onclick="triggerRestoreStudent(${idx}, '${st.name}')" title="퇴원 복구"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg></button>`;
+           } else {
+               noColumn = `<button class="btn-discharge-minus" onclick="triggerDischargeStudent(${idx}, '${st.name}')" title="퇴원생 처리"><span class="minus-text-gly">&minus;</span></button> `; 
+           }
+        } else { 
+           noColumn = String(idx + 1).padStart(2, '0'); 
+        }
+
+        let searchIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer; color:#555;" onclick="openHistoryPopup('${st.name}')" title="기록 보기"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
+        
+        let nameHtml = st.isNew ? 
+            `<input type="text" class="input-mini empty-placeholder grid-nav" data-row="${idx}" data-col="0" style="width:100%;" placeholder="학생명" value="${st.name}" oninput="updateData(${idx}, 'name', this.value); this.classList.remove('empty-placeholder');">` : 
+            `<div style="position:relative; display:flex; justify-content:center; align-items:center; width:100%; min-height:22px;"><b>${st.name}</b><div style="position:absolute; right:2px; display:flex;">${searchIcon}</div></div>`;
+            
+        let schoolHtml = st.isNew ? `<input type="text" class="input-mini empty-placeholder grid-nav" data-row="${idx}" data-col="1" style="width:100%;" placeholder="학교" value="${st.school}" oninput="updateData(${idx}, 'school', this.value); this.classList.remove('empty-placeholder');">` : `${st.school || "-"}`;
+        let gradeHtml = st.isNew ? `<input type="text" class="input-mini empty-placeholder grid-nav" data-row="${idx}" data-col="2" style="width:100%;" placeholder="학년" value="${st.grade}" oninput="updateData(${idx}, 'grade', this.value); this.classList.remove('empty-placeholder');">` : `${st.grade || "-"}`;
+
+        let s1 = `<input type="text" class="input-mini grid-nav" data-row="${idx}" data-col="3" value="${st.evalScore}" oninput="updateData(${idx}, 'evalScore', this.value)">`;
+        let s2 = `<input type="text" class="input-mini grid-nav" data-row="${idx}" data-col="4" value="${st.wrongScore}" oninput="updateData(${idx}, 'wrongScore', this.value)">`;
+        let s3 = `<input type="text" class="input-mini grid-nav" data-row="${idx}" data-col="5" value="${st.dailyTest}" oninput="updateData(${idx}, 'dailyTest', this.value)">`;
+        let s4 = `<input type="text" class="input-mini grid-nav" data-row="${idx}" data-col="6" value="${st.weeklyTest}" oninput="updateData(${idx}, 'weeklyTest', this.value)">`;
+        
+        let noteInputHtml = `<textarea class="note-textarea grid-nav" data-row="${idx}" data-col="7" oninput="updateData(${idx}, 'note', this.value); autoResize(this)">${st.note}</textarea>`;
+
+        if (st.isDischarged || st.pendingDischarge) {
+          s1 = `<input type="text" class="input-mini" disabled>`; s2 = `<input type="text" class="input-mini" disabled>`;
+          s3 = `<input type="text" class="input-mini" disabled>`; s4 = `<input type="text" class="input-mini" disabled>`;
+          noteInputHtml = `<textarea class="note-textarea" disabled>퇴원</textarea>`;
+        }
+        let disabledAttr = (st.isDischarged || st.pendingDischarge) ? "disabled" : "";
+
+        row.innerHTML = `<td style="background-color:#f8f9fa;">${noColumn}</td><td style="white-space:nowrap; padding-right:6px;">${nameHtml}</td><td style="white-space:nowrap;">${schoolHtml}</td><td>${gradeHtml}</td><td>${s1}</td><td>${s2}</td><td>${s3}</td><td>${s4}</td><td>${noteInputHtml}</td><td><input type="checkbox" class="send-checkbox" ${st.sendCheck ? 'checked' : ''} onchange="updateData(${idx}, 'sendCheck', this.checked)" ${disabledAttr} tabindex="-1"></td><td><input type="checkbox" class="lead-checkbox" ${st.leadCheck ? 'checked' : ''} disabled title="관리자 전용" tabindex="-1"></td>`;
+        tbody.appendChild(row);
+      });
+      updateMasterCheckboxState();
+      
+      setTimeout(() => {
+        document.querySelectorAll('.note-textarea:not(:disabled)').forEach(el => autoResize(el));
+      }, 0);
+    }
+
+    function attachKeyboardNavigationListeners() {
+       const inputs = document.querySelectorAll('.grid-nav');
+       inputs.forEach(input => {
+          input.onkeydown = function(e) {
+             let curRow = parseInt(this.dataset.row); 
+             let curCol = parseInt(this.dataset.col); 
+             let nextInput;
              
-             let textContent = '';
-             if (g.summary.isNoClass) {
-                 textContent = `<span style="color:#333; font-weight:bold;">해당 없음</span>`;
-             } else if (g.summary.isMissingComplete) {
-                 textContent = `<span class="t-alert">검토 요망</span>`;
-             } else {
-                 let s = g.summary;
-                 let subjPct = s.classCount > 0 ? Math.min(100, Math.round((s.subjectCount / s.classCount) * 100)) : 0;
-                 let sentPct = s.totalStudents > 0 ? Math.min(100, Math.round((s.totalSent / s.totalStudents) * 100)) : 100;
-                 let subjColor = subjPct < 100 ? 'color:#dc3545;' : 'color:#333;';
-                 let sentColor = sentPct < 100 ? 'color:#dc3545;' : 'color:#333;';
-                 
-                 textContent = `<span>수업개요입력: <span style="${subjColor} font-weight:900;">${subjPct}%</span></span> <span style="color:#ccc;">|</span> <span>발송완료: <span style="${sentColor} font-weight:900;">${sentPct}%</span></span>`;
-                 
-                 if (s.missedClasses && s.missedClasses.length > 0) {
-                     textContent += ` <span style="color:#ccc;">|</span> <span style="color:#333;">미제출:</span> <span class="t-alert">${s.missedClasses.join(', ')}</span>`;
+             if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault(); 
+                nextInput = document.querySelector(`.grid-nav[data-row="${curRow + 1}"][data-col="${curCol}"]`);
+             }
+             else if (e.key === "Tab" && !e.shiftKey) {
+                if (curCol === 7) {
+                   e.preventDefault(); 
+                   let targetRow = curRow + 1; 
+                   let targetCol = document.querySelector(`.grid-nav[data-row="${targetRow}"][data-col="0"]`) ? 0 : 3;
+                   nextInput = document.querySelector(`.grid-nav[data-row="${targetRow}"][data-col="${targetCol}"]`);
+                }
+             }
+             else if (e.key === "ArrowUp") { 
+                if (this.tagName === "INPUT" || this.selectionStart === 0) {
+                    nextInput = document.querySelector(`.grid-nav[data-row="${curRow - 1}"][data-col="${curCol}"]`); 
+                }
+             } 
+             else if (e.key === "ArrowDown") { 
+                if (this.tagName === "INPUT" || this.selectionEnd === this.value.length) {
+                    nextInput = document.querySelector(`.grid-nav[data-row="${curRow + 1}"][data-col="${curCol}"]`); 
+                }
+             } 
+             else if (e.key === "ArrowLeft") {
+                if (this.selectionStart === 0) { 
+                   let tempCol = curCol - 1;
+                   while(tempCol >= 0) {
+                       nextInput = document.querySelector(`.grid-nav[data-row="${curRow}"][data-col="${tempCol}"]`);
+                       if (nextInput) break;
+                       tempCol--;
+                   }
+                   if (!nextInput && curRow > 0) {
+                       nextInput = document.querySelector(`.grid-nav[data-row="${curRow - 1}"][data-col="7"]`);
+                   }
+                }
+             } 
+             else if (e.key === "ArrowRight") {
+                if (this.selectionEnd === this.value.length) { 
+                   let tempCol = curCol + 1;
+                   while(tempCol <= 7) {
+                       nextInput = document.querySelector(`.grid-nav[data-row="${curRow}"][data-col="${tempCol}"]`);
+                       if (nextInput) break;
+                       tempCol++;
+                   }
+                   if (!nextInput) {
+                       let targetRow = curRow + 1; 
+                       let targetCol = document.querySelector(`.grid-nav[data-row="${targetRow}"][data-col="0"]`) ? 0 : 3;
+                       nextInput = document.querySelector(`.grid-nav[data-row="${targetRow}"][data-col="${targetCol}"]`);
+                   }
+                }
+             }
+             
+             if (nextInput) { 
+                 e.preventDefault(); 
+                 nextInput.focus(); 
+             }
+          };
+
+          input.onpaste = function(e) {
+             e.preventDefault();
+             let clipboardData = (e.clipboardData || window.clipboardData);
+             if (!clipboardData) return;
+             
+             let pasteText = clipboardData.getData('text/plain') || clipboardData.getData('text');
+             let htmlData = clipboardData.getData('text/html');
+             if (!pasteText && !htmlData) return;
+
+             let rows = [];
+
+             let hasTabs = pasteText && pasteText.includes('\t');
+             let useHtmlParser = !hasTabs && htmlData && /<table/i.test(htmlData);
+
+             if (useHtmlParser) {
+                 try {
+                     let tempDiv = document.createElement('div');
+                     let safeHtml = htmlData.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+                                            .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+                     tempDiv.innerHTML = safeHtml;
+                     
+                     let table = tempDiv.querySelector('table');
+                     if (table) {
+                         let trs = table.querySelectorAll('tr');
+                         trs.forEach(tr => {
+                             let rowArr = [];
+                             let tds = tr.querySelectorAll('th, td');
+                             tds.forEach(td => {
+                                 let cellHtml = td.innerHTML;
+                                 cellHtml = cellHtml.replace(/<br\s*[\/]?>/gi, '\n')
+                                                    .replace(/<\/p>/gi, '\n')
+                                                    .replace(/<\/div>/gi, '\n')
+                                                    .replace(/<tr[^>]*>/gi, '\n'); 
+                                 
+                                 let text = cellHtml.replace(/<[^>]+>/g, '');
+                                 
+                                 let decoder = document.createElement('textarea');
+                                 decoder.innerHTML = text;
+                                 text = decoder.value;
+                                 
+                                 rowArr.push(text.trim());
+                             });
+                             if (rowArr.length > 0) {
+                                 rows.push(rowArr);
+                             }
+                         });
+                     }
+                 } catch (err) {
+                     console.error("HTML 표 파싱 에러:", err);
+                     rows = []; 
+                 }
+             }
+
+             if (rows.length === 0 && pasteText) {
+                 let currentRow = [];
+                 let currentCell = "";
+                 let inQuotes = false;
+
+                 for (let i = 0; i < pasteText.length; i++) {
+                     let char = pasteText[i];
+                     let nextChar = pasteText[i + 1];
+
+                     if (inQuotes) {
+                         if (char === '"' && nextChar === '"') {
+                             currentCell += '"';
+                             i++; 
+                         } else if (char === '"') {
+                             inQuotes = false;
+                         } else {
+                             currentCell += char;
+                         }
+                     } else {
+                         if (char === '"' && currentCell === "") {
+                             inQuotes = true;
+                         } else if (char === '\t') {
+                             currentRow.push(currentCell);
+                             currentCell = "";
+                         } else if (char === '\r' && nextChar === '\n') {
+                             currentRow.push(currentCell);
+                             rows.push(currentRow);
+                             currentRow = [];
+                             currentCell = "";
+                             i++;
+                         } else if (char === '\n' || char === '\r') {
+                             currentRow.push(currentCell);
+                             rows.push(currentRow);
+                             currentRow = [];
+                             currentCell = "";
+                         } else {
+                             currentCell += char;
+                         }
+                     }
+                 }
+                 if (currentCell !== "" || currentRow.length > 0) {
+                     currentRow.push(currentCell);
+                     rows.push(currentRow);
+                 }
+
+                 if (rows.length > 0 && rows[rows.length - 1].length === 1 && rows[rows.length - 1][0] === "") {
+                     rows.pop();
+                 }
+             }
+
+             let startRow = parseInt(this.dataset.row);
+             let startCol = parseInt(this.dataset.col);
+
+             let colFieldMap = { 0: 'name', 1: 'school', 2: 'grade', 3: 'evalScore', 4: 'wrongScore', 5: 'dailyTest', 6: 'weeklyTest', 7: 'note' };
+
+             for (let i = 0; i < rows.length; i++) {
+                 let targetRowIdx = startRow + i;
+                 if (targetRowIdx >= studentList.length) break;
+                 if (studentList[targetRowIdx].isDischarged || studentList[targetRowIdx].pendingDischarge) continue;
+
+                 let isRowEmpty = rows[i].every(cell => cell.trim() === "");
+                 if (isRowEmpty) continue;
+
+                 let cols = rows[i];
+                 for (let j = 0; j < cols.length; j++) {
+                     let targetColIdx = startCol + j;
+                     if (targetColIdx > 7) break;
+                     
+                     let field = colFieldMap[targetColIdx];
+                     let val = cols[j];
+
+                     studentList[targetRowIdx][field] = val;
+                     
+                     let targetInput = document.querySelector(`.grid-nav[data-row="${targetRowIdx}"][data-col="${targetColIdx}"]`);
+                     if (targetInput && !targetInput.disabled) {
+                         targetInput.value = val;
+                         targetInput.classList.remove('empty-placeholder');
+                         if (targetInput.tagName === 'TEXTAREA') autoResize(targetInput);
+                     }
                  }
              }
              
-             return `<div class="summary-card">
-                        ${badge}
-                        <div class="t-info">${textContent}</div>
-                     </div>`;
-          }).join('');
-          
-          document.getElementById("summaryBanner").style.display = "flex";
-          document.getElementById("summaryBanner").innerHTML = summaryHtml;
-
-          res.forEach(group => {
-             if (group.summary.isNoClass || group.summary.isMissingComplete) return;
-             
-             let html = `<div class="teacher-group"><div class="teacher-header">📌 담임명: ${group.teacher}</div>`;
-             
-             group.classChunksArray.forEach(chunk => {
-                 let clsName = chunk.name;
-                 html += `<div class="class-sub-header">▶ 반명: ${clsName}</div>`;
-                 html += `<table><thead><tr><th width="4%">No.</th><th width="8%">학생명</th><th width="5%">학교</th><th width="4%">학년</th><th width="20%">금일수업개요</th><th width="5%">과제</th><th width="5%">오답</th><th width="5%">일일테스트</th><th width="5%">주간테스트</th><th width="18%">학생별 특이사항 / 보강계획</th><th width="6%">발송완료</th><th width="6%">관리자 확인<br><label style="display:inline-flex; align-items:center; cursor:pointer; justify-content:center;"><input type="checkbox" class="master-checkbox" style="margin:4px 2px;" onchange="toggleAdminChunkMaster('${group.teacher}', '${clsName}', this.checked)"></label></th></tr></thead><tbody>`;
-                 
-                 chunk.details.forEach((r, idx) => {
-                    let leadCheckHtml = `<input type="checkbox" class="lead-check-${group.teacher} chunk-${group.teacher}-${clsName.replace(/\s+/g,'_')}" data-row="${r.rowIdx}" onchange="trackLeadCheck('${group.teacher}', parseInt(this.dataset.row), this.checked)" ${r.leadCheck ? 'checked' : ''}>`;
-                    let sendCheckHtml = `<input type="checkbox" ${r.sendCheck ? 'checked' : ''} disabled>`;
-                    let noteHtml = r.sendCheck === false && r.note === "퇴원" ? `<div class="readonly-text" style="color:#dc3545; font-weight:bold;">퇴원</div>` : `<div class="readonly-note">${r.note || '-'}</div>`;
-                    
-                    let searchIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer; color:#555;" onclick="openHistoryPopup('${group.teacher}', '${clsName}', '${r.studentName}')" title="기록 보기"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
-                    
-                    html += `<tr><td style="background-color:#f8f9fa;">${String(idx + 1).padStart(2, '0')}</td><td style="padding-right:6px;"><div class="readonly-text" style="position:relative; display:flex; justify-content:center; align-items:center; width:100%; min-height:20px;"><b>${r.studentName}</b><div style="position:absolute; right:2px; display:flex;">${searchIcon}</div></div></td><td><div class="readonly-text">${r.school || '-'}</div></td><td><div class="readonly-text">${r.grade || '-'}</div></td><td><div class="readonly-note">${r.subject || '-'}</div></td><td><div class="readonly-text">${r.evalScore || '-'}</div></td><td><div class="readonly-text">${r.wrongScore || '-'}</div></td><td><div class="readonly-text">${r.dailyTest || '-'}</div></td><td><div class="readonly-text">${r.weeklyTest || '-'}</div></td><td>${noteHtml}</td><td>${sendCheckHtml}</td><td>${leadCheckHtml}</td></tr>`;
-                 });
-                 html += `</tbody></table>`;
-             });
-             html += `</div>`;
-             content.innerHTML += html;
-          });
-          
-          let hasData = res.some(g => !g.summary.isNoClass && !g.summary.isMissingComplete);
-          if(hasData) {
-             document.getElementById("saveBtn").style.display = "inline-flex";
-             document.getElementById("globalCheckLabel").style.display = "flex";
-          } else {
-             document.getElementById("saveBtn").style.display = "none";
-             document.getElementById("globalCheckLabel").style.display = "none";
-          }
-        })
-        .withFailureHandler(function(err) {
-          showLoading(false); showCustomAlert("· Error: 데이터를 불러오는 중 오류가 발생했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
-        })
-        .loadAdminWorkflow(dateVal, teacher);
+             isDirty = true;
+             saveLocalDraft();
+             updatePreview();
+          };
+       });
     }
 
-    function toggleAdminChunkMaster(teacher, className, isChecked) {
-       let clsKey = className.replace(/\s+/g,'_');
-       let checkboxes = document.querySelectorAll('.chunk-' + teacher + '-' + clsKey);
-       checkboxes.forEach(cb => {
-           if(!cb.disabled) { cb.checked = isChecked; trackLeadCheck(teacher, parseInt(cb.dataset.row), isChecked); }
-       });
+    function triggerDischargeStudent(idx, sName) {
+      const dateVal = document.getElementById("dateInput").value;
+      const fDate = formatDateWithDay(dateVal);
+      showCustomConfirm(`<b>${sName}</b> 학생을 ${fDate} 기준으로<br>퇴원(명단 제외) 처리하시겠습니까?`, function() {
+        studentList[idx].note = "퇴원"; 
+        studentList[idx].sendCheck = false; 
+        studentList[idx].leadCheck = false; 
+        studentList[idx].pendingDischarge = true; 
+        studentList[idx].pendingRestore = false;
+        isDirty = true;
+        saveLocalDraft();
+        renderTable(); updatePreview(); attachKeyboardNavigationListeners(); 
+      });
+    }
+
+    function triggerRestoreStudent(idx, sName) {
+      showCustomConfirm(`<b>${sName}</b> 학생을 퇴원 상태에서<br>복구하시겠습니까?`, function() {
+        studentList[idx].note = ""; 
+        studentList[idx].pendingDischarge = false; 
+        studentList[idx].pendingRestore = true; 
+        studentList[idx].isDischarged = false; 
+        isDirty = true;
+        saveLocalDraft();
+        renderTable(); updatePreview(); attachKeyboardNavigationListeners(); 
+      });
+    }
+
+    function updateData(idx, field, val) { 
+        studentList[idx][field] = val; 
+        isDirty = true; 
+        saveLocalDraft();
+        updateMasterCheckboxState(); updatePreview(); 
+    } 
+    
+    function toggleMaster(field, isChecked) { 
+      if (studentList.length === 0) return; 
+      studentList.forEach(st => { 
+        if(!st.isDischarged && !st.pendingDischarge) { st[field] = isChecked; }
+      }); 
+      isDirty = true; 
+      saveLocalDraft();
+      
+      if (field === 'sendCheck') {
+        document.querySelectorAll('.send-checkbox:not(:disabled)').forEach(cb => cb.checked = isChecked);
+      }
+      
+      updatePreview(); 
     }
     
-    function toggleAllLeadChecks(isChecked) {
-       let individualChecks = document.querySelectorAll('input[type="checkbox"][class*="lead-check-"]');
-       individualChecks.forEach(cb => {
-           if(!cb.disabled) {
-               cb.checked = isChecked;
-               let teacherCls = Array.from(cb.classList).find(c => c.startsWith('lead-check-'));
-               if(teacherCls) {
-                  let teacher = teacherCls.replace('lead-check-', '');
-                  trackLeadCheck(teacher, parseInt(cb.dataset.row), isChecked);
-               }
-           }
-       });
-       let masterChecks = document.querySelectorAll('.master-checkbox');
-       masterChecks.forEach(cb => { cb.checked = isChecked; });
+    function updateMasterCheckboxState() {
+      if (studentList.length === 0) { document.getElementById("masterSend").checked = false; return; }
+      const activeStudents = studentList.filter(st => !st.isDischarged && !st.pendingDischarge); 
+      if (activeStudents.length === 0) return;
+      document.getElementById("masterSend").checked = activeStudents.every(st => st.sendCheck);
     }
 
-    function trackLeadCheck(teacher, rowIdx, isChecked) {
-      isDirty = true; 
-      let existing = adminUpdates.find(u => u.teacher === teacher && u.rowIdx === rowIdx);
-      if(existing) existing.leadCheck = isChecked;
-      else adminUpdates.push({teacher: teacher, rowIdx: rowIdx, leadCheck: isChecked});
+    function updatePreview() {
+      const area = document.getElementById("previewArea"); const dateRaw = document.getElementById("dateInput").value; const className = document.getElementById("classSelect").value;
+      if (!dateRaw) return;
+      const formattedDateStr = formatDateWithDay(dateRaw); let html = "";
+      studentList.forEach((st, idx) => {
+        if (st.isDischarged || st.pendingDischarge || (st.isNew && st.name.trim() === "")) return;
+        const cleanName = st.name.replace(/\s*\(.*?\)\s*/g, "").trim(); const evalScore = String(st.evalScore).trim() || "없음"; const wrongScore = String(st.wrongScore).trim() || "없음";
+        const dailyVal = String(st.dailyTest).trim(); const weeklyVal = String(st.weeklyTest).trim(); const note = String(st.note).trim() || "없음";
+        
+        let content = `${formattedDateStr}\n\n✔ ${cleanName} 학생 체크리스트\n\n● 반명: ${className}\n\n● 수업개요: ${currentSubject}`;
+        let details = [];
+        if (evalScore !== "" && evalScore !== "없음") details.push(`● 과제평가: ${evalScore}`); 
+        if (wrongScore !== "" && wrongScore !== "없음") details.push(`● 오답노트: ${wrongScore}`);
+        if (dailyVal !== "" && dailyVal !== "없음") details.push(`● 일일테스트: ${dailyVal}`);
+        if (weeklyVal !== "" && weeklyVal !== "없음") details.push(`● 주간테스트: ${weeklyVal}`);
+        if (note !== "" && note !== "없음") details.push(`● 특이사항: ${note}`);
+        if (details.length > 0) content += `\n\n${details.join('\n\n')}`;
+        html += `<div class="card" id="card${idx}"><div class="card-header-container"><div class="card-header">${cleanName}</div><button class="copy-btn" onclick="copySingleText(${idx}, this)">복사</button></div><div id="cardContent${idx}" class="card-content">${content}</div></div>`;
+      });
+      area.innerHTML = html;
     }
 
-    function saveAdminData() {
-      if(adminUpdates.length === 0) { showCustomAlert("변경된 관리자 확인 항목이 없습니다."); return; }
+    function getPrefix() { const note = document.getElementById("customNote").value.trim(); return note ? note + '\n\n' : ''; }
+    function copySingleText(idx, btn) {
+      const textEl = document.getElementById(`cardContent${idx}`); const cardEl = document.getElementById(`card${idx}`);
+      navigator.clipboard.writeText(getPrefix() + textEl.innerText.trim()).then(() => {
+        btn.innerText = "✔ 복사됨"; btn.style.backgroundColor = "#e6f0ff"; cardEl.style.backgroundColor = "#e6f0ff";
+        setTimeout(() => { btn.innerText = "복사"; btn.style.backgroundColor = "white"; cardEl.style.backgroundColor = "#f9f9f9"; }, 1200);
+      });
+    }
+    function copyAllText() {
+      if(studentList.length === 0) return; let allText = ''; const cards = document.querySelectorAll('.card');
+      studentList.forEach((st, idx) => {
+        if (st.isDischarged || st.pendingDischarge || (st.isNew && st.name.trim() === "")) return;
+        const textEl = document.getElementById(`cardContent${idx}`);
+        allText += getPrefix() + textEl.innerText.trim() + '\n'; allText += '──────────────────────────────\n\n';
+      });
+      allText = allText.replace(/──────────────────────────────\n\n$/, '').trim();
+      navigator.clipboard.writeText(allText).then(() => {
+        const btn = document.getElementById('copyAllBtn'); btn.innerText = "✔ 전체 복사됨"; btn.style.backgroundColor = "#e6f0ff"; cards.forEach(c => c.style.backgroundColor = "#e6f0ff");
+        setTimeout(() => { btn.innerText = "전체 복사"; btn.style.backgroundColor = "white"; cards.forEach(c => c.style.backgroundColor = "#f9f9f9"); }, 1200);
+      });
+    }
+
+    function saveData() {
+      const teacher = document.getElementById("teacherSelect").value; const date = document.getElementById("dateInput").value; const className = document.getElementById("classSelect").value;
+      if(studentList.length === 0) { showCustomAlert("저장할 데이터가 없습니다."); return; }
       
-      showLoading(true, "저장 중입니다...");
-      google.script.run.withSuccessHandler(function(res) {
-        showLoading(false); adminUpdates = []; 
-        isDirty = false; 
-        showCustomAlert("✔ <b>관리자 확인 저장 완료</b><br>관리자 확인 항목이 데이터베이스에<br>저장 되었습니다.");
-      }).saveAdminChecks(adminUpdates);
+      const emptyNew = studentList.filter(st => st.isNew && st.name.trim() === "");
+      if (emptyNew.length > 0) { 
+        showCustomConfirm("학생명을 비워둔 상태로 저장하면 해당 명단은 무시됩니다.<br>계속할까요?", executeSavePayload); 
+      } else { executeSavePayload(); }
+      
+      function executeSavePayload() {
+        showLoading(true, "저장 중입니다...");
+        google.script.run
+          .withSuccessHandler(function() {
+            showLoading(false);
+            isDirty = false; 
+            
+            localStorage.removeItem(`draft_${teacher}_${className}_${date}`);
+            
+            studentList.forEach(st => { 
+                if (st.isNew && st.name.trim() !== "") st.isNew = false; 
+                if (st.pendingDischarge) st.isDischarged = true; 
+                if (st.pendingRestore) st.isDischarged = false; 
+                st.pendingDischarge = false; 
+                st.pendingRestore = false;
+            }); 
+            renderTable(); attachKeyboardNavigationListeners();
+            const fDate = formatDateWithDay(date);
+            showCustomAlert(`(${fDate})<br><b>${className} 반</b><br>체크리스트가 저장되었습니다.`);
+          })
+          .withFailureHandler(function(err) { showLoading(false); showCustomAlert("· Error: 서버 저장 중 오류가 발생했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")"); })
+          .commitAttendanceToDatabase({ teacher, date, className, subject: currentSubject, students: studentList });
+      }
     }
 
     function openTeacherMatrixPopup(teacherName) {
-      const dateVal = document.getElementById("dateInput").value;
-      if (!dateVal) return;
-      
-      showLoading(true, "선생님의 학기 전체 기록을 정리 중입니다...");
-      
-      google.script.run
-        .withSuccessHandler(function(data) {
-          showLoading(false);
-          renderMatrixPopup(data);
-        })
-        .withFailureHandler(function(err) {
-          showLoading(false);
-          showCustomAlert("· Error: 데이터를 불러오지 못했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
-        })
-        .getTeacherMatrixHistory({teacherName: teacherName, dateStr: dateVal});
+        const dateVal = document.getElementById("dateInput").value;
+        if (!dateVal) { showCustomAlert("조회할 날짜를 먼저 선택해 주세요."); return; }
+        
+        showLoading(true, "선생님의 학기 전체 기록을 정리 중입니다...");
+        
+        google.script.run
+            .withSuccessHandler(function(data) {
+                showLoading(false);
+                renderMatrixPopup(data);
+            })
+            .withFailureHandler(function(err) {
+                showLoading(false);
+                showCustomAlert("· Error: 데이터를 불러오지 못했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+            })
+            .getTeacherMatrixHistory({teacherName: teacherName, dateStr: dateVal});
     }
 
     function renderMatrixPopup(data) {
@@ -1078,9 +1439,11 @@
         document.getElementById("matrixOverlay").style.display = "none";
     }
 
-    function openHistoryPopup(teacher, className, studentName) {
+    function openHistoryPopup(studentName) {
+      const teacher = document.getElementById("teacherSelect").value;
+      const className = document.getElementById("classSelect").value;
       const dateVal = document.getElementById("dateInput").value;
-      if (!dateVal) return;
+      if (!teacher || !className || !dateVal) return;
       
       showLoading(true, "해당 학생의 학기 기록을 불러오는 중입니다...");
       document.getElementById("historyTitle").innerHTML = `<b>${studentName}</b> 학생 기록 <span style="font-size:13px; color:#666; font-weight:normal;">(${className})</span>`;
@@ -1126,526 +1489,19 @@
       document.getElementById("historyOverlay").style.display = "none";
     }
 
-    function updateModalDate(inputEl, displayId) {
-        const disp = document.getElementById(displayId);
-        if(inputEl.value) {
-            disp.innerHTML = formatDateWithDay(inputEl.value);
-            disp.style.color = '#333';
-        } else {
-            disp.innerHTML = displayId === 'upStartDateDisplay' ? '학기 적용 시작 날짜를 입력하세요.' : '학기 적용 종료 날짜를 입력하세요.';
-            disp.style.color = '#b0b0b0';
-        }
-    }
-
-    function openSettingsModal() {
-        if(checkLockdown()) return;
-        document.getElementById('settingsModalOverlay').style.display = 'flex';
-        showLoading(true, "환경설정을 불러오는 중입니다...");
-        google.script.run.withSuccessHandler(function(res) {
-            showLoading(false);
-            document.getElementById('settingAcademyName').value = res.academyName || globalAcademyName;
-            document.getElementById('settingAdminCode').value = res.adminCode;
-            document.getElementById('settingPastDays').value = res.pastTermDays;
-        }).withFailureHandler(function(err){
-            showLoading(false);
-            showCustomAlert("· Error: 설정을 불러오지 못했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
-        }).getSettings();
-    }
-    
-    function closeSettingsModal() {
-        document.getElementById('settingsModalOverlay').style.display = 'none';
-    }
-
-    function saveAcademyNameSetting() {
-        let name = document.getElementById('settingAcademyName').value.trim();
-        if(name === "") { showCustomAlert("학원명을 입력해 주세요."); return; }
-        
-        showLoading(true, "학원명을 저장 중입니다...");
-        google.script.run.withSuccessHandler(function() {
-            showLoading(false);
-            globalAcademyName = name; 
-            document.getElementById("mainTitleDisplay").textContent = globalAcademyName + " - 체크리스트 관리자 대시보드";
-            showCustomAlert("학원명이 성공적으로 저장되었습니다.");
-        }).withFailureHandler(function(err){
-            showLoading(false);
-            showCustomAlert("· Error: 저장에 실패했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
-        }).saveSettings({ academyName: name });
-    }
-
-    function saveAdminCodeSetting() {
-        let code = document.getElementById('settingAdminCode').value.trim();
-        if(code === "") { showCustomAlert("관리자 코드를 입력해 주세요."); return; }
-        
-        showLoading(true, "관리자 코드를 저장 중입니다...");
-        google.script.run.withSuccessHandler(function() {
-            showLoading(false);
-            showCustomAlert("관리자 코드가 안전하게 저장되었습니다.");
-        }).withFailureHandler(function(err){
-            showLoading(false);
-            showCustomAlert("· Error: 저장에 실패했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
-        }).saveSettings({ adminCode: code });
-    }
-
-    function savePastDaysSetting() {
-        let days = document.getElementById('settingPastDays').value;
-        if(days === "" || days < 0) { showCustomAlert("올바른 일수(숫자)를 입력해 주세요."); return; }
-        
-        showLoading(true, "표시 일정을 저장 중입니다...");
-        google.script.run.withSuccessHandler(function() {
-            showLoading(false);
-            showCustomAlert("지난 학기 표시 일정이 저장되었습니다.");
-        }).withFailureHandler(function(err){
-            showLoading(false);
-            showCustomAlert("· Error: 저장에 실패했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
-        }).saveSettings({ pastTermDays: days });
-    }
-
-    function openTermManageModal() {
-        if(checkLockdown()) return;
-        document.getElementById('settingsModalOverlay').style.display = 'none'; 
-        document.getElementById('termManageModalOverlay').style.display = 'flex';
-        showLoading(true, "명단 목록을 불러오는 중입니다...");
-        
-        google.script.run.withSuccessHandler(function(res) {
-            showLoading(false);
-            termManageData = res;
-            termModifications = {};
-            renderTermManageList();
-        }).withFailureHandler(function(err){
-            showLoading(false);
-            showCustomAlert("· Error: 명단 목록을 불러오지 못했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
-        }).getTermListForEdit();
-    }
-    
-    function closeTermManageModal() {
-        document.getElementById('termManageModalOverlay').style.display = 'none';
-    }
-
-    function renderTermManageList() {
-        const container = document.getElementById('termManageContent');
-        container.innerHTML = "";
-        
-        if(termManageData.length === 0) {
-            container.innerHTML = '<div style="padding: 40px; text-align:center; color:#888; font-weight:bold;">등록된 학기 명단이 없습니다.</div>';
-            return;
-        }
-
-        let html = "";
-        termManageData.forEach((term, idx) => {
-            let isDeleted = termModifications[idx] && termModifications[idx].isDeleted;
-            let rowClass = isDeleted ? "term-row deleted" : "term-row";
-            let btnClass = isDeleted ? "term-del-btn active" : "term-del-btn";
-            let btnText = isDeleted ? "삭제 대기" : "삭제";
-            
-            let isChecked = termModifications[idx] ? true : false;
-            let nameVal = isChecked && termModifications[idx].newName ? termModifications[idx].newName : term.name;
-            let startVal = isChecked && termModifications[idx].newStart ? termModifications[idx].newStart : term.start;
-            let endVal = isChecked && termModifications[idx].newEnd ? termModifications[idx].newEnd : term.end;
-
-            let startDispVal = formatDateWithDay(startVal);
-            let endDispVal = formatDateWithDay(endVal);
-
-            let disableInputs = (!isChecked || isDeleted) ? "disabled" : "";
-            let bgCol = (!isChecked || isDeleted) ? "#e9ecef" : "#fff";
-            let txtCol = (!isChecked || isDeleted) ? "#6c757d" : "#333";
-
-            html += `<div class="${rowClass}" id="termRow_${idx}">
-                <div style="width: 32px; flex-shrink: 0; display: flex; justify-content: center; align-items: center;">
-                    <input type="checkbox" onchange="toggleTermEdit(this, ${idx})" style="transform: scale(1.3); margin:0;" ${isChecked ? 'checked' : ''} ${isDeleted ? 'disabled' : ''}>
-                </div>
-                <div style="flex: 1;">
-                    <input type="text" class="term-input" id="editName_${idx}" value="${nameVal}" ${disableInputs} oninput="updateTermMod(${idx}, 'newName', this.value)">
-                </div>
-                <div style="flex: 1;">
-                    <div class="custom-date-wrapper" style="width: 100%;" onclick="if(!document.getElementById('editStart_${idx}').disabled) { let el=document.getElementById('editStart_${idx}'); if(el.showPicker) el.showPicker(); }">
-                        <div class="date-display" id="editStartDisp_${idx}" style="background-color: ${bgCol}; color: ${txtCol}; justify-content: center; padding-right: 25px;">${startDispVal}</div>
-                        <input type="date" class="hidden-date-input" id="editStart_${idx}" value="${startVal}" ${disableInputs} onchange="updateTermMod(${idx}, 'newStart', this.value); document.getElementById('editStartDisp_${idx}').innerText=formatDateWithDay(this.value);">
-                    </div>
-                </div>
-                <div style="flex: 1;">
-                    <div class="custom-date-wrapper" style="width: 100%;" onclick="if(!document.getElementById('editEnd_${idx}').disabled) { let el=document.getElementById('editEnd_${idx}'); if(el.showPicker) el.showPicker(); }">
-                        <div class="date-display" id="editEndDisp_${idx}" style="background-color: ${bgCol}; color: ${txtCol}; justify-content: center; padding-right: 25px;">${endDispVal}</div>
-                        <input type="date" class="hidden-date-input" id="editEnd_${idx}" value="${endVal}" ${disableInputs} onchange="updateTermMod(${idx}, 'newEnd', this.value); document.getElementById('editEndDisp_${idx}').innerText=formatDateWithDay(this.value);">
-                    </div>
-                </div>
-                <button class="${btnClass}" id="delBtn_${idx}" onclick="markTermDelete(${idx})">${btnText}</button>
-            </div>`;
-        });
-        container.innerHTML = html;
-    }
-
-    function toggleTermEdit(cb, idx) {
-        let isChecked = cb.checked;
-        let nameInput = document.getElementById(`editName_${idx}`);
-        let startInput = document.getElementById(`editStart_${idx}`);
-        let endInput = document.getElementById(`editEnd_${idx}`);
-        let startDisp = document.getElementById(`editStartDisp_${idx}`);
-        let endDisp = document.getElementById(`editEndDisp_${idx}`);
-
-        nameInput.disabled = !isChecked;
-        startInput.disabled = !isChecked;
-        endInput.disabled = !isChecked;
-        
-        let bgCol = isChecked ? "#fff" : "#e9ecef";
-        let txtCol = isChecked ? "#333" : "#6c757d";
-        startDisp.style.backgroundColor = bgCol;
-        startDisp.style.color = txtCol;
-        endDisp.style.backgroundColor = bgCol;
-        endDisp.style.color = txtCol;
-
-        if (isChecked) {
-            if(!termModifications[idx]) termModifications[idx] = { originalName: termManageData[idx].name };
-            termModifications[idx].newName = nameInput.value;
-            termModifications[idx].newStart = startInput.value;
-            termModifications[idx].newEnd = endInput.value;
-        } else {
-            if(termModifications[idx]) {
-                delete termModifications[idx].newName;
-                delete termModifications[idx].newStart;
-                delete termModifications[idx].newEnd;
-                if(!termModifications[idx].isDeleted) delete termModifications[idx];
-            }
-            nameInput.value = termManageData[idx].name;
-            startInput.value = termManageData[idx].start;
-            startDisp.innerText = formatDateWithDay(termManageData[idx].start);
-            endInput.value = termManageData[idx].end;
-            endDisp.innerText = formatDateWithDay(termManageData[idx].end);
-        }
-    }
-
-    function updateTermMod(idx, field, val) {
-        if(!termModifications[idx]) termModifications[idx] = { originalName: termManageData[idx].name };
-        termModifications[idx][field] = val;
-    }
-
-    function markTermDelete(idx) {
-        let termName = termManageData[idx].name;
-        let isCurrentlyDeleted = termModifications[idx] && termModifications[idx].isDeleted;
-
-        if (isCurrentlyDeleted) {
-            termModifications[idx].isDeleted = false;
-            renderTermManageList(); 
-        } else {
-            showCustomConfirm(`<b>[${termName}]</b> 명단을 삭제하시겠습니까?<br>(상단의 적용 버튼을 눌러야 최종 적용 됩니다.)`, function() {
-                if(!termModifications[idx]) termModifications[idx] = { originalName: termManageData[idx].name };
-                termModifications[idx].isDeleted = true;
-                renderTermManageList(); 
-            });
-        }
-    }
-
-    function applyTermChanges() {
-        let mods = Object.values(termModifications);
-        if(mods.length === 0) {
-            showCustomAlert("수정 또는 삭제된 항목이 없습니다.");
-            return;
-        }
-
-        let existingNames = termManageData.map(t => t.name);
-        let finalNames = [...existingNames];
-        
-        for(let mod of mods) {
-            if(mod.isDeleted) {
-                finalNames = finalNames.filter(n => n !== mod.originalName);
-                continue; 
-            }
-            if(mod.newName && mod.newName !== mod.originalName) {
-                if(existingNames.includes(mod.newName)) {
-                    showCustomAlert(`'${mod.newName}'은(는) 이미 존재하는 명단 이름입니다.<br>다른 이름으로 수정해 주세요.`);
-                    return;
-                }
-                let idx = finalNames.indexOf(mod.originalName);
-                if(idx !== -1) finalNames[idx] = mod.newName;
-            }
-            let sD = mod.newStart || termManageData.find(t=>t.name === mod.originalName).start;
-            let eD = mod.newEnd || termManageData.find(t=>t.name === mod.originalName).end;
-            if(sD > eD) {
-                let n = mod.newName || mod.originalName;
-                showCustomAlert(`[${n}]의 종료 날짜가 시작 날짜보다 빠를 수문을 수 없습니다.`);
-                return;
-            }
-        }
-
-        if(new Set(finalNames).size !== finalNames.length) {
-            showCustomAlert("수정할 명단 이름에 중복이 존재합니다.<br>각 시트는 고유한 이름을 가져야 합니다.");
-            return;
-        }
-
-        showLoading(true, "변경 사항을 일괄 적용 중입니다...");
-        google.script.run.withSuccessHandler(function() {
-            showLoading(false);
-            closeTermManageModal();
-            showCustomAlert("✔ <b>적용 완료!</b><br>명단 수정 및 삭제가 성공적으로 반영되었습니다.", function() {
-                window.location.reload(); 
-            });
-        }).withFailureHandler(function(err){
-            showLoading(false);
-            showCustomAlert("· Error: 변경 사항 적용에 실패했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
-        }).applyTermModifications(mods);
-    }
-
-    function viewBackupLogs() {
-        showLoading(true, "백업/삭제 실행 로그를 불러오는 중입니다...");
-        google.script.run.withSuccessHandler(function(logs) {
-            showLoading(false);
-            let msg = "<div style='max-height: 300px; overflow-y:auto; font-size:13px; text-align:left; border: 1px solid #ced4da; border-radius:4px; padding: 0;'>";
-            if (logs.length === 0) {
-                msg += "<div style='padding: 30px; text-align:center; color:#888; font-weight:bold;'>백업 및 삭제 실행 기록이 없습니다.</div>";
-            } else {
-                msg += "<table style='width:100%; border-collapse:collapse; margin:0; text-align:center;'>" +
-                       "<tr style='background:#f8f9fa; border-bottom:1px solid #ccc;'>" +
-                       "<th style='padding:10px 6px; position:sticky; top:0; background:#f8f9fa; white-space:nowrap;'>실행 일시</th>" +
-                       "<th style='padding:10px 6px; position:sticky; top:0; background:#f8f9fa; white-space:nowrap;'>대상 학기</th>" +
-                       "<th style='padding:10px 6px; position:sticky; top:0; background:#f8f9fa; white-space:nowrap;'>삭제 건수</th>" +
-                       "<th style='padding:10px 6px; position:sticky; top:0; background:#f8f9fa; white-space:nowrap;'>비고</th>" +
-                       "</tr>";
-                logs.forEach(l => {
-                    msg += `<tr style='border-bottom:1px solid #eee;'><td style='padding:8px 6px; white-space:nowrap;'>${l.date}</td><td style='padding:8px 6px;'>${l.terms}</td><td style='padding:8px 6px; white-space:nowrap;'>${l.rows}</td><td style='padding:8px 6px; white-space:nowrap; font-weight:bold; color:#1a3978;'>${l.note}</td></tr>`;
-                });
-                msg += "</table>";
-            }
-            msg += "</div>";
-            showCustomAlert("<div style='font-size:16px; font-weight:900; color:#1a3978; margin-bottom:15px;'>💾 백업/삭제 실행 로그</div>" + msg, null, '650px');
-        }).withFailureHandler(function(err){
-            showLoading(false);
-            showCustomAlert("· Error: 로그를 불러오는 중 오류가 발생했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
-        }).getBackupLogs();
-    }
-
-    function runIntegratedBackup() {
-        showCustomConfirm("오늘 기준 <b>1년 전</b> 과거 데이터를<br>통합 백업하시겠습니까?", function() {
-            closeSettingsModal();
-            showLoading(true, "과거 데이터를 수집하여<br>백업 파일을 생성 중입니다...<br>(시간이 다소 소요될 수 있습니다.)");
-            
-            google.script.run.withSuccessHandler(function(res) {
-                showLoading(false);
-                if(res.status === "none") {
-                    showCustomAlert("백업할 1년 전 과거 데이터가 없습니다.");
-                } else if(res.status === "success") {
-                    currentBackupPayload = { targetTermNames: res.targetTermNames, maxEndDate: res.maxEndDate, logRow: res.logRow };
-                    
-                    let excelUrl = `https://docs.google.com/spreadsheets/d/${res.fileId}/export?format=xlsx`;
-                    
-                    let msg = `✔ <b>데이터 백업 성공!</b> <a href="${res.fileUrl}" target="_blank" style="color:#1366ce; font-weight:bold;">[백업 파일 확인하기]</a><br><br>` +
-                              `• 백업된 과거 학기: ${res.termCount}개<br>• 백업된 선생님 기록: ${res.rowCount}행<br><br>` +
-                              `<a href="${excelUrl}" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; gap:6px; margin-bottom:15px; padding:8px 18px; background-color:#28a745; color:white; font-size:13px; font-weight:bold; border-radius:50px; text-decoration:none; box-shadow:0 2px 4px rgba(0,0,0,0.15);">` +
-                              `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>` +
-                              `백업 파일 다운로드</a>` +
-                              `<hr style="border:none; border-top:1px solid #dee2e6; margin-bottom:15px; width:100%;">` +
-                              `<span style="color:#dc3545; font-weight:bold;">원본 시트에서 방금 백업한 과거 기록들을<br>완전히 삭제할까요?</span><br>` +
-                              `<span style="font-size:12px; color:#666; font-weight:normal;">(유지하려면 '아니오'를 누르세요)</span>`;
-                              
-                    showCustomConfirm(msg, 
-                    function() { 
-                        showLoading(true, "원본에서 과거 데이터를 초고속 영구 삭제 중입니다...");
-                        google.script.run.withSuccessHandler(function() {
-                            showLoading(false);
-                            showCustomAlert("✔ <b>삭제 완료!</b><br>과거 데이터가 원본 시트에서<br>안전하게 삭제되었습니다.", function() {
-                                window.location.reload();
-                            });
-                        }).withFailureHandler(function(err) {
-                            showLoading(false);
-                            showCustomAlert("· Error: 데이터 삭제 중 오류가 발생했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
-                        }).apiIntegratedDelete(currentBackupPayload);
-                    }, 
-                    function() { 
-                        showCustomAlert("백업만 성공적으로 완료되었으며,<br>원본 데이터는 유지합니다.");
-                    });
-                }
-            }).withFailureHandler(function(err) {
-                showLoading(false);
-                showCustomAlert("· Error: 데이터 백업 중 오류가 발생했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
-            }).apiIntegratedBackup();
-        });
-    }
-
-    function openUploadModal() {
-        if(checkLockdown()) return;
-        document.getElementById('latestTermInfo').innerText = "📌 최근 등록된 학기 종료일: " + globalLatestEndDate;
-        document.getElementById('uploadModalOverlay').style.display = 'flex';
-        document.getElementById('upStartDate').value = '';
-        document.getElementById('upEndDate').value = '';
-        updateModalDate(document.getElementById('upStartDate'), 'upStartDateDisplay');
-        updateModalDate(document.getElementById('upEndDate'), 'upEndDateDisplay');
-        document.getElementById('upTermName').value = '';
-        document.getElementById('fileInput').value = '';
-    }
-
-    function closeUploadModal() {
-        document.getElementById('uploadModalOverlay').style.display = 'none';
-    }
-
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
-
-    dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#e6f0ff'; dropZone.style.borderColor = '#0f52a8'; });
-    dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#f8f9fa'; dropZone.style.borderColor = '#1366ce'; });
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.style.backgroundColor = '#f8f9fa'; dropZone.style.borderColor = '#1366ce';
-        if (e.dataTransfer.files.length) processExcel(e.dataTransfer.files[0]);
-    });
-    fileInput.addEventListener('change', (e) => {
-        if (e.target.files.length) processExcel(e.target.files[0]);
-    });
-
-    function processExcel(file) {
-        let sDate = document.getElementById('upStartDate').value;
-        let eDate = document.getElementById('upEndDate').value;
-        let tName = document.getElementById('upTermName').value;
-
-        if(!sDate || !eDate || !tName) {
-            document.getElementById('fileInput').value = '';
-            showCustomAlert("상단의 [시작 날짜], [종료 날짜], [학기]를<br>모두 선택해 주세요.");
-            return;
-        }
-
-        if(sDate > eDate) {
-            document.getElementById('fileInput').value = '';
-            showCustomAlert("종료 날짜가 시작 날짜보다 빠를 수 없습니다.<br>날짜를 다시 확인해 주세요.");
-            return;
-        }
-
-        showLoading(true, "엑셀 파일을 스마트 분석 중입니다...<br>화면을 닫지 마세요.");
-
-        let reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                let data = new Uint8Array(e.target.result);
-                let workbook = XLSX.read(data, {type: 'array'});
-                let firstSheetName = workbook.SheetNames[0];
-                let worksheet = workbook.Sheets[firstSheetName];
-                let jsonArr = XLSX.utils.sheet_to_json(worksheet, {header: 1});
-
-                let headerRowIdx = -1;
-                let colMap = { ban: -1, name: -1, school: -1, grade: -1, teacher: -1, room: -1 };
-
-                for (let i = 0; i < Math.min(20, jsonArr.length); i++) {
-                    let row = jsonArr[i];
-                    if (!row) continue;
-                    let strRow = row.map(cell => String(cell || '').replace(/\s+/g, '')).join(',');
-                    if ((strRow.includes('학생명') || strRow.includes('이름') || strRow.includes('원생명')) &&
-                        (strRow.includes('반명') || strRow.includes('수강반') || strRow.includes('클래스'))) {
-                        headerRowIdx = i;
-                        break;
-                    }
-                }
-
-                if (headerRowIdx === -1) throw new Error("엑셀 데이터에서 머릿글(반명, 학생명 등)을 찾을 수 없습니다.<br>파일 형식을 확인해 주세요.");
-
-                let headers = jsonArr[headerRowIdx];
-                for (let c = 0; c < headers.length; c++) {
-                    let h = String(headers[c] || '').replace(/\s+/g, '');
-                    if (!h) continue;
-
-                    if (['반명', '반', '수강반', '클래스'].includes(h)) colMap.ban = c;
-                    else if (['학생명', '원생명', '이름', '성명'].includes(h)) colMap.name = c;
-                    else if (['학교명', '출신학교'].includes(h)) colMap.school = c; 
-                    else if (['학년'].includes(h)) colMap.grade = c;
-                    else if (['담임', '담임명', '담당강사', '선생님', '강사'].includes(h)) colMap.teacher = c;
-                    else if (['강의실', '호실', '장소'].includes(h)) colMap.room = c;
-                }
-
-                if (colMap.ban === -1 || colMap.name === -1) {
-                    throw new Error("필수 항목(반명, 학생명) 열(Column)을 찾을 수 없습니다.");
-                }
-
-                let parsedStudents = [];
-                for (let i = headerRowIdx + 1; i < jsonArr.length; i++) {
-                    let row = jsonArr[i];
-                    if (!row || row.length === 0) continue;
-                    
-                    let ban = colMap.ban !== -1 ? String(row[colMap.ban] || '').trim() : '';
-                    let name = colMap.name !== -1 ? String(row[colMap.name] || '').trim() : '';
-                    if (!ban || !name) continue; 
-
-                    let school = colMap.school !== -1 ? String(row[colMap.school] || '').trim() : '';
-                    let grade = colMap.grade !== -1 ? String(row[colMap.grade] || '').trim() : '';
-                    let teacher = colMap.teacher !== -1 ? String(row[colMap.teacher] || '').trim() : '';
-                    let room = colMap.room !== -1 ? String(row[colMap.room] || '').trim() : '';
-
-                    parsedStudents.push([ban, name, school, grade, teacher, room]);
-                }
-
-                if(parsedStudents.length === 0) throw new Error("추출할 수 있는 학생 데이터가 없습니다.");
-
-                showLoading(false);
-
-                let formattedStart = sDate.replace(/-/g, '.');
-                let formattedEnd = eDate.replace(/-/g, '.');
-                let dPartsPopup = sDate.split('-');
-                let expectedSheetName = `${dPartsPopup[0]}.${dPartsPopup[1]}-${tName}`;
-                
-                let confirmMsg = `성공적으로 ${parsedStudents.length}명의 데이터를 추출했습니다.<br><br>` +
-                                 `<div style="text-align: left; display: inline-block; font-size: 14px; line-height: 1.6; color: #333;">` +
-                                 `· 학기명단이름: ${expectedSheetName}<br>` +
-                                 `· 학기시작날짜: ${formattedStart}<br>` +
-                                 `· 학기종료날짜: ${formattedEnd}` +
-                                 `</div><br><br>명단을 작성할까요?`;
-
-                showCustomConfirm(confirmMsg, function() {
-                    
-                    showLoading(true, "명단을 생성중입니다...<br>화면을 닫지 마세요.");
-                    
-                    google.script.run
-                        .withSuccessHandler(function(res) {
-                            showLoading(false);
-                            closeUploadModal();
-                            let dParts = sDate.split('-');
-                            let sheetName = `${dParts[0]}.${dParts[1]}-${tName}`;
-                            showCustomAlert(`✔ <b>명단 업로드 성공!</b><br>[${sheetName}] 명단이 시스템에 적용되었습니다.<br>새로고침(F5) 후 사용해 주세요.`, function() {
-                               window.location.reload(); 
-                            });
-                        })
-                        .withFailureHandler(function(err) {
-                            showLoading(false);
-                            document.getElementById('fileInput').value = '';
-                            showCustomAlert("· Error: " + err.message.replace(/^Error:\s*/, '').trim());
-                        })
-                        .uploadNewTerm({
-                            termName: tName,
-                            startDate: sDate,
-                            endDate: eDate,
-                            students: parsedStudents
-                        });
-
-                }, function() {
-                    document.getElementById('fileInput').value = '';
-                });
-
-            } catch (err) {
-                showLoading(false);
-                document.getElementById('fileInput').value = '';
-                showCustomAlert("· Error: " + err.message.replace(/^Error:\s*/, '').trim());
-            }
-        };
-        reader.readAsArrayBuffer(file);
-    }
-
     window.addEventListener('keydown', function(e) {
       const modal = document.getElementById('customModalOverlay');
-      const settingModal = document.getElementById('settingsModalOverlay');
-      const termManageModal = document.getElementById('termManageModalOverlay');
       
       if (e.key === 'Escape') {
           const matrixOverlay = document.getElementById('matrixOverlay');
           if (matrixOverlay && matrixOverlay.style.display === 'flex') {
-              closeMatrixPopup(); return;
+              closeMatrixPopup();
+              return;
           }
           const historyOverlay = document.getElementById('historyOverlay');
           if (historyOverlay && historyOverlay.style.display === 'flex') {
-              closeHistoryPopup(); return;
-          }
-          const uploadOverlay = document.getElementById('uploadModalOverlay');
-          if (uploadOverlay && uploadOverlay.style.display === 'flex') {
-              closeUploadModal(); return;
-          }
-          if (termManageModal && termManageModal.style.display === 'flex') {
-              closeTermManageModal(); return;
-          }
-          if (settingModal && settingModal.style.display === 'flex') {
-              closeSettingsModal(); return;
+              closeHistoryPopup();
+              return;
           }
       }
 
@@ -1678,11 +1534,53 @@
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
         const saveBtn = document.getElementById('saveBtn');
-        if (saveBtn && saveBtn.style.display !== 'none' && adminUpdates.length > 0) {
-          saveAdminData();
+        if (saveBtn && document.getElementById('attendanceContent').style.display === 'block') {
+          saveData();
         }
       }
     });
+
+    let eggClicks = 0;
+    let eggTimer = null;
+    
+    function createCherryBlossoms() {
+      const container = document.body;
+      const petalCount = 50; 
+      for (let i = 0; i < petalCount; i++) {
+        const petal = document.createElement("div");
+        petal.classList.add("cherry-petal");
+        const size = Math.random() * 8 + 10;
+        petal.style.width = `${size}px`;
+        petal.style.height = `${size}px`;
+        petal.style.left = `${Math.random() * 95}vw`;
+        const fallDuration = Math.random() * 3 + 3; 
+        const swayDuration = Math.random() * 5 + 1; 
+        const delay = Math.random() * 7; 
+        petal.style.animationDuration = `${fallDuration}s, ${swayDuration}s`;
+        petal.style.animationDelay = `${delay}s, ${delay}s`;
+        container.appendChild(petal);
+        setTimeout(() => { petal.remove(); }, (fallDuration + delay) * 1000);
+      }
+    }
+
+    function triggerEasterEgg() {
+      eggClicks++;
+      if (eggClicks === 1) { eggTimer = setTimeout(() => { eggClicks = 0; }, 5000); }
+      if (eggClicks === 5) {
+        clearTimeout(eggTimer); eggClicks = 0;
+        const bubble = document.getElementById("eggBubble");
+        bubble.classList.add("show");
+        createCherryBlossoms();
+
+        const dogImg = document.createElement("img");
+        dogImg.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/506.gif"; 
+        dogImg.classList.add("popup-dog-gif");
+        document.body.appendChild(dogImg);
+        
+        setTimeout(() => { dogImg.remove(); }, 6000);
+        setTimeout(() => { bubble.classList.remove("show"); }, 3000); 
+      }
+    } 
   </script>
 </body>
 </html>
