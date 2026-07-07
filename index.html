@@ -1391,12 +1391,12 @@
                                     <th rowspan="2" style="width:80px; position:sticky; left:0; z-index:3; background-color:#e9ecef;">날짜</th>`;
             
             data.classes.forEach(cName => {
-                html += `<th colspan="2" style="font-size:12px; padding:8px 4px; width:190px; max-width:190px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${cName}</th>`;
+                html += `<th colspan="2" style="font-size:12px; padding:8px 4px; width:190px; min-width:190px; max-width:190px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${cName}</th>`;
             });
             html += `</tr><tr>`;
             
             data.classes.forEach(cName => {
-                html += `<th style="font-size:11px; padding:6px 2px; width:95px;">수업개요</th><th style="font-size:11px; padding:6px 2px; width:95px;">발송완료</th>`;
+                html += `<th style="font-size:11px; padding:6px 2px; width:95px; min-width:95px;">수업개요</th><th style="font-size:11px; padding:6px 2px; width:95px; min-width:95px;">발송완료</th>`;
             });
             html += `</tr></thead><tbody>`;
             
