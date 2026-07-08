@@ -1388,15 +1388,24 @@
                         <table class="matrix-table">
                             <thead>
                                 <tr>
-                                    <th rowspan="2" style="padding:0; position:sticky; left:0; z-index:3; background-color:#e9ecef;"><div style="width:80px; text-align:center;">날짜</div></th>`;
+                                    <th rowspan="2" style="padding:0; position:sticky; left:0; z-index:3; background-color:#e9ecef;">
+                                        <div style="width: 80px; text-align: center; height: 100%; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">날짜</div>
+                                    </th>`;
             
             data.classes.forEach(cName => {
-                html += `<th colspan="2" style="font-size:12px; padding:0;"><div style="width:190px; padding:8px 0; margin:0 auto; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${cName}</div></th>`;
+                html += `<th colspan="2" style="padding:0;">
+                             <div style="width: 190px; padding: 8px 0; margin: 0 auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; box-sizing: border-box;">${cName}</div>
+                         </th>`;
             });
             html += `</tr><tr>`;
             
             data.classes.forEach(cName => {
-                html += `<th style="font-size:11px; padding:0;"><div style="width:95px; padding:6px 0; margin:0 auto;">수업개요</div></th><th style="font-size:11px; padding:0;"><div style="width:95px; padding:6px 0; margin:0 auto;">발송완료</div></th>`;
+                html += `<th style="padding:0;">
+                             <div style="width: 95px; padding: 6px 0; margin: 0 auto; font-size: 11px; box-sizing: border-box;">수업개요</div>
+                         </th>
+                         <th style="padding:0;">
+                             <div style="width: 95px; padding: 6px 0; margin: 0 auto; font-size: 11px; box-sizing: border-box;">발송완료</div>
+                         </th>`;
             });
             html += `</tr></thead><tbody>`;
             
