@@ -63,21 +63,47 @@
     .matrix-close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #888; }
     .matrix-close-btn:hover { color: #333; }
     
-    /* 요약 팝업 스크롤 수정 및 2단 고정(Sticky) 설정 */
-    .matrix-content { overflow: auto; flex: 1; }
+    /* 🟢 요약 팝업 스크롤 틈새 및 테두리 소실 방지 완벽 대응 CSS */
+    .matrix-content { overflow: auto; flex: 1; position: relative; }
     .matrix-month-title { font-size: 16px; font-weight: 800; color: #495057; margin: 20px 0 10px 0; border-left: 4px solid #d32f2f; padding-left: 8px; }
-    .matrix-table-wrap { width: max-content; background: transparent; margin-bottom: 15px; padding: 0 15px 0 0; box-sizing: border-box; }
-    .matrix-table { width: max-content; border-collapse: collapse; font-size: 12px; text-align: center; margin: 0; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea; }
-    .matrix-table th, .matrix-table td { border-top: none; border-left: none; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; }
-    .matrix-table th { background-color: #e9ecef; font-weight: bold; padding: 8px 4px; color: #333; position: sticky; }
-    .matrix-table td { padding: 6px 4px; vertical-align: middle; }
-    .matrix-table th:last-child, .matrix-table td:last-child { border-right: none; }
-    .matrix-table tbody tr:last-child td { border-bottom: none; }
     
-    /* 2단 고정 CSS 추가 */
-    .matrix-table thead tr:nth-child(1) th { top: 0; z-index: 4; border-bottom: 1px solid #ced4da; border-right: 1px solid #ced4da; }
-    .matrix-table thead tr:nth-child(2) th { top: 33px; z-index: 3; border-bottom: 1px solid #ced4da; border-right: 1px solid #ced4da; }
-    .matrix-table th:first-child { z-index: 5 !important; }
+    .matrix-table-wrap { width: max-content; background: transparent; margin-bottom: 15px; padding: 0 15px 0 0; box-sizing: border-box; }
+    .matrix-table { 
+        width: max-content; 
+        border-collapse: separate; /* collapse 시 테두리 날아가는 버그 방지 */
+        border-spacing: 0; 
+        font-size: 12px; 
+        text-align: center; 
+        margin: 0; 
+        border-top: 1px solid #ced4da; 
+        border-left: 1px solid #ced4da; 
+    }
+    .matrix-table th, .matrix-table td { 
+        border-top: none; 
+        border-left: none; 
+        border-bottom: 1px solid #eaeaea; 
+        border-right: 1px solid #eaeaea; 
+        background-clip: padding-box; /* 스크롤 시 배경색 삐져나옴 방지 */
+    }
+    .matrix-table th { 
+        background-color: #e9ecef; 
+        font-weight: bold; 
+        padding: 0; 
+        color: #333; 
+        position: sticky; 
+        border-bottom: 1px solid #ced4da; 
+        border-right: 1px solid #ced4da; 
+    }
+    .matrix-table td { padding: 6px 4px; vertical-align: middle; }
+    .matrix-table tbody tr:last-child td { border-bottom: 1px solid #eaeaea; } /* 마지막 줄 닫기 */
+    
+    /* 2단 고정(Sticky) 정밀 픽셀 매칭 (틈새 발생 원천 차단) */
+    .matrix-table thead tr:nth-child(1) th { top: 0; height: 32px; z-index: 4; box-sizing: border-box; }
+    .matrix-table thead tr:nth-child(2) th { top: 32px; height: 28px; z-index: 3; box-sizing: border-box; }
+    
+    /* 날짜 열 좌측 고정 (우측 스크롤 시 안 넘어가게) */
+    .matrix-table th:first-child { left: 0; z-index: 5 !important; }
+    .matrix-table td:first-child { position: sticky; left: 0; z-index: 2; border-right: 1px solid #ced4da; }
 
     .academy-header-bar { margin-top: 15px; background-color: #495057; color: #ffffff; padding: 10px 25px; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; justify-content: center; align-items: center; position: relative; }
     .academy-header-bar a { position: absolute; right: 25px; }
@@ -459,6 +485,7 @@
   </div>
 
   <script>
+    // 🟢 영통 캠퍼스 새 웹앱 주소로 최신화 적용 완료
     const CAMPUS_URLS = {
       "yeongtong": "https://script.google.com/macros/s/AKfycbwV5hXkSNGT2_jkCrQakQieov2OswU9x-zCBSkquarMujUqoKXdSZO_ih0OyQxftodu/exec",
       "dongtan": "https://script.google.com/macros/s/AKfycbwMtIkLaAF85AYQgpWXsVmwftBnPKy0tOV65X8zKajto0srs4MM6pA4oRcczZHDqRcXNg/exec"
@@ -884,6 +911,7 @@
                  let subjPct = s.classCount > 0 ? Math.min(100, Math.round((s.subjectCount / s.classCount) * 100)) : 0;
                  let sentPct = s.totalStudents > 0 ? Math.min(100, Math.round((s.totalSent / s.totalStudents) * 100)) : 100;
                  
+                 // 🟢 [수정] 대시보드 요약 그룹 - 수업개요 퍼센트 색상 세분화 적용 (0:빨간색, 1~99:초록색, 100:검정색)
                  let subjColor = 'color:#333;';
                  if (s.classCount > 0) {
                      if (s.subjectCount === 0) subjColor = 'color:#dc3545;';
@@ -997,6 +1025,7 @@
       }).saveAdminChecks(adminUpdates);
     }
 
+    // 🟢 더블클릭 연동으로 새 창에 파라미터 전달하여 선생님 앱 열기
     function openTeacherAppForCell(teacher, className, dateStr) {
         const campus = document.getElementById("campusSelect").value;
         let url = `index.html?campus=${encodeURIComponent(campus)}&teacher=${encodeURIComponent(teacher)}&class=${encodeURIComponent(className)}&date=${encodeURIComponent(dateStr)}`;
@@ -1029,6 +1058,7 @@
             let subjPct = data.summary.subjExpected > 0 ? Math.min(100, Math.round((data.summary.subjDone / data.summary.subjExpected) * 100)) : 0;
             let sentPct = data.summary.sentExpected > 0 ? Math.min(100, Math.round((data.summary.sentDone / data.summary.sentExpected) * 100)) : 100;
             
+            // 🟢 [수정] 요약 팝업 - 수업개요 퍼센트 색상 세분화 적용
             let subjStyle = "color:inherit;";
             if (data.summary.subjExpected > 0) {
                 if (data.summary.subjDone === 0) subjStyle = "color:#dc3545; font-weight:bold;";
@@ -1061,15 +1091,24 @@
                         <table class="matrix-table">
                             <thead>
                                 <tr>
-                                    <th rowspan="2" style="width:80px; text-align:center; box-sizing:border-box; background-color:#e9ecef;">날짜</th>`;
+                                    <th rowspan="2">
+                                        <div style="width: 80px; text-align: center; height: 100%; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">날짜</div>
+                                    </th>`;
             
             data.classes.forEach(cName => {
-                html += `<th colspan="2" style="font-size:12px; padding:8px 4px; width:190px; max-width:190px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${cName}</th>`;
+                html += `<th colspan="2">
+                             <div style="width: 190px; padding: 8px 0; margin: 0 auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; box-sizing: border-box;">${cName}</div>
+                         </th>`;
             });
             html += `</tr><tr>`;
             
             data.classes.forEach(cName => {
-                html += `<th style="font-size:11px; padding:6px 2px; width:95px;">수업개요</th><th style="font-size:11px; padding:6px 2px; width:95px;">발송완료</th>`;
+                html += `<th>
+                             <div style="width: 95px; padding: 6px 0; margin: 0 auto; font-size: 11px; box-sizing: border-box;">수업개요</div>
+                         </th>
+                         <th>
+                             <div style="width: 95px; padding: 6px 0; margin: 0 auto; font-size: 11px; box-sizing: border-box;">발송완료</div>
+                         </th>`;
             });
             html += `</tr></thead><tbody>`;
             
@@ -1085,7 +1124,7 @@
                 let cellBgColor = row.isOutOfBounds ? '#f4f5f7' : '#fff';
                 
                 html += `<tr style="${bgStyle}">
-                            <td style="font-weight:bold; position:sticky; left:0; background-color:${cellBgColor}; z-index:1;">${dateDisplay}</td>`;
+                            <td style="font-weight:bold; background-color:${cellBgColor};">${dateDisplay}</td>`;
                             
                 data.classes.forEach(cName => {
                     let cellData = row.classes[cName];
@@ -1105,10 +1144,10 @@
                             if (curSentCount === 0) sentStyle = 'color:#dc3545; font-weight:bold;';
                             else sentStyle = 'color:#28a745; font-weight:bold;';
                         }
-                        
+
                         let tdClickStyle = "cursor:pointer; user-select:none;";
                         let onDblClick = `ondblclick="openTeacherAppForCell('${data.teacherName}', '${cName}', '${row.date}')"`;
-
+                        
                         html += `<td style="${subjStyle} ${tdClickStyle}" ${onDblClick} title="더블클릭하여 해당 명단 열기">${cellData.subject}</td>
                                  <td style="${sentStyle} ${tdClickStyle}" ${onDblClick} title="더블클릭하여 해당 명단 열기">${cellData.sent}</td>`;
                     }
