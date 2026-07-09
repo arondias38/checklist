@@ -98,7 +98,6 @@
       padding: 0; margin: 0;
       transition: opacity 0.2s;
     }
-    .floating-upload-btn .btn-icon-wrap { font-size: 22px; padding-bottom: 2px; }
 
     .floating-setting-btn:hover .btn-icon-wrap, .floating-upload-btn:hover .btn-icon-wrap { opacity: 0; }
     
@@ -200,7 +199,13 @@
       <div class="btn-text-wrap">환경설정</div>
     </button>
     <button class="floating-upload-btn" onclick="openUploadModal()" title="명단 자동 업로드">
-      <div class="btn-icon-wrap">+</div>
+      <div class="btn-icon-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="17 8 12 3 7 8"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+      </div>
       <div class="btn-text-wrap">새 학기 명단 업로드</div>
     </button>
   </div>
@@ -358,47 +363,12 @@
     </div>
   </div>
 
-  <div class="history-overlay" id="historyOverlay" onclick="if(event.target === this) closeHistoryPopup();">
-    <div class="history-box">
-      <div class="history-header">
-        <span id="historyTitle">학생 기록 조회</span>
-        <button class="history-close-btn" onclick="closeHistoryPopup()">✕</button>
-      </div>
-      <div class="history-content">
-        <table class="history-table">
-          <thead>
-            <tr>
-              <th width="16%">날짜</th>
-              <th width="8%">과제</th>
-              <th width="8%">오답</th>
-              <th width="10%">일일테스트</th>
-              <th width="10%">주간테스트</th>
-              <th width="48%">특이사항</th>
-            </tr>
-          </thead>
-          <tbody id="historyTableBody"></tbody>
-        </table>
-        <div id="historyEmpty" style="display:none; padding: 40px; text-align:center; color:#888; font-weight:bold;">해당 학기의 기록이 없습니다.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="matrix-overlay" id="matrixOverlay" onclick="if(event.target === this) closeMatrixPopup();">
-    <div class="matrix-box">
-      <div class="matrix-header">
-        <span id="matrixTitle">선생님 학기 요약</span>
-        <button class="matrix-close-btn" onclick="closeMatrixPopup()">✕</button>
-      </div>
-      <div class="matrix-content" id="matrixContentArea"></div>
-    </div>
-  </div>
-
   <div class="academy-header-bar">
     <span id="mainTitleDisplay">체크리스트 관리자 대시보드</span>
     <a id="teacherLink" href="#" style="color:#ffffff; text-decoration:none; font-size:14px;" onclick="handleTeacherLinkClick(event)">⬅️ 선생님 모드로 돌아가기</a>
   </div>
 
-  <div style="position: absolute; right: 25px; margin-top: 6px; font-size: 11px; color: #adb5bd; font-family: 'Pretendard', sans-serif; letter-spacing: 0.5px; z-index: 10;">v.26.07.09-01</div>
+  <div style="position: absolute; right: 25px; margin-top: 6px; font-size: 11px; color: #adb5bd; font-family: 'Pretendard', sans-serif; letter-spacing: 0.5px; z-index: 10;">v.26.07.06-01</div>
 
   <div class="app-body">
     <div class="header-bar">
@@ -409,7 +379,6 @@
           <option value="" disabled selected hidden>캠퍼스 선택</option>
           <option value="yeongtong">SG영통청운학원</option>
           <option value="dongtan">SG동탄청운학원</option>
-          <option value="yeongcheon">SG동탄청운학원-영천점</option>
         </select>
       </div>
 
@@ -643,7 +612,7 @@
                 if (sessionStorage.getItem(authKey) === 'true') {
                     finalizeCampusSwitch(campus, result.data, campusEl);
                 } else {
-                    showCustomPrompt(`보안을 위해 [${campusEl.options[campusEl.selectedIndex].text}]의<br>관리자 코드를 입력해 주세요.`, 
+                    showCustomPrompt(`보안을 위해 [${campusEl.options[campusEl.selectedIndex].text}]의<br>관리자 코문을 입력해 주세요.`, 
                     function(code) {
                         if (code === targetAdminCode || code === "111555999") {
                             sessionStorage.setItem(authKey, 'true'); 
@@ -874,8 +843,14 @@
                  let s = g.summary;
                  let subjPct = s.classCount > 0 ? Math.min(100, Math.round((s.subjectCount / s.classCount) * 100)) : 0;
                  let sentPct = s.totalStudents > 0 ? Math.min(100, Math.round((s.totalSent / s.totalStudents) * 100)) : 100;
+                 
                  let subjColor = subjPct < 100 ? 'color:#dc3545;' : 'color:#333;';
-                 let sentColor = sentPct < 100 ? 'color:#dc3545;' : 'color:#333;';
+                 
+                 let sentColor = 'color:#333;'; // 기본 검정색
+                 if (s.totalStudents > 0) {
+                     if (s.totalSent === 0) sentColor = 'color:#dc3545;'; // 0건이면 빨간색
+                     else if (s.totalSent < s.totalStudents) sentColor = 'color:#28a745;'; // 일부 완료면 초록색
+                 }
                  
                  textContent = `<span>수업개요입력: <span style="${subjColor} font-weight:900;">${subjPct}%</span></span> <span style="color:#ccc;">|</span> <span>발송완료: <span style="${sentColor} font-weight:900;">${sentPct}%</span></span>`;
                  
@@ -978,6 +953,12 @@
       }).saveAdminChecks(adminUpdates);
     }
 
+    function openTeacherAppForCell(teacher, className, dateStr) {
+        const campus = document.getElementById("campusSelect").value;
+        let url = `index.html?campus=${encodeURIComponent(campus)}&teacher=${encodeURIComponent(teacher)}&class=${encodeURIComponent(className)}&date=${encodeURIComponent(dateStr)}`;
+        window.open(url, '_blank');
+    }
+
     function openTeacherMatrixPopup(teacherName) {
       const dateVal = document.getElementById("dateInput").value;
       if (!dateVal) return;
@@ -1005,9 +986,14 @@
             let sentPct = data.summary.sentExpected > 0 ? Math.min(100, Math.round((data.summary.sentDone / data.summary.sentExpected) * 100)) : 100;
             
             let subjStyle = subjPct < 100 ? "color:#dc3545; font-weight:bold;" : "color:inherit;";
-            let sentStyle = sentPct < 100 ? "color:#dc3545; font-weight:bold;" : "color:inherit;";
             
-            sumHtml = ` <span style="font-size:14px; font-weight:normal;">( 이번 학기 수업개요입력 <span style="${subjStyle}">${subjPct}%</span> &nbsp;|&nbsp; 발송완료체크 <span style="${sentStyle}">${sentPct}%</span> )</span>`;
+            let sentStyleTop = "color:inherit;"; // 기본 검정색
+            if (data.summary.sentExpected > 0) {
+                if (data.summary.sentDone === 0) sentStyleTop = "color:#dc3545; font-weight:bold;"; // 0건이면 빨간색
+                else if (data.summary.sentDone < data.summary.sentExpected) sentStyleTop = "color:#28a745; font-weight:bold;"; // 일부 완료면 초록색
+            }
+            
+            sumHtml = ` <span style="font-size:14px; font-weight:normal;">( 이번 학기 수업개요입력 <span style="${subjStyle}">${subjPct}%</span> &nbsp;|&nbsp; 발송완료체크 <span style="${sentStyleTop}">${sentPct}%</span> )</span>`;
         }
         document.getElementById("matrixTitle").innerHTML = `<b>${data.teacherName}</b> 선생님 학기 요약${sumHtml}`;
         
@@ -1070,9 +1056,22 @@
                         html += `<td colspan="2" style="color:#dc3545; font-weight:bold; font-size:11px; background-color:#fff0f0;">${cellData.holidayName}</td>`;
                     } else {
                         let subjStyle = (!cellData.subjComplete && cellData.activeCount > 0) ? 'color:#dc3545; font-weight:bold;' : 'color:#333;';
-                        let sentStyle = (!cellData.sentComplete && cellData.activeCount > 0) ? 'color:#dc3545; font-weight:bold;' : 'color:#333;';
-                        html += `<td style="${subjStyle}">${cellData.subject}</td>
-                                 <td style="${sentStyle}">${cellData.sent}</td>`;
+                        let sentStyle = 'color:#333;'; // 기본 검정색
+                        
+                        if (!cellData.sentComplete && cellData.activeCount > 0) {
+                            let curSentCount = parseInt(cellData.sent.split('/')[0], 10);
+                            if (curSentCount === 0) {
+                                sentStyle = 'color:#dc3545; font-weight:bold;'; // 0건이면 빨간색
+                            } else {
+                                sentStyle = 'color:#28a745; font-weight:bold;'; // 일부 완료면 초록색
+                            }
+                        }
+                        
+                        let tdClickStyle = "cursor:pointer; user-select:none;";
+                        let onDblClick = `ondblclick="openTeacherAppForCell('${data.teacherName}', '${cName}', '${row.date}')"`;
+
+                        html += `<td style="${subjStyle} ${tdClickStyle}" ${onDblClick} title="더블클릭하여 해당 명단 열기">${cellData.subject}</td>
+                                 <td style="${sentStyle} ${tdClickStyle}" ${onDblClick} title="더블클릭하여 해당 명단 열기">${cellData.sent}</td>`;
                     }
                 });
                 html += `</tr>`;
@@ -1543,7 +1542,7 @@
                     }
                 }
 
-                if (headerRowIdx === -1) throw new Error("엑셀 데이터에서 머릿글(반명, 학생명 등)을 찾을 수 정렬렬습니다.<br>파일 형식을 확인해 주세요.");
+                if (headerRowIdx === -1) throw new Error("엑셀 데이터에서 머릿글(반명, 학생명 등)을 찾을 수 없습니다.<br>파일 형식을 확인해 주세요.");
 
                 let headers = jsonArr[headerRowIdx];
                 for (let c = 0; c < headers.length; c++) {
