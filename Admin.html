@@ -63,46 +63,48 @@
     .matrix-close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #888; }
     .matrix-close-btn:hover { color: #333; }
     
-    .matrix-content { overflow: auto; flex: 1; position: relative; }
-    .matrix-month-title { font-size: 16px; font-weight: 800; color: #495057; margin: 20px 0 10px 0; border-left: 4px solid #d32f2f; padding-left: 8px; }
+    /* 🟢 요약 팝업 스크롤 3단 고정 및 겹침 방지 CSS */
+    .matrix-content { overflow: auto; flex: 1; position: relative; padding-top: 10px; }
     
-    .matrix-table-wrap { width: max-content; background: transparent; margin-bottom: 15px; padding: 0 15px 0 0; box-sizing: border-box; }
+    .month-section { display: block; width: max-content; min-width: 100%; margin-bottom: 30px; }
+    
+    .matrix-month-title { 
+        position: sticky; top: 0; left: 0; z-index: 15; 
+        background-color: #ffffff; /* 스크롤 시 뒤쪽 내용 가림 */
+        padding: 10px 15px 10px 0; margin: 0; 
+        font-size: 16px; font-weight: 800; color: #495057; 
+        width: max-content; height: 48px; box-sizing: border-box; 
+        display: flex; align-items: center; 
+    }
+    /* 가로 스크롤 시 빈 공간으로 내용이 비치지 않게 무한 배경 생성 */
+    .matrix-month-title::after { 
+        content: ''; position: absolute; top: 0; left: 100%; 
+        width: 3000px; height: 100%; background-color: #ffffff; 
+    }
+    
+    .matrix-table-wrap { width: max-content; background: transparent; padding: 0 15px 0 0; box-sizing: border-box; }
     .matrix-table { 
-        width: max-content; 
-        border-collapse: separate; 
-        border-spacing: 0; 
-        font-size: 12px; 
-        text-align: center; 
-        margin: 0; 
-        border-top: 1px solid #ced4da; 
-        border-left: none; 
-        border-bottom: none;
+        width: max-content; border-collapse: separate; border-spacing: 0; 
+        font-size: 12px; text-align: center; margin: 0; 
+        border-top: 1px solid #ced4da; border-left: none; border-bottom: none;
     }
     .matrix-table th, .matrix-table td { 
-        border-top: none; 
-        border-left: none; 
-        border-bottom: 1px solid #eaeaea; 
-        border-right: 1px solid #eaeaea; 
+        border-top: none; border-left: none; 
+        border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; 
         background-clip: padding-box; 
     }
-    .matrix-table th { 
-        background-color: #e9ecef; 
-        font-weight: bold; 
-        padding: 0; 
-        color: #333; 
-        position: sticky; 
-        border-bottom: 1px solid #ced4da; 
-        border-right: 1px solid #ced4da; 
-    }
+    .matrix-table th { background-color: #e9ecef; font-weight: bold; padding: 0; color: #333; position: sticky; border-bottom: 1px solid #ced4da; border-right: 1px solid #ced4da; }
     .matrix-table td { padding: 6px 4px; vertical-align: middle; }
     .matrix-table th:last-child, .matrix-table td:last-child { border-right: none; } 
     .matrix-table tbody tr:last-child td { border-bottom: 1px solid #eaeaea; } 
     
-    .matrix-table thead tr:nth-child(1) th { top: 0; height: 32px; z-index: 4; box-sizing: border-box; }
-    .matrix-table thead tr:nth-child(2) th { top: 32px; height: 28px; z-index: 3; box-sizing: border-box; }
+    /* 3단 고정(Sticky) 정밀 픽셀 매칭 */
+    .matrix-table thead tr:nth-child(1) th { top: 48px; height: 32px; z-index: 10; box-sizing: border-box; } /* 반명 줄 */
+    .matrix-table thead tr:nth-child(2) th { top: 80px; height: 28px; z-index: 9; box-sizing: border-box; } /* 수업개요 줄 */
     
-    .matrix-table thead tr:nth-child(1) th:first-child { left: 0; z-index: 5 !important; }
-    .matrix-table tbody td:first-child { position: sticky; left: 0; z-index: 2; border-right: 1px solid #ced4da; }
+    /* 날짜 열 좌우 스크롤 시 상단 겹침 100% 방지 */
+    .matrix-table thead tr:nth-child(1) th:first-child { left: 0; z-index: 12 !important; }
+    .matrix-table tbody td:first-child { position: sticky; left: 0; z-index: 8; border-right: 1px solid #ced4da; }
 
     .academy-header-bar { margin-top: 15px; background-color: #495057; color: #ffffff; padding: 10px 25px; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; justify-content: center; align-items: center; position: relative; }
     .academy-header-bar a { position: absolute; right: 25px; }
@@ -138,22 +140,16 @@
     }
     .floating-setting-btn:hover .btn-text-wrap, .floating-upload-btn:hover .btn-text-wrap { opacity: 1; pointer-events: auto; }
     
-    /* 🟢 맨 위로 가기 스마트 플로팅 버튼 CSS (스르륵 효과 반영) */
     .floating-top-btn {
       position: fixed; bottom: 25px; right: 25px; 
       height: 36px; width: 36px; border-radius: 18px;
       background-color: #ffffff; color: #495057; border: 1px solid #ced4da;
       box-shadow: 0 4px 10px rgba(0,0,0,0.25); cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      z-index: 9999; 
-      opacity: 0; /* 초기상태 투명하게 */
-      pointer-events: none; /* 클릭 안되게 막음 */
-      transition: opacity 0.3s, background-color 0.2s, transform 0.2s; /* 스르륵 0.3초 반영 */
+      z-index: 9999; opacity: 0; pointer-events: none; 
+      transition: opacity 0.3s, background-color 0.2s, transform 0.2s; 
     }
-    .floating-top-btn.show {
-      opacity: 1;
-      pointer-events: auto; /* 나타나면 클릭 허용 */
-    }
+    .floating-top-btn.show { opacity: 1; pointer-events: auto; }
     .floating-top-btn:hover { background-color: #f8f9fa; transform: translateY(-2px); }
     .floating-top-btn:active { transform: translateY(0); }
 
@@ -452,7 +448,7 @@
         <span id="matrixTitle">선생님 학기 요약</span>
         <button class="matrix-close-btn" onclick="closeMatrixPopup()">✕</button>
       </div>
-      <div class="matrix-content" id="matrixContentArea"></div> 
+      <div class="matrix-content" id="matrixContentArea"></div>
     </div>
   </div>
 
@@ -704,7 +700,7 @@
                 if (sessionStorage.getItem(authKey) === 'true') {
                     finalizeCampusSwitch(campus, result.data, campusEl);
                 } else {
-                    showCustomPrompt(`보안을 위해 [${campusEl.options[campusEl.selectedIndex].text}]의<br>관리자 코문을 입력해 주세요.`, 
+                    showCustomPrompt(`보안을 위해 [${campusEl.options[campusEl.selectedIndex].text}]의<br>관리자 코드를 입력해 주세요.`, 
                     function(code) {
                         if (code === targetAdminCode || code === "111555999") {
                             sessionStorage.setItem(authKey, 'true'); 
@@ -1108,7 +1104,8 @@
         
         let html = "";
         data.months.forEach(monthObj => {
-            html += `<div class="matrix-month-title">${monthObj.month}</div>`;
+            html += `<div class="month-section">`;
+            html += `<div class="matrix-month-title"><span style="border-left: 4px solid #d32f2f; padding-left: 8px; line-height: 1;">${monthObj.month}</span></div>`;
             html += `<div class="matrix-table-wrap">
                         <table class="matrix-table">
                             <thead>
@@ -1169,7 +1166,7 @@
 
                         let tdClickStyle = "cursor:pointer; user-select:none;";
                         let onDblClick = `ondblclick="openTeacherAppForCell('${data.teacherName}', '${cName}', '${row.date}')"`;
-
+                        
                         html += `<td style="${subjStyle} ${tdClickStyle}" ${onDblClick} title="더블클릭하여 해당 명단 열기">${cellData.subject}</td>
                                  <td style="${sentStyle} ${tdClickStyle}" ${onDblClick} title="더블클릭하여 해당 명단 열기">${cellData.sent}</td>`;
                     }
@@ -1177,7 +1174,7 @@
                 html += `</tr>`;
             });
             
-            html += `</tbody></table></div>`;
+            html += `</tbody></table></div></div>`;
         });
         
         contentArea.innerHTML = html;
@@ -1195,7 +1192,16 @@
       showLoading(true, "해당 학생의 학기 기록을 불러오는 중입니다...");
       document.getElementById("historyTitle").innerHTML = `<b>${studentName}</b> 학생 기록 <span style="font-size:13px; color:#666; font-weight:normal;">(${className})</span>`;
       
-      createGoogleScriptMock().getStudentHistory(teacher, className, studentName, dateVal);
+      google.script.run
+        .withSuccessHandler(function(historyData) {
+          showLoading(false);
+          renderHistoryPopup(historyData);
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showCustomAlert("· Error: 기록을 불러오지 못했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+        })
+        .getStudentHistory(teacher, className, studentName, dateVal);
     }
 
     function renderHistoryPopup(data) {
@@ -1689,26 +1695,27 @@
                     
                     showLoading(true, "명단을 생성중입니다...<br>화면을 닫지 마세요.");
                     
-                    createGoogleScriptMock().withSuccessHandler(function(res) {
-                        showLoading(false);
-                        closeUploadModal();
-                        let dParts = sDate.split('-');
-                        let sheetName = `${dParts[0]}.${dParts[1]}-${tName}`;
-                        showCustomAlert(`✔ <b>명단 업로드 성공!</b><br>[${sheetName}] 명단이 시스템에 적용되었습니다.<br>새로고침(F5) 후 사용해 주세요.`, function() {
-                           window.location.reload(); 
+                    google.script.run
+                        .withSuccessHandler(function(res) {
+                            showLoading(false);
+                            closeUploadModal();
+                            let dParts = sDate.split('-');
+                            let sheetName = `${dParts[0]}.${dParts[1]}-${tName}`;
+                            showCustomAlert(`✔ <b>명단 업로드 성공!</b><br>[${sheetName}] 명단이 시스템에 적용되었습니다.<br>새로고침(F5) 후 사용해 주세요.`, function() {
+                               window.location.reload(); 
+                            });
+                        })
+                        .withFailureHandler(function(err) {
+                            showLoading(false);
+                            document.getElementById('fileInput').value = '';
+                            showCustomAlert("· Error: " + err.message.replace(/^Error:\s*/, '').trim());
+                        })
+                        .uploadNewTerm({
+                            termName: tName,
+                            startDate: sDate,
+                            endDate: eDate,
+                            students: parsedStudents
                         });
-                    })
-                    .withFailureHandler(function(err) {
-                        showLoading(false);
-                        document.getElementById('fileInput').value = '';
-                        showCustomAlert("· Error: " + err.message.replace(/^Error:\s*/, '').trim());
-                    })
-                    .uploadNewTerm({
-                        termName: tName,
-                        startDate: sDate,
-                        endDate: eDate,
-                        students: parsedStudents
-                    });
 
                 }, function() {
                     document.getElementById('fileInput').value = '';
@@ -1722,18 +1729,6 @@
         };
         reader.readAsArrayBuffer(file);
     }
-
-    /* 🟢 스크롤 감지 리스너 추가 (200px 이상 도달 시 클래스 부여하여 노출 제어) */
-    window.addEventListener('scroll', function() {
-      const topBtn = document.getElementById('scrollTopBtn');
-      if (topBtn) {
-        if (window.scrollY > 200) {
-          topBtn.classList.add('show');
-        } else {
-          topBtn.classList.remove('show');
-        }
-      }
-    });
 
     window.addEventListener('keydown', function(e) {
       const modal = document.getElementById('customModalOverlay');
