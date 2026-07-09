@@ -396,12 +396,11 @@
 
   <script>
     window.loadedState = null;
-    window.autoLoadParams = null; // 🟢 더블클릭 연동용 오토로드 파라미터 컨테이너
+    window.autoLoadParams = null; 
 
     const CAMPUS_URLS = {
       "yeongtong": "https://script.google.com/macros/s/AKfycbwV5hXkSNGT2_jkCrQakQieov2OswU9x-zCBSkquarMujUqoKXdSZO_ih0OyQxftodu/exec",
       "dongtan": "https://script.google.com/macros/s/AKfycbwMtIkLaAF85AYQgpWXsVmwftBnPKy0tOV65X8zKajto0srs4MM6pA4oRcczZHDqRcXNg/exec",
-      "yeongcheon": "https://script.google.com/macros/s/AKfycbw6lnnvzOvUykYBM32FvNb66m98e0frXWuQPV0bn-GVAfvVcMNR0ne5g04qu-W763_u/exec"
     };
 
     function createGoogleScriptMock() {
@@ -519,7 +518,6 @@
       const urlParams = new URLSearchParams(window.location.search);
       const campus = urlParams.get('campus');
       if (campus) {
-         // 🟢 더블클릭 연동으로 전달된 파라미터가 있다면 오토로드 컨테이너에 임시 보관
          const tParam = urlParams.get('teacher');
          const cParam = urlParams.get('class');
          const dParam = urlParams.get('date');
@@ -573,16 +571,15 @@
             data.teachers.forEach(t => { let opt = document.createElement("option"); opt.value = t; opt.textContent = t; select.appendChild(opt); });
             select.disabled = false;
 
-            // 🟢 오토로드 1단계: 선생님 자동 선택
             if (window.autoLoadParams && window.autoLoadParams.teacher) {
                 let options = Array.from(select.options).map(o => o.value);
                 if (options.includes(window.autoLoadParams.teacher)) {
                     select.value = window.autoLoadParams.teacher;
                     select.dataset.prev = window.autoLoadParams.teacher;
-                    window.autoLoadParams.teacher = null; // 사용 후 폐기
+                    window.autoLoadParams.teacher = null; 
                     onTeacherChange();
                 } else {
-                    window.autoLoadParams = null; // 유효하지 않으면 연동 중단
+                    window.autoLoadParams = null; 
                 }
             }
 
@@ -691,7 +688,6 @@
         });
         classSelect.disabled = false;
 
-        // 🟢 오토로드 2단계: 반 자동 선택
         if (window.autoLoadParams && window.autoLoadParams.className) {
             let options = Array.from(classSelect.options).map(o => o.value);
             if (options.includes(window.autoLoadParams.className)) {
@@ -751,7 +747,6 @@
             classSelect.style.color = "#333";
         }
         
-        // 🟢 오토로드 3단계: 날짜 자동 입력 및 조회 실행
         if (window.autoLoadParams && window.autoLoadParams.date) {
             onClassChange();
             let dateInput = document.getElementById("dateInput");
@@ -1381,7 +1376,6 @@
       }
     }
 
-    // 🟢 더블클릭 연동으로 새 창에 파라미터 전달하여 선생님 앱 열기
     function openTeacherAppForCell(teacher, className, dateStr) {
         const campus = document.getElementById("campusSelect").value;
         let url = `index.html?campus=${encodeURIComponent(campus)}&teacher=${encodeURIComponent(teacher)}&class=${encodeURIComponent(className)}&date=${encodeURIComponent(dateStr)}`;
