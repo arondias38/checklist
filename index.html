@@ -86,7 +86,7 @@
     .matrix-table th:last-child, .matrix-table td:last-child { border-right: none; } /* 겉 테두리 우측 제거 */
     .matrix-table tbody tr:last-child td { border-bottom: 1px solid #eaeaea; } /* 마지막 줄 닫기 유지 */
     
-    /* 2단 고정(Sticky) 정밀 픽셀 매칭 (틈새 발생 원천 차단) */
+    /* 2단 고정(Sticky) 정밀 픽셀 매칭 */
     .matrix-table thead tr:nth-child(1) th { top: 0; height: 32px; z-index: 4; box-sizing: border-box; }
     .matrix-table thead tr:nth-child(2) th { top: 32px; height: 28px; z-index: 3; box-sizing: border-box; }
     
@@ -96,6 +96,18 @@
 
     .academy-header-bar { margin-top: 15px; background-color: #1366ce; color: #ffffff; padding: 10px 25px; font-size: 18px; font-weight: bold; display: flex; justify-content: center; align-items: center; position: relative; }
     .academy-header-bar a { position: absolute; right: 25px; }
+    
+    /* 🟢 맨 위로 스크롤 버튼 CSS */
+    .floating-top-btn {
+      position: fixed; bottom: 25px; right: 25px; 
+      height: 36px; width: 36px; border-radius: 18px;
+      background-color: #ffffff; color: #495057; border: 1px solid #ced4da;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; transition: background-color 0.2s, transform 0.2s;
+    }
+    .floating-top-btn:hover { background-color: #f8f9fa; transform: translateY(-2px); }
+    .floating-top-btn:active { transform: translateY(0); }
     
     .app-body { padding: 20px; }
     
@@ -263,6 +275,15 @@
   </style>
 </head>
 <body>
+
+  <button class="floating-top-btn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });" title="맨 위로 이동">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#495057" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="5" y1="20" x2="19" y2="20"></line>
+      <polyline points="5 11 12 4 19 11"></polyline>
+      <line x1="12" y1="20" x2="12" y2="4"></line>
+    </svg>
+  </button>
+
   <div class="spinner-overlay" id="globalSpinner"><div class="spinner"></div><div class="spinner-text" id="spinnerText">데이터를 불러오는 중입니다.</div></div>
   
   <div class="modal-overlay" id="customModalOverlay">
@@ -317,7 +338,7 @@
     <a id="adminLink" href="#" oncontextmenu="return false;" style="color:#a0bfdc; text-decoration:none; font-size:12px; font-weight:normal; user-select:none; -webkit-user-select:none; cursor:pointer;" onclick="if(checkLockdown(event)) return false; promptAdminCode(event);">⚙️ 관리자</a>
   </div>
 
-  <div style="position: absolute; right: 25px; margin-top: 6px; font-size: 11px; color: #adb5bd; font-family: 'Pretendard', sans-serif; letter-spacing: 0.5px; z-index: 10;">v.26.07.06-01</div>
+  <div style="position: absolute; right: 25px; margin-top: 6px; font-size: 11px; color: #adb5bd; font-family: 'Pretendard', sans-serif; letter-spacing: 0.5px; z-index: 10;">v.26.07.10-01</div>
 
   <div class="app-body">
     <div class="header-bar">
