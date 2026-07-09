@@ -49,16 +49,22 @@
     .matrix-header { font-size: 18px; font-weight: 900; color: #1366ce; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1366ce; padding-bottom: 10px; }
     .matrix-close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #888; }
     .matrix-close-btn:hover { color: #333; }
+    
+    /* 요약 팝업 스크롤 수정 및 2단 고정(Sticky) 설정 (Admin과 동일) */
     .matrix-content { overflow: auto; flex: 1; }
     .matrix-month-title { font-size: 16px; font-weight: 800; color: #495057; margin: 20px 0 10px 0; border-left: 4px solid #1366ce; padding-left: 8px; text-align: left; }
-    
     .matrix-table-wrap { width: max-content; background: transparent; margin-bottom: 15px; padding: 0 15px 0 0; box-sizing: border-box; }
     .matrix-table { width: max-content; border-collapse: collapse; font-size: 12px; text-align: center; margin: 0; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea; }
     .matrix-table th, .matrix-table td { border-top: none; border-left: none; border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; }
-    .matrix-table th { background-color: #e9ecef; font-weight: bold; padding: 8px 4px; color: #333; position: sticky; top: 0; z-index: 2; border-bottom: 1px solid #ced4da; border-right: 1px solid #ced4da; }
+    .matrix-table th { background-color: #e9ecef; font-weight: bold; padding: 8px 4px; color: #333; position: sticky; }
     .matrix-table td { padding: 6px 4px; vertical-align: middle; }
     .matrix-table th:last-child, .matrix-table td:last-child { border-right: none; }
     .matrix-table tbody tr:last-child td { border-bottom: none; }
+    
+    /* 2단 고정 CSS 추가 */
+    .matrix-table thead tr:nth-child(1) th { top: 0; z-index: 4; border-bottom: 1px solid #ced4da; border-right: 1px solid #ced4da; }
+    .matrix-table thead tr:nth-child(2) th { top: 33px; z-index: 3; border-bottom: 1px solid #ced4da; border-right: 1px solid #ced4da; }
+    .matrix-table th:first-child { z-index: 5 !important; }
 
     .academy-header-bar { margin-top: 15px; background-color: #1366ce; color: #ffffff; padding: 10px 25px; font-size: 18px; font-weight: bold; display: flex; justify-content: center; align-items: center; position: relative; }
     .academy-header-bar a { position: absolute; right: 25px; }
@@ -400,7 +406,7 @@
 
     const CAMPUS_URLS = {
       "yeongtong": "https://script.google.com/macros/s/AKfycbwV5hXkSNGT2_jkCrQakQieov2OswU9x-zCBSkquarMujUqoKXdSZO_ih0OyQxftodu/exec",
-      "dongtan": "https://script.google.com/macros/s/AKfycbwMtIkLaAF85AYQgpWXsVmwftBnPKy0tOV65X8zKajto0srs4MM6pA4oRcczZHDqRcXNg/exec",
+      "dongtan": "https://script.google.com/macros/s/AKfycbwMtIkLaAF85AYQgpWXsVmwftBnPKy0tOV65X8zKajto0srs4MM6pA4oRcczZHDqRcXNg/exec"
     };
 
     function createGoogleScriptMock() {
@@ -1408,12 +1414,16 @@
             let subjPct = data.summary.subjExpected > 0 ? Math.min(100, Math.round((data.summary.subjDone / data.summary.subjExpected) * 100)) : 0;
             let sentPct = data.summary.sentExpected > 0 ? Math.min(100, Math.round((data.summary.sentDone / data.summary.sentExpected) * 100)) : 100;
             
-            let subjStyle = subjPct < 100 ? "color:#dc3545; font-weight:bold;" : "color:inherit;";
+            let subjStyle = "color:inherit;";
+            if (data.summary.subjExpected > 0) {
+                if (data.summary.subjDone === 0) subjStyle = "color:#dc3545; font-weight:bold;";
+                else if (data.summary.subjDone < data.summary.subjExpected) subjStyle = "color:#28a745; font-weight:bold;";
+            }
             
-            let sentStyleTop = "color:inherit;"; // 기본 검정색
+            let sentStyleTop = "color:inherit;"; 
             if (data.summary.sentExpected > 0) {
-                if (data.summary.sentDone === 0) sentStyleTop = "color:#dc3545; font-weight:bold;"; // 0건이면 빨간색
-                else if (data.summary.sentDone < data.summary.sentExpected) sentStyleTop = "color:#28a745; font-weight:bold;"; // 일부 완료면 초록색
+                if (data.summary.sentDone === 0) sentStyleTop = "color:#dc3545; font-weight:bold;"; 
+                else if (data.summary.sentDone < data.summary.sentExpected) sentStyleTop = "color:#28a745; font-weight:bold;"; 
             }
             
             sumHtml = ` <span style="font-size:14px; font-weight:normal;">( 이번 학기 수업개요입력 <span style="${subjStyle}">${subjPct}%</span> &nbsp;|&nbsp; 발송완료체크 <span style="${sentStyleTop}">${sentPct}%</span> )</span>`;
@@ -1478,21 +1488,21 @@
                     } else if (cellData.isHolidayEmpty) {
                         html += `<td colspan="2" style="color:#dc3545; font-weight:bold; font-size:11px; background-color:#fff0f0;">${cellData.holidayName}</td>`;
                     } else {
-                        let subjStyle = (!cellData.subjComplete && cellData.activeCount > 0) ? 'color:#dc3545; font-weight:bold;' : 'color:#333;';
-                        let sentStyle = 'color:#333;'; // 기본 검정색
+                        let subjStyle = 'color:#333;';
+                        if (cellData.activeCount > 0 && !cellData.subjComplete) {
+                            subjStyle = 'color:#dc3545; font-weight:bold;';
+                        }
                         
+                        let sentStyle = 'color:#333;';
                         if (!cellData.sentComplete && cellData.activeCount > 0) {
                             let curSentCount = parseInt(cellData.sent.split('/')[0], 10);
-                            if (curSentCount === 0) {
-                                sentStyle = 'color:#dc3545; font-weight:bold;'; // 0건이면 빨간색
-                            } else {
-                                sentStyle = 'color:#28a745; font-weight:bold;'; // 일부 완료면 초록색
-                            }
+                            if (curSentCount === 0) sentStyle = 'color:#dc3545; font-weight:bold;';
+                            else sentStyle = 'color:#28a745; font-weight:bold;';
                         }
-
+                        
                         let tdClickStyle = "cursor:pointer; user-select:none;";
                         let onDblClick = `ondblclick="openTeacherAppForCell('${data.teacherName}', '${cName}', '${row.date}')"`;
-                        
+
                         html += `<td style="${subjStyle} ${tdClickStyle}" ${onDblClick} title="더블클릭하여 해당 명단 열기">${cellData.subject}</td>
                                  <td style="${sentStyle} ${tdClickStyle}" ${onDblClick} title="더블클릭하여 해당 명단 열기">${cellData.sent}</td>`;
                     }
