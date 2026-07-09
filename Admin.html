@@ -76,7 +76,7 @@
         text-align: center; 
         margin: 0; 
         border-top: 1px solid #ced4da; 
-        border-left: none; /* 겉 테두리 좌측 제거 */
+        border-left: none; 
         border-bottom: none;
     }
     .matrix-table th, .matrix-table td { 
@@ -96,14 +96,14 @@
         border-right: 1px solid #ced4da; 
     }
     .matrix-table td { padding: 6px 4px; vertical-align: middle; }
-    .matrix-table th:last-child, .matrix-table td:last-child { border-right: none; } /* 겉 테두리 우측 제거 */
-    .matrix-table tbody tr:last-child td { border-bottom: 1px solid #eaeaea; } /* 마지막 줄 닫기 유지 */
+    .matrix-table th:last-child, .matrix-table td:last-child { border-right: none; } 
+    .matrix-table tbody tr:last-child td { border-bottom: 1px solid #eaeaea; } 
     
-    /* 2단 고정(Sticky) 정밀 픽셀 매칭 (틈새 발생 원천 차단) */
+    /* 2단 고정(Sticky) 정밀 픽셀 매칭 */
     .matrix-table thead tr:nth-child(1) th { top: 0; height: 32px; z-index: 4; box-sizing: border-box; }
     .matrix-table thead tr:nth-child(2) th { top: 32px; height: 28px; z-index: 3; box-sizing: border-box; }
     
-    /* 날짜 열 좌측 고정 - 1번줄(날짜)만 찰싹 붙고, 2번줄(수업개요)은 자연스럽게 밀려들어가도록 정밀 선택 */
+    /* 날짜 열 좌측 고정 */
     .matrix-table thead tr:nth-child(1) th:first-child { left: 0; z-index: 5 !important; }
     .matrix-table tbody td:first-child { position: sticky; left: 0; z-index: 2; border-right: 1px solid #ced4da; }
 
@@ -394,6 +394,42 @@
       <div class="modal-buttons" style="margin-bottom: 5px; display: flex; width: 100%;">
         <button class="modal-btn btn-no" style="flex:none; width: 120px; border-radius: 50px; padding: 10px 20px;" onclick="closeUploadModal()">닫기</button>
       </div>
+    </div>
+  </div>
+
+  <div class="history-overlay" id="historyOverlay" onclick="if(event.target === this) closeHistoryPopup();">
+    <div class="history-box">
+      <div class="history-header">
+        <span id="historyTitle">학생 기록 조회</span>
+        <button class="history-close-btn" onclick="closeHistoryPopup()">✕</button>
+      </div>
+      <div class="history-content">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th width="16%">날짜</th>
+              <th width="8%">과제</th>
+              <th width="8%">오답</th>
+              <th width="10%">일일테스트</th>
+              <th width="10%">주간테스트</th>
+              <th width="48%">특이사항</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody"></tbody>
+        </table>
+        <div id="historyEmpty" style="display:none; padding: 40px; text-align:center; color:#888; font-weight:bold;">해당 학기의 기록이 없습니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🟢 관리자 앱 팝업 ID 누락 해결 완료된 구역 -->
+  <div class="matrix-overlay" id="matrixOverlay" onclick="if(event.target === this) closeMatrixPopup();">
+    <div class="matrix-box">
+      <div class="matrix-header">
+        <span id="matrixTitle">선생님 학기 요약</span>
+        <button class="matrix-close-btn" onclick="closeMatrixPopup()">✕</button>
+      </div>
+      <div class="matrix-content" id="matrixContentArea"></div> 
     </div>
   </div>
 
@@ -877,7 +913,6 @@
                  let subjPct = s.classCount > 0 ? Math.min(100, Math.round((s.subjectCount / s.classCount) * 100)) : 0;
                  let sentPct = s.totalStudents > 0 ? Math.min(100, Math.round((s.totalSent / s.totalStudents) * 100)) : 100;
                  
-                 // 🟢 [수정 완료] 수업개요도 발송완료와 동일하게 0%는 빨간색, 1~99%는 초록색 분기 적용
                  let subjColor = 'color:#333;';
                  if (s.classCount > 0) {
                      if (s.subjectCount === 0) subjColor = 'color:#dc3545;';
@@ -1023,7 +1058,6 @@
             let subjPct = data.summary.subjExpected > 0 ? Math.min(100, Math.round((data.summary.subjDone / data.summary.subjExpected) * 100)) : 0;
             let sentPct = data.summary.sentExpected > 0 ? Math.min(100, Math.round((data.summary.sentDone / data.summary.sentExpected) * 100)) : 100;
             
-            // 🟢 [수정 완료] 요약 팝업 - 수업개요 퍼센트 색상 세분화 동기화
             let subjStyle = "color:inherit;";
             if (data.summary.subjExpected > 0) {
                 if (data.summary.subjDone === 0) subjStyle = "color:#dc3545; font-weight:bold;";
