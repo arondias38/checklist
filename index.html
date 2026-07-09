@@ -1305,8 +1305,13 @@
       });
     }
 
+    // 👇 [수정됨] 화면에 표시된 강의실(roomVal) 정보를 가져와서 payload에 담도록 위치 및 코드 반영
     function saveData() {
-      const teacher = document.getElementById("teacherSelect").value; const date = document.getElementById("dateInput").value; const className = document.getElementById("classSelect").value;
+      const teacher = document.getElementById("teacherSelect").value; 
+      const date = document.getElementById("dateInput").value; 
+      const className = document.getElementById("classSelect").value;
+      const roomVal = document.getElementById("dbRoom").textContent;
+      
       if(studentList.length === 0) { showCustomAlert("저장할 데이터가 없습니다."); return; }
       
       const emptyNew = studentList.filter(st => st.isNew && st.name.trim() === "");
@@ -1335,7 +1340,7 @@
             showCustomAlert(`(${fDate})<br><b>${className} 반</b><br>체크리스트가 저장되었습니다.`);
           })
           .withFailureHandler(function(err) { showLoading(false); showCustomAlert("· Error: 서버 저장 중 오류가 발생했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")"); })
-          .commitAttendanceToDatabase({ teacher, date, className, subject: currentSubject, students: studentList });
+          .commitAttendanceToDatabase({ teacher, date, className, room: roomVal, subject: currentSubject, students: studentList });
       }
     }
 
