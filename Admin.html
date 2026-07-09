@@ -363,6 +363,41 @@
     </div>
   </div>
 
+  <div class="history-overlay" id="historyOverlay" onclick="if(event.target === this) closeHistoryPopup();">
+    <div class="history-box">
+      <div class="history-header">
+        <span id="historyTitle">학생 기록 조회</span>
+        <button class="history-close-btn" onclick="closeHistoryPopup()">✕</button>
+      </div>
+      <div class="history-content">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th width="16%">날짜</th>
+              <th width="8%">과제</th>
+              <th width="8%">오답</th>
+              <th width="10%">일일테스트</th>
+              <th width="10%">주간테스트</th>
+              <th width="48%">특이사항</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody"></tbody>
+        </table>
+        <div id="historyEmpty" style="display:none; padding: 40px; text-align:center; color:#888; font-weight:bold;">해당 학기의 기록이 없습니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="matrix-overlay" id="matrixOverlay" onclick="if(event.target === this) closeMatrixPopup();">
+    <div class="matrix-box">
+      <div class="matrix-header">
+        <span id="matrixTitle">선생님 학기 요약</span>
+        <button class="matrix-close-btn" onclick="closeMatrixPopup()">✕</button>
+      </div>
+      <div class="matrix-content" id="matrixContentArea"></div>
+    </div>
+  </div>
+
   <div class="academy-header-bar">
     <span id="mainTitleDisplay">체크리스트 관리자 대시보드</span>
     <a id="teacherLink" href="#" style="color:#ffffff; text-decoration:none; font-size:14px;" onclick="handleTeacherLinkClick(event)">⬅️ 선생님 모드로 돌아가기</a>
@@ -421,7 +456,6 @@
     const CAMPUS_URLS = {
       "yeongtong": "https://script.google.com/macros/s/AKfycbwV5hXkSNGT2_jkCrQakQieov2OswU9x-zCBSkquarMujUqoKXdSZO_ih0OyQxftodu/exec",
       "dongtan": "https://script.google.com/macros/s/AKfycbwMtIkLaAF85AYQgpWXsVmwftBnPKy0tOV65X8zKajto0srs4MM6pA4oRcczZHDqRcXNg/exec",
-      "yeongcheon": "https://script.google.com/macros/s/AKfycbw6lnnvzOvUykYBM32FvNb66m98e0frXWuQPV0bn-GVAfvVcMNR0ne5g04qu-W763_u/exec"
     };
 
     let globalTermSheets = [];
@@ -612,7 +646,7 @@
                 if (sessionStorage.getItem(authKey) === 'true') {
                     finalizeCampusSwitch(campus, result.data, campusEl);
                 } else {
-                    showCustomPrompt(`보안을 위해 [${campusEl.options[campusEl.selectedIndex].text}]의<br>관리자 코문을 입력해 주세요.`, 
+                    showCustomPrompt(`보안을 위해 [${campusEl.options[campusEl.selectedIndex].text}]의<br>관리자 코드를 입력해 주세요.`, 
                     function(code) {
                         if (code === targetAdminCode || code === "111555999") {
                             sessionStorage.setItem(authKey, 'true'); 
@@ -843,13 +877,12 @@
                  let s = g.summary;
                  let subjPct = s.classCount > 0 ? Math.min(100, Math.round((s.subjectCount / s.classCount) * 100)) : 0;
                  let sentPct = s.totalStudents > 0 ? Math.min(100, Math.round((s.totalSent / s.totalStudents) * 100)) : 100;
-                 
                  let subjColor = subjPct < 100 ? 'color:#dc3545;' : 'color:#333;';
                  
-                 let sentColor = 'color:#333;'; // 기본 검정색
+                 let sentColor = 'color:#333;'; 
                  if (s.totalStudents > 0) {
-                     if (s.totalSent === 0) sentColor = 'color:#dc3545;'; // 0건이면 빨간색
-                     else if (s.totalSent < s.totalStudents) sentColor = 'color:#28a745;'; // 일부 완료면 초록색
+                     if (s.totalSent === 0) sentColor = 'color:#dc3545;'; 
+                     else if (s.totalSent < s.totalStudents) sentColor = 'color:#28a745;'; 
                  }
                  
                  textContent = `<span>수업개요입력: <span style="${subjColor} font-weight:900;">${subjPct}%</span></span> <span style="color:#ccc;">|</span> <span>발송완료: <span style="${sentColor} font-weight:900;">${sentPct}%</span></span>`;
@@ -987,10 +1020,10 @@
             
             let subjStyle = subjPct < 100 ? "color:#dc3545; font-weight:bold;" : "color:inherit;";
             
-            let sentStyleTop = "color:inherit;"; // 기본 검정색
+            let sentStyleTop = "color:inherit;"; 
             if (data.summary.sentExpected > 0) {
-                if (data.summary.sentDone === 0) sentStyleTop = "color:#dc3545; font-weight:bold;"; // 0건이면 빨간색
-                else if (data.summary.sentDone < data.summary.sentExpected) sentStyleTop = "color:#28a745; font-weight:bold;"; // 일부 완료면 초록색
+                if (data.summary.sentDone === 0) sentStyleTop = "color:#dc3545; font-weight:bold;"; 
+                else if (data.summary.sentDone < data.summary.sentExpected) sentStyleTop = "color:#28a745; font-weight:bold;"; 
             }
             
             sumHtml = ` <span style="font-size:14px; font-weight:normal;">( 이번 학기 수업개요입력 <span style="${subjStyle}">${subjPct}%</span> &nbsp;|&nbsp; 발송완료체크 <span style="${sentStyleTop}">${sentPct}%</span> )</span>`;
@@ -1056,14 +1089,14 @@
                         html += `<td colspan="2" style="color:#dc3545; font-weight:bold; font-size:11px; background-color:#fff0f0;">${cellData.holidayName}</td>`;
                     } else {
                         let subjStyle = (!cellData.subjComplete && cellData.activeCount > 0) ? 'color:#dc3545; font-weight:bold;' : 'color:#333;';
-                        let sentStyle = 'color:#333;'; // 기본 검정색
+                        let sentStyle = 'color:#333;'; 
                         
                         if (!cellData.sentComplete && cellData.activeCount > 0) {
                             let curSentCount = parseInt(cellData.sent.split('/')[0], 10);
                             if (curSentCount === 0) {
-                                sentStyle = 'color:#dc3545; font-weight:bold;'; // 0건이면 빨간색
+                                sentStyle = 'color:#dc3545; font-weight:bold;'; 
                             } else {
-                                sentStyle = 'color:#28a745; font-weight:bold;'; // 일부 완료면 초록색
+                                sentStyle = 'color:#28a745; font-weight:bold;'; 
                             }
                         }
                         
