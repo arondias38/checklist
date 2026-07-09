@@ -63,15 +63,14 @@
     .matrix-close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #888; }
     .matrix-close-btn:hover { color: #333; }
     
-    /* 🟢 요약 팝업 스크롤 3단 고정 및 틈새 완벽 방지 CSS */
-    .matrix-content { overflow: auto; flex: 1; position: relative; padding: 0; } /* padding 제거로 빈공간 차단 */
+    .matrix-content { overflow: auto; flex: 1; position: relative; padding: 0; } 
     
     .month-section { display: block; width: max-content; min-width: 100%; padding-bottom: 25px; }
     .month-section:not(:first-child) { padding-top: 20px; }
     
     .matrix-month-title { 
         position: sticky; top: 0; left: 0; z-index: 15; 
-        background-color: #ffffff; /* 투명도 없이 내용 완벽 가림 */
+        background-color: #ffffff; 
         padding: 0 15px 0 0; margin: 0; 
         font-size: 16px; font-weight: 800; color: #495057; 
         width: max-content; height: 44px; box-sizing: border-box; 
@@ -80,9 +79,7 @@
     .matrix-month-title span {
         border-left: 4px solid #d32f2f; padding-left: 8px; line-height: 1;
     }
-    /* 가로 스크롤 시 빈 공간으로 내용 비치는 현상 차단을 위한 무한 연장선 */
-    .matrix-month-title::before { content: ''; position: absolute; top: 0; right: 100%; width: 50px; height: 100%; background-color: #ffffff; }
-    .matrix-month-title::after { content: ''; position: absolute; top: 0; left: 100%; width: 3000px; height: 100%; background-color: #ffffff; }
+    /* 🟢 가로 스크롤 우주끝까지 가던 원인(3000px 가림막) 완전히 삭제됨 */
     
     .matrix-table-wrap { width: max-content; background: transparent; padding: 0 15px 0 0; box-sizing: border-box; margin-top: 0; }
     .matrix-table { 
@@ -100,11 +97,9 @@
     .matrix-table th:last-child, .matrix-table td:last-child { border-right: none; } 
     .matrix-table tbody tr:last-child td { border-bottom: 1px solid #eaeaea; } 
     
-    /* 3단 고정(Sticky) 정밀 픽셀 매칭: 44px(년월) + 32px(반명) + 28px(수업개요) */
     .matrix-table thead tr:nth-child(1) th { top: 44px; height: 32px; z-index: 10; box-sizing: border-box; }
     .matrix-table thead tr:nth-child(2) th { top: 76px; height: 28px; z-index: 9; box-sizing: border-box; }
     
-    /* 날짜 열 좌측 고정 겹침 완벽 차단 */
     .matrix-table thead tr:nth-child(1) th:first-child { left: 0; z-index: 12 !important; }
     .matrix-table tbody td:first-child { position: sticky; left: 0; z-index: 8; border-right: 1px solid #ced4da; background-color: #fff; }
 
@@ -142,7 +137,6 @@
     }
     .floating-setting-btn:hover .btn-text-wrap, .floating-upload-btn:hover .btn-text-wrap { opacity: 1; pointer-events: auto; }
     
-    /* 🟢 맨 위로 가기 스마트 플로팅 버튼 (Admin 복구 완료) */
     .floating-top-btn {
       position: fixed; bottom: 25px; right: 25px; 
       height: 36px; width: 36px; border-radius: 18px;
