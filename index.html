@@ -283,7 +283,7 @@
     <a id="adminLink" href="#" oncontextmenu="return false;" style="color:#a0bfdc; text-decoration:none; font-size:12px; font-weight:normal; user-select:none; -webkit-user-select:none; cursor:pointer;" onclick="if(checkLockdown(event)) return false; promptAdminCode(event);">⚙️ 관리자</a>
   </div>
 
-  <div style="position: absolute; right: 25px; margin-top: 6px; font-size: 11px; color: #adb5bd; font-family: 'Pretendard', sans-serif; letter-spacing: 0.5px; z-index: 10;">v.26.07.09-01</div>
+  <div style="position: absolute; right: 25px; margin-top: 6px; font-size: 11px; color: #adb5bd; font-family: 'Pretendard', sans-serif; letter-spacing: 0.5px; z-index: 10;">v.26.07.06-01</div>
 
   <div class="app-body">
     <div class="header-bar">
@@ -293,7 +293,6 @@
           <option value="" disabled selected hidden>캠퍼스 선택</option>
           <option value="yeongtong">SG영통청운학원</option>
           <option value="dongtan">SG동탄청운학원</option>
-          <option value="yeongcheon">SG동탄청운학원-영천점</option>
         </select>
       </div>
 
@@ -397,6 +396,7 @@
 
   <script>
     window.loadedState = null;
+    window.autoLoadParams = null; // 🟢 더블클릭 연동용 오토로드 파라미터 컨테이너
 
     const CAMPUS_URLS = {
       "yeongtong": "https://script.google.com/macros/s/AKfycbwV5hXkSNGT2_jkCrQakQieov2OswU9x-zCBSkquarMujUqoKXdSZO_ih0OyQxftodu/exec",
@@ -519,6 +519,14 @@
       const urlParams = new URLSearchParams(window.location.search);
       const campus = urlParams.get('campus');
       if (campus) {
+         // 🟢 더블클릭 연동으로 전달된 파라미터가 있다면 오토로드 컨테이너에 임시 보관
+         const tParam = urlParams.get('teacher');
+         const cParam = urlParams.get('class');
+         const dParam = urlParams.get('date');
+         if (tParam || cParam || dParam) {
+             window.autoLoadParams = { teacher: tParam, className: cParam, date: dParam };
+         }
+         
          document.getElementById("campusSelect").value = campus;
          onCampusChange();
       } else {
@@ -564,6 +572,20 @@
             const select = document.getElementById("teacherSelect");
             data.teachers.forEach(t => { let opt = document.createElement("option"); opt.value = t; opt.textContent = t; select.appendChild(opt); });
             select.disabled = false;
+
+            // 🟢 오토로드 1단계: 선생님 자동 선택
+            if (window.autoLoadParams && window.autoLoadParams.teacher) {
+                let options = Array.from(select.options).map(o => o.value);
+                if (options.includes(window.autoLoadParams.teacher)) {
+                    select.value = window.autoLoadParams.teacher;
+                    select.dataset.prev = window.autoLoadParams.teacher;
+                    window.autoLoadParams.teacher = null; // 사용 후 폐기
+                    onTeacherChange();
+                } else {
+                    window.autoLoadParams = null; // 유효하지 않으면 연동 중단
+                }
+            }
+
         }).withFailureHandler(function(err) {
             showLoading(false);
             showCustomAlert("· Error: 데이터를 불러오지 못했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
@@ -668,6 +690,20 @@
            classSelect.appendChild(opt); 
         });
         classSelect.disabled = false;
+
+        // 🟢 오토로드 2단계: 반 자동 선택
+        if (window.autoLoadParams && window.autoLoadParams.className) {
+            let options = Array.from(classSelect.options).map(o => o.value);
+            if (options.includes(window.autoLoadParams.className)) {
+                classSelect.value = window.autoLoadParams.className;
+                let cName = window.autoLoadParams.className;
+                window.autoLoadParams.className = null;
+                finalizeClassChange(cName);
+            } else {
+                window.autoLoadParams = null;
+            }
+        }
+
       }).getClassesForTeacher(teacher); 
     }
 
@@ -709,12 +745,23 @@
     function finalizeClassChange(val) {
         const classSelect = document.getElementById("classSelect");
         classSelect.dataset.prev = val;
-        if(classMetaSchedule[val].status !== "current") {
+        if(classMetaSchedule[val] && classMetaSchedule[val].status !== "current") {
             classSelect.style.color = "#b0b0b0"; 
         } else {
             classSelect.style.color = "#333";
         }
-        onClassSelectAutoTrigger();
+        
+        // 🟢 오토로드 3단계: 날짜 자동 입력 및 조회 실행
+        if (window.autoLoadParams && window.autoLoadParams.date) {
+            onClassChange();
+            let dateInput = document.getElementById("dateInput");
+            dateInput.value = window.autoLoadParams.date;
+            dateInput.dataset.prev = window.autoLoadParams.date;
+            window.autoLoadParams.date = null;
+            onDateInputChange();
+        } else {
+            onClassSelectAutoTrigger();
+        }
     }
 
     function onClassChange() {
@@ -1044,7 +1091,6 @@
              }
           };
 
-          // 🟢 [NEW] 한글(HWP) 및 엑셀 스마트 다중 붙여넣기 + 메모장 단일 셀 복사 지원 로직
           input.onpaste = function(e) {
              e.preventDefault();
              let clipboardData = (e.clipboardData || window.clipboardData);
@@ -1060,16 +1106,12 @@
              let hasHtmlTable = htmlData && /<table/i.test(htmlData);
              
              let useHtmlParser = !hasTabs && hasHtmlTable;
-             
-             // 🟢 [추가] 탭(\t)이 없고, HTML 표 구조가 없는 경우 = 메모장/일반 텍스트 에디터 복사
              let isPureText = !hasTabs && !hasHtmlTable;
 
              if (isPureText) {
-                 // 메모장에서 복사한 줄바꿈 텍스트는 행(Row)을 나누지 않고 하나의 셀 데이터로 묶음
                  rows = [[pasteText.replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\n$/, '')]];
              }
              else if (useHtmlParser) {
-                 // 한글(HWP) 표나 웹 표 복사 시
                  try {
                      let tempDiv = document.createElement('div');
                      let safeHtml = htmlData.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
@@ -1108,7 +1150,6 @@
                  }
              }
 
-             // HTML 파싱을 안 했거나 에러가 났다면 기존 엑셀 파서 실행
              if (rows.length === 0 && pasteText && !isPureText) {
                  let currentRow = [];
                  let currentCell = "";
@@ -1159,7 +1200,6 @@
                  }
              }
 
-             // 화면(input)에 매핑 로직
              let startRow = parseInt(this.dataset.row);
              let startCol = parseInt(this.dataset.col);
 
@@ -1181,8 +1221,6 @@
                      let field = colFieldMap[targetColIdx];
                      let val = cols[j];
 
-                     // 💡 [추천 개선사항 적용] 특이사항(note)이 아닌 일반 입력칸(과제, 이름 등)에
-                     // 줄바꿈이 있는 텍스트가 들어갈 경우, 화면 및 데이터 깨짐 방지를 위해 스페이스(공백)로 치환합니다.
                      if (targetColIdx !== 7 && val.includes('\n')) {
                          val = val.replace(/\n/g, ' ').trim();
                      }
@@ -1305,7 +1343,6 @@
       });
     }
 
-    // 👇 [수정됨] 화면에 표시된 강의실(roomVal) 정보를 가져와서 payload에 담도록 위치 및 코드 반영
     function saveData() {
       const teacher = document.getElementById("teacherSelect").value; 
       const date = document.getElementById("dateInput").value; 
@@ -1344,6 +1381,13 @@
       }
     }
 
+    // 🟢 더블클릭 연동으로 새 창에 파라미터 전달하여 선생님 앱 열기
+    function openTeacherAppForCell(teacher, className, dateStr) {
+        const campus = document.getElementById("campusSelect").value;
+        let url = `index.html?campus=${encodeURIComponent(campus)}&teacher=${encodeURIComponent(teacher)}&class=${encodeURIComponent(className)}&date=${encodeURIComponent(dateStr)}`;
+        window.open(url, '_blank');
+    }
+
     function openTeacherMatrixPopup(teacherName) {
         const dateVal = document.getElementById("dateInput").value;
         if (!dateVal) { showCustomAlert("조회할 날짜를 먼저 선택해 주세요."); return; }
@@ -1371,9 +1415,14 @@
             let sentPct = data.summary.sentExpected > 0 ? Math.min(100, Math.round((data.summary.sentDone / data.summary.sentExpected) * 100)) : 100;
             
             let subjStyle = subjPct < 100 ? "color:#dc3545; font-weight:bold;" : "color:inherit;";
-            let sentStyle = sentPct < 100 ? "color:#dc3545; font-weight:bold;" : "color:inherit;";
             
-            sumHtml = ` <span style="font-size:14px; font-weight:normal;">( 이번 학기 수업개요입력 <span style="${subjStyle}">${subjPct}%</span> &nbsp;|&nbsp; 발송완료체크 <span style="${sentStyle}">${sentPct}%</span> )</span>`;
+            let sentStyleTop = "color:inherit;"; // 기본 검정색
+            if (data.summary.sentExpected > 0) {
+                if (data.summary.sentDone === 0) sentStyleTop = "color:#dc3545; font-weight:bold;"; // 0건이면 빨간색
+                else if (data.summary.sentDone < data.summary.sentExpected) sentStyleTop = "color:#28a745; font-weight:bold;"; // 일부 완료면 초록색
+            }
+            
+            sumHtml = ` <span style="font-size:14px; font-weight:normal;">( 이번 학기 수업개요입력 <span style="${subjStyle}">${subjPct}%</span> &nbsp;|&nbsp; 발송완료체크 <span style="${sentStyleTop}">${sentPct}%</span> )</span>`;
         }
         document.getElementById("matrixTitle").innerHTML = `<b>${data.teacherName}</b> 선생님 학기 요약${sumHtml}`;
         
@@ -1436,9 +1485,22 @@
                         html += `<td colspan="2" style="color:#dc3545; font-weight:bold; font-size:11px; background-color:#fff0f0;">${cellData.holidayName}</td>`;
                     } else {
                         let subjStyle = (!cellData.subjComplete && cellData.activeCount > 0) ? 'color:#dc3545; font-weight:bold;' : 'color:#333;';
-                        let sentStyle = (!cellData.sentComplete && cellData.activeCount > 0) ? 'color:#dc3545; font-weight:bold;' : 'color:#333;';
-                        html += `<td style="${subjStyle}">${cellData.subject}</td>
-                                 <td style="${sentStyle}">${cellData.sent}</td>`;
+                        let sentStyle = 'color:#333;'; // 기본 검정색
+                        
+                        if (!cellData.sentComplete && cellData.activeCount > 0) {
+                            let curSentCount = parseInt(cellData.sent.split('/')[0], 10);
+                            if (curSentCount === 0) {
+                                sentStyle = 'color:#dc3545; font-weight:bold;'; // 0건이면 빨간색
+                            } else {
+                                sentStyle = 'color:#28a745; font-weight:bold;'; // 일부 완료면 초록색
+                            }
+                        }
+
+                        let tdClickStyle = "cursor:pointer; user-select:none;";
+                        let onDblClick = `ondblclick="openTeacherAppForCell('${data.teacherName}', '${cName}', '${row.date}')"`;
+                        
+                        html += `<td style="${subjStyle} ${tdClickStyle}" ${onDblClick} title="더블클릭하여 해당 명단 열기">${cellData.subject}</td>
+                                 <td style="${sentStyle} ${tdClickStyle}" ${onDblClick} title="더블클릭하여 해당 명단 열기">${cellData.sent}</td>`;
                     }
                 });
                 html += `</tr>`;
