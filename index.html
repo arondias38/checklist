@@ -50,25 +50,27 @@
     .matrix-close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #888; }
     .matrix-close-btn:hover { color: #333; }
     
-    /* 🟢 요약 팝업 스크롤 3단 고정 및 겹침 방지 CSS (선생님 앱 파란색 테마 적용) */
-    .matrix-content { overflow: auto; flex: 1; position: relative; padding-top: 10px; }
+    /* 🟢 요약 팝업 스크롤 3단 고정 및 틈새 완벽 방지 CSS (선생님 앱 테마 적용) */
+    .matrix-content { overflow: auto; flex: 1; position: relative; padding: 0; } 
     
-    .month-section { display: block; width: max-content; min-width: 100%; margin-bottom: 30px; }
+    .month-section { display: block; width: max-content; min-width: 100%; padding-bottom: 25px; }
+    .month-section:not(:first-child) { padding-top: 20px; }
     
     .matrix-month-title { 
         position: sticky; top: 0; left: 0; z-index: 15; 
         background-color: #ffffff; 
-        padding: 10px 15px 10px 0; margin: 0; 
+        padding: 0 15px 0 0; margin: 0; 
         font-size: 16px; font-weight: 800; color: #495057; 
-        width: max-content; height: 48px; box-sizing: border-box; 
+        width: max-content; height: 44px; box-sizing: border-box; 
         display: flex; align-items: center; 
     }
-    .matrix-month-title::after { 
-        content: ''; position: absolute; top: 0; left: 100%; 
-        width: 3000px; height: 100%; background-color: #ffffff; 
+    .matrix-month-title span {
+        border-left: 4px solid #1366ce; padding-left: 8px; line-height: 1;
     }
+    .matrix-month-title::before { content: ''; position: absolute; top: 0; right: 100%; width: 50px; height: 100%; background-color: #ffffff; }
+    .matrix-month-title::after { content: ''; position: absolute; top: 0; left: 100%; width: 3000px; height: 100%; background-color: #ffffff; }
     
-    .matrix-table-wrap { width: max-content; background: transparent; padding: 0 15px 0 0; box-sizing: border-box; }
+    .matrix-table-wrap { width: max-content; background: transparent; padding: 0 15px 0 0; box-sizing: border-box; margin-top: 0; }
     .matrix-table { 
         width: max-content; border-collapse: separate; border-spacing: 0; 
         font-size: 12px; text-align: center; margin: 0; 
@@ -84,16 +86,18 @@
     .matrix-table th:last-child, .matrix-table td:last-child { border-right: none; } 
     .matrix-table tbody tr:last-child td { border-bottom: 1px solid #eaeaea; } 
     
-    .matrix-table thead tr:nth-child(1) th { top: 48px; height: 32px; z-index: 10; box-sizing: border-box; } 
-    .matrix-table thead tr:nth-child(2) th { top: 80px; height: 28px; z-index: 9; box-sizing: border-box; } 
+    /* 3단 고정(Sticky) 정밀 픽셀 매칭 */
+    .matrix-table thead tr:nth-child(1) th { top: 44px; height: 32px; z-index: 10; box-sizing: border-box; }
+    .matrix-table thead tr:nth-child(2) th { top: 76px; height: 28px; z-index: 9; box-sizing: border-box; }
     
+    /* 날짜 열 좌측 고정 겹침 완벽 차단 */
     .matrix-table thead tr:nth-child(1) th:first-child { left: 0; z-index: 12 !important; }
-    .matrix-table tbody td:first-child { position: sticky; left: 0; z-index: 8; border-right: 1px solid #ced4da; }
+    .matrix-table tbody td:first-child { position: sticky; left: 0; z-index: 8; border-right: 1px solid #ced4da; background-color: #fff; }
 
     .academy-header-bar { margin-top: 15px; background-color: #1366ce; color: #ffffff; padding: 10px 25px; font-size: 18px; font-weight: bold; display: flex; justify-content: center; align-items: center; position: relative; }
     .academy-header-bar a { position: absolute; right: 25px; }
     
-    /* 🟢 맨 위로 가기 스마트 플로팅 버튼 CSS (스르륵 효과 및 즉시 상단 이동) */
+    /* 🟢 맨 위로 가기 스마트 플로팅 버튼 CSS */
     .floating-top-btn {
       position: fixed; bottom: 25px; right: 25px; 
       height: 36px; width: 36px; border-radius: 18px;
@@ -1578,7 +1582,16 @@
       showLoading(true, "해당 학생의 학기 기록을 불러오는 중입니다...");
       document.getElementById("historyTitle").innerHTML = `<b>${studentName}</b> 학생 기록 <span style="font-size:13px; color:#666; font-weight:normal;">(${className})</span>`;
       
-      createGoogleScriptMock().getStudentHistory(teacher, className, studentName, dateVal);
+      google.script.run
+        .withSuccessHandler(function(historyData) {
+          showLoading(false);
+          renderHistoryPopup(historyData);
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showCustomAlert("· Error: 기록을 불러오지 못했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+        })
+        .getStudentHistory(teacher, className, studentName, dateVal);
     }
 
     function renderHistoryPopup(data) {
