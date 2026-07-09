@@ -63,7 +63,7 @@
         text-align: center; 
         margin: 0; 
         border-top: 1px solid #ced4da; 
-        border-left: none; /* 겉 테두리 좌측 제거 */
+        border-left: none; 
         border-bottom: none;
     }
     .matrix-table th, .matrix-table td { 
@@ -83,28 +83,35 @@
         border-right: 1px solid #ced4da; 
     }
     .matrix-table td { padding: 6px 4px; vertical-align: middle; }
-    .matrix-table th:last-child, .matrix-table td:last-child { border-right: none; } /* 겉 테두리 우측 제거 */
-    .matrix-table tbody tr:last-child td { border-bottom: 1px solid #eaeaea; } /* 마지막 줄 닫기 유지 */
+    .matrix-table th:last-child, .matrix-table td:last-child { border-right: none; } 
+    .matrix-table tbody tr:last-child td { border-bottom: 1px solid #eaeaea; } 
     
     /* 2단 고정(Sticky) 정밀 픽셀 매칭 */
     .matrix-table thead tr:nth-child(1) th { top: 0; height: 32px; z-index: 4; box-sizing: border-box; }
     .matrix-table thead tr:nth-child(2) th { top: 32px; height: 28px; z-index: 3; box-sizing: border-box; }
     
-    /* 날짜 열 좌측 고정 - 1번줄(날짜)만 찰싹 붙고, 2번줄(수업개요)은 자연스럽게 밀려들어가도록 정밀 선택 */
+    /* 날짜 열 좌측 고정 */
     .matrix-table thead tr:nth-child(1) th:first-child { left: 0; z-index: 5 !important; }
     .matrix-table tbody td:first-child { position: sticky; left: 0; z-index: 2; border-right: 1px solid #ced4da; }
 
     .academy-header-bar { margin-top: 15px; background-color: #1366ce; color: #ffffff; padding: 10px 25px; font-size: 18px; font-weight: bold; display: flex; justify-content: center; align-items: center; position: relative; }
     .academy-header-bar a { position: absolute; right: 25px; }
     
-    /* 🟢 맨 위로 스크롤 버튼 CSS */
+    /* 🟢 맨 위로 가기 스마트 플로팅 버튼 CSS (스르륵 효과 반영) */
     .floating-top-btn {
       position: fixed; bottom: 25px; right: 25px; 
       height: 36px; width: 36px; border-radius: 18px;
       background-color: #ffffff; color: #495057; border: 1px solid #ced4da;
       box-shadow: 0 4px 10px rgba(0,0,0,0.25); cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      z-index: 9999; transition: background-color 0.2s, transform 0.2s;
+      z-index: 9999; 
+      opacity: 0; 
+      pointer-events: none; 
+      transition: opacity 0.3s, background-color 0.2s, transform 0.2s; 
+    }
+    .floating-top-btn.show {
+      opacity: 1;
+      pointer-events: auto; 
     }
     .floating-top-btn:hover { background-color: #f8f9fa; transform: translateY(-2px); }
     .floating-top-btn:active { transform: translateY(0); }
@@ -276,7 +283,7 @@
 </head>
 <body>
 
-  <<button class="floating-top-btn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });" title="맨 위로 이동">
+  <button class="floating-top-btn" id="scrollTopBtn" onclick="window.scrollTo(0, 0);" title="맨 위로 이동">
     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#495057" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <line x1="5" y1="3" x2="19" y2="3"></line>
       <polyline points="6 15 12 9 18 15"></polyline>
@@ -338,7 +345,7 @@
     <a id="adminLink" href="#" oncontextmenu="return false;" style="color:#a0bfdc; text-decoration:none; font-size:12px; font-weight:normal; user-select:none; -webkit-user-select:none; cursor:pointer;" onclick="if(checkLockdown(event)) return false; promptAdminCode(event);">⚙️ 관리자</a>
   </div>
 
-  <div style="position: absolute; right: 25px; margin-top: 6px; font-size: 11px; color: #adb5bd; font-family: 'Pretendard', sans-serif; letter-spacing: 0.5px; z-index: 10;">v.26.07.10-01</div>
+  <div style="position: absolute; right: 25px; margin-top: 6px; font-size: 11px; color: #adb5bd; font-family: 'Pretendard', sans-serif; letter-spacing: 0.5px; z-index: 10;">v.26.07.06-01</div>
 
   <div class="app-body">
     <div class="header-bar">
@@ -1619,6 +1626,18 @@
     function closeHistoryPopup() {
       document.getElementById("historyOverlay").style.display = "none";
     }
+
+    /* 🟢 스크롤 감지 리스너 추가 (200px 이상 도달 시 클래스 부여하여 노출 제어) */
+    window.addEventListener('scroll', function() {
+      const topBtn = document.getElementById('scrollTopBtn');
+      if (topBtn) {
+        if (window.scrollY > 200) {
+          topBtn.classList.add('show');
+        } else {
+          topBtn.classList.remove('show');
+        }
+      }
+    });
 
     window.addEventListener('keydown', function(e) {
       const modal = document.getElementById('customModalOverlay');
