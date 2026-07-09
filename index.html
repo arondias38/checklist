@@ -63,7 +63,8 @@
         text-align: center; 
         margin: 0; 
         border-top: 1px solid #ced4da; 
-        border-left: 1px solid #ced4da; 
+        border-left: none; /* 겉 테두리 좌측 제거 */
+        border-bottom: none;
     }
     .matrix-table th, .matrix-table td { 
         border-top: none; 
@@ -82,15 +83,16 @@
         border-right: 1px solid #ced4da; 
     }
     .matrix-table td { padding: 6px 4px; vertical-align: middle; }
-    .matrix-table tbody tr:last-child td { border-bottom: 1px solid #eaeaea; } 
+    .matrix-table th:last-child, .matrix-table td:last-child { border-right: none; } /* 겉 테두리 우측 제거 */
+    .matrix-table tbody tr:last-child td { border-bottom: 1px solid #eaeaea; } /* 마지막 줄 닫기 유지 */
     
     /* 2단 고정(Sticky) 정밀 픽셀 매칭 (틈새 발생 원천 차단) */
     .matrix-table thead tr:nth-child(1) th { top: 0; height: 32px; z-index: 4; box-sizing: border-box; }
     .matrix-table thead tr:nth-child(2) th { top: 32px; height: 28px; z-index: 3; box-sizing: border-box; }
     
-    /* 날짜 열 좌측 고정 (우측 스크롤 시 안 넘어가게) */
-    .matrix-table th:first-child { left: 0; z-index: 5 !important; }
-    .matrix-table td:first-child { position: sticky; left: 0; z-index: 2; border-right: 1px solid #ced4da; }
+    /* 날짜 열 좌측 고정 - 1번줄(날짜)만 찰싹 붙고, 2번줄(수업개요)은 자연스럽게 밀려들어가도록 정밀 선택 */
+    .matrix-table thead tr:nth-child(1) th:first-child { left: 0; z-index: 5 !important; }
+    .matrix-table tbody td:first-child { position: sticky; left: 0; z-index: 2; border-right: 1px solid #ced4da; }
 
     .academy-header-bar { margin-top: 15px; background-color: #1366ce; color: #ffffff; padding: 10px 25px; font-size: 18px; font-weight: bold; display: flex; justify-content: center; align-items: center; position: relative; }
     .academy-header-bar a { position: absolute; right: 25px; }
@@ -1408,7 +1410,6 @@
       }
     }
 
-    // 🟢 더블클릭 연동으로 새 창에 파라미터 전달하여 선생님 앱 열기
     function openTeacherAppForCell(teacher, className, dateStr) {
         const campus = document.getElementById("campusSelect").value;
         let url = `index.html?campus=${encodeURIComponent(campus)}&teacher=${encodeURIComponent(teacher)}&class=${encodeURIComponent(className)}&date=${encodeURIComponent(dateStr)}`;
@@ -1441,7 +1442,6 @@
             let subjPct = data.summary.subjExpected > 0 ? Math.min(100, Math.round((data.summary.subjDone / data.summary.subjExpected) * 100)) : 0;
             let sentPct = data.summary.sentExpected > 0 ? Math.min(100, Math.round((data.summary.sentDone / data.summary.sentExpected) * 100)) : 100;
             
-            // 🟢 [수정] 요약 팝업 - 수업개요 퍼센트 색상 세분화 적용 완료
             let subjStyle = "color:inherit;";
             if (data.summary.subjExpected > 0) {
                 if (data.summary.subjDone === 0) subjStyle = "color:#dc3545; font-weight:bold;";
