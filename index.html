@@ -50,11 +50,16 @@
     .matrix-close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #888; }
     .matrix-close-btn:hover { color: #333; }
     
-    /* 🟢 요약 팝업 스크롤 틈새 및 테두리 소실 방지 완벽 대응 CSS */
     .matrix-content { overflow: auto; flex: 1; position: relative; }
-    .matrix-month-title { font-size: 16px; font-weight: 800; color: #495057; margin: 20px 0 10px 0; border-left: 4px solid #1366ce; padding-left: 8px; text-align: left; }
     
-    .matrix-table-wrap { width: max-content; background: transparent; margin-bottom: 15px; padding: 0 15px 0 0; box-sizing: border-box; }
+    /* 🟢 월별 스크롤 동시 고정을 위한 구획 컨테이너 및 Sticky 타이틀 지정 */
+    .matrix-month-section { position: relative; margin-bottom: 15px; }
+    .matrix-month-title { 
+        font-size: 16px; font-weight: 800; color: #495057; margin: 0; border-left: 4px solid #1366ce; padding: 12px 0 12px 8px; text-align: left; 
+        position: sticky; top: 0; left: 0; background-color: #ffffff; z-index: 6; width: 100%; box-sizing: border-box; height: 45px; 
+    }
+    
+    .matrix-table-wrap { width: max-content; background: transparent; margin-bottom: 0; padding: 0 15px 0 0; box-sizing: border-box; }
     .matrix-table { 
         width: max-content; 
         border-collapse: separate; 
@@ -86,18 +91,16 @@
     .matrix-table th:last-child, .matrix-table td:last-child { border-right: none; } 
     .matrix-table tbody tr:last-child td { border-bottom: 1px solid #eaeaea; } 
     
-    /* 2단 고정(Sticky) 정밀 픽셀 매칭 */
-    .matrix-table thead tr:nth-child(1) th { top: 0; height: 32px; z-index: 4; box-sizing: border-box; }
-    .matrix-table thead tr:nth-child(2) th { top: 32px; height: 28px; z-index: 3; box-sizing: border-box; }
+    /* 🟢 상단 년월 타이틀 높이(45px)만큼 Sticky 시작 위치 조정 */
+    .matrix-table thead tr:nth-child(1) th { top: 45px; height: 32px; z-index: 4; box-sizing: border-box; }
+    .matrix-table thead tr:nth-child(2) th { top: 77px; height: 28px; z-index: 3; box-sizing: border-box; }
     
-    /* 날짜 열 좌측 고정 */
     .matrix-table thead tr:nth-child(1) th:first-child { left: 0; z-index: 5 !important; }
     .matrix-table tbody td:first-child { position: sticky; left: 0; z-index: 2; border-right: 1px solid #ced4da; }
 
     .academy-header-bar { margin-top: 15px; background-color: #1366ce; color: #ffffff; padding: 10px 25px; font-size: 18px; font-weight: bold; display: flex; justify-content: center; align-items: center; position: relative; }
     .academy-header-bar a { position: absolute; right: 25px; }
     
-    /* 🟢 맨 위로 가기 스마트 플로팅 버튼 CSS (스르륵 효과 반영) */
     .floating-top-btn {
       position: fixed; bottom: 25px; right: 25px; 
       height: 36px; width: 36px; border-radius: 18px;
@@ -1255,7 +1258,7 @@
                  if (rows.length > 0 && rows[rows.length - 1].length === 1 && rows[rows.length - 1][0] === "") {
                      rows.pop();
                  }
-             }
+              }
 
              let startRow = parseInt(this.dataset.row);
              let startCol = parseInt(this.dataset.col);
@@ -1497,6 +1500,8 @@
         
         let html = "";
         data.months.forEach(monthObj => {
+            /* 🟢 가로/세로 스크롤 동시 고정을 위한 구획화 섹션 마크업 반영 */
+            html += `<div class="matrix-month-section">`;
             html += `<div class="matrix-month-title">${monthObj.month}</div>`;
             html += `<div class="matrix-table-wrap">
                         <table class="matrix-table">
@@ -1566,7 +1571,7 @@
                 html += `</tr>`;
             });
             
-            html += `</tbody></table></div>`;
+            html += `</tbody></table></div></div>`;
         });
         
         contentArea.innerHTML = html;
@@ -1627,7 +1632,6 @@
       document.getElementById("historyOverlay").style.display = "none";
     }
 
-    /* 🟢 스크롤 감지 리스너 추가 (200px 이상 도달 시 클래스 부여하여 노출 제어) */
     window.addEventListener('scroll', function() {
       const topBtn = document.getElementById('scrollTopBtn');
       if (topBtn) {
