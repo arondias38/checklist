@@ -40,7 +40,7 @@
     .setting-section { text-align: left; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eaeaea; height: 120px; box-sizing: border-box; display: flex; flex-direction: column; }
     .setting-section.last { border-bottom: none; margin-bottom: 0; padding-bottom: 0; height: 104px; }
     .setting-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0; }
-    .setting-desc { font-size: 13px; color: #666; line-height: 1.4; margin-bottom: auto; }
+    .setting-desc { font-size: 13px; color: #666; line-height: 1.4; margin-bottom: auto; } 
     .setting-input { display: flex; gap: 10px; align-items: center; flex-shrink: 0; height: 30px; }
 
     .history-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 10001; justify-content: center; align-items: center; }
@@ -174,7 +174,6 @@
     .select-group { display: flex; align-items: center; gap: 10px; position: relative; }
     label { font-weight: bold; font-size: 14px; color: #333; }
     
-    /* 🟢 선생님 앱과 동일한 14px로 정밀 롤백 적용 완료 */
     select, input[type="date"] { 
       width: 190px; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: normal; color: #333; outline: none; height: 38px; box-sizing: border-box; cursor: pointer; 
     }
@@ -188,7 +187,6 @@
     #upTermName:invalid { color: #b0b0b0 !important; }
     
     .custom-date-wrapper { position: relative; width: 190px; height: 38px; cursor: pointer; overflow: hidden; }
-    /* 🟢 선생님 앱과 동일한 14px로 정밀 롤백 적용 완료 */
     .date-display { width: 100%; height: 100%; border: 1px solid #ced4da; border-radius: 4px; padding: 8px 12px; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: normal; color: #888888; background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23333"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center; background-size: 20px; display: flex; align-items: center; box-sizing: border-box; position: absolute; top:0; left:0; z-index: 1; pointer-events: none; }
     .date-display.selected { color: #333; }
     .hidden-date-input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; box-sizing: border-box; border: none; padding: 0; margin: 0; }
@@ -494,7 +492,7 @@
     <a id="teacherLink" href="#" style="color:#ffffff; text-decoration:none; font-size:14px;" onclick="handleTeacherLinkClick(event)">⬅️ 선생님 모드로 돌아가기</a>
   </div>
 
-  <div style="position: absolute; right: 25px; margin-top: 6px; font-size: 11px; color: #adb5bd; font-family: 'Pretendard', sans-serif; letter-spacing: 0.5px; z-index: 10;">v.26.07.10-04</div>
+  <div style="position: absolute; right: 25px; margin-top: 6px; font-size: 11px; color: #adb5bd; font-family: 'Pretendard', sans-serif; letter-spacing: 0.5px; z-index: 10;">v.26.07.10-05</div>
 
   <div class="app-body">
     <div class="header-bar">
@@ -1004,7 +1002,6 @@
              
              group.classChunksArray.forEach(chunk => {
                  let clsName = chunk.name;
-                 /* 🟢 클래스 서브 헤더와 표를 하나의 class-group으로 묶음 */
                  html += `<div class="class-group">`;
                  html += `<div class="class-sub-header">▶ 반명: ${clsName}</div>`;
                  html += `<table><thead><tr><th width="4%">No.</th><th width="8%">학생명</th><th width="5%">학교</th><th width="4%">학년</th><th width="20%">금일수업개요</th><th width="5%">과제</th><th width="5%">오답</th><th width="5%">일일테스트</th><th width="5%">주간테스트</th><th width="18%">학생별 특이사항 / 보강계획</th><th width="6%">발송완료</th><th width="6%">관리자 확인<br><label style="display:inline-flex; align-items:center; cursor:pointer; justify-content:center;"><input type="checkbox" class="master-checkbox" style="margin:4px 2px;" data-teacher="${group.teacher}" data-class="${clsName}" onchange="toggleAdminChunkMaster(this)"></label></th></tr></thead><tbody>`;
@@ -1022,7 +1019,7 @@
                     html += `<tr><td style="background-color:#f8f9fa;">${String(idx + 1).padStart(2, '0')}</td><td style="padding-right:6px;"><div class="readonly-text" style="position:relative; display:flex; justify-content:center; align-items:center; width:100%; min-height:20px;"><b>${r.studentName}</b><div style="position:absolute; right:2px; display:flex;">${searchIcon}</div></div></td><td><div class="readonly-text">${r.school || '-'}</div></td><td><div class="readonly-text">${r.grade || '-'}</div></td><td><div class="readonly-note">${displaySubject}</div></td><td><div class="readonly-text">${r.evalScore || '-'}</div></td><td><div class="readonly-text">${r.wrongScore || '-'}</div></td><td><div class="readonly-text">${r.dailyTest || '-'}</div></td><td><div class="readonly-text">${r.weeklyTest || '-'}</div></td><td>${noteHtml}</td><td>${sendCheckHtml}</td><td>${leadCheckHtml}</td></tr>`;
                  });
                  html += `</tbody></table>`;
-                 html += `</div>`; /* class-group 닫기 */
+                 html += `</div>`; 
              });
              html += `</div>`;
              content.innerHTML += html;
@@ -1165,10 +1162,10 @@
             
             data.classes.forEach(cName => {
                 html += `<th>
-                             <div style="width: 75px; padding: 6px 0; margin: 0 auto; font-size: 12px; box-sizing: border-box;">수업개요</div>
+                             <div style="width: 75px; padding: 6px 0; margin: 0 auto; font-size: 11px; box-sizing: border-box;">수업개요</div>
                          </th>
                          <th>
-                             <div style="width: 75px; padding: 6px 0; margin: 0 auto; font-size: 12px; box-sizing: border-box;">발송완료</div>
+                             <div style="width: 75px; padding: 6px 0; margin: 0 auto; font-size: 11px; box-sizing: border-box;">발송완료</div>
                          </th>`;
             });
             html += `</tr></thead><tbody>`;
@@ -1192,7 +1189,7 @@
                     if (!cellData.isActive) {
                         html += `<td style="background-color:#f8f9fa;"></td><td style="background-color:#f8f9fa;"></td>`;
                     } else if (cellData.isHolidayEmpty) {
-                        html += `<td colspan="2" style="color:#dc3545; font-weight:bold; font-size:12px; background-color:#fff0f0;">${cellData.holidayName}</td>`;
+                        html += `<td colspan="2" style="color:#dc3545; font-weight:bold; font-size:11px; background-color:#fff0f0;">${cellData.holidayName}</td>`;
                     } else {
                         let subjStyle = 'color:#333;';
                         if (cellData.activeCount > 0 && !cellData.subjComplete) {
@@ -1234,7 +1231,16 @@
       showLoading(true, "해당 학생의 학기 기록을 불러오는 중입니다...");
       document.getElementById("historyTitle").innerHTML = `<b>${studentName}</b> 학생 기록 <span style="font-size:14px; color:#666; font-weight:normal;">(${className})</span>`;
       
-      createGoogleScriptMock().getStudentHistory(teacher, className, studentName, dateVal);
+      google.script.run
+        .withSuccessHandler(function(historyData) {
+          showLoading(false);
+          renderHistoryPopup(historyData);
+        })
+        .withFailureHandler(function(err) {
+          showLoading(false);
+          showCustomAlert("· Error: 기록을 불러오지 못했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+        })
+        .getStudentHistory(teacher, className, studentName, dateVal);
     }
 
     function renderHistoryPopup(data) {
