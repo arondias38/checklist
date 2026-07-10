@@ -50,16 +50,23 @@
     .matrix-close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #888; }
     .matrix-close-btn:hover { color: #333; }
     
+    /* 🟢 가로 스크롤 시 표 투과 방지를 위한 구획 및 이중 Sticky 타이틀 고정 */
     .matrix-content { overflow: auto; flex: 1; position: relative; }
     
-    /* 🟢 월별 스크롤 동시 고정을 위한 구획 컨테이너 및 Sticky 타이틀 지정 */
-    .matrix-month-section { position: relative; margin-bottom: 15px; }
+    .matrix-month-section { position: relative; margin-bottom: 15px; width: max-content; min-width: 100%; }
+    .matrix-month-title-bg { 
+        position: sticky; top: 0; left: 0; z-index: 6; 
+        background-color: #ffffff; width: 100%; height: 32px; 
+        box-sizing: border-box; display: flex; align-items: center; 
+    }
     .matrix-month-title { 
-        font-size: 16px; font-weight: 800; color: #495057; margin: 0; border-left: 4px solid #1366ce; padding: 12px 0 12px 8px; text-align: left; 
-        position: sticky; top: 0; left: 0; background-color: #ffffff; z-index: 6; width: 100%; box-sizing: border-box; height: 45px; 
+        position: sticky; left: 0; z-index: 7; 
+        font-size: 15px; font-weight: 800; color: #495057; margin: 0; 
+        border-left: 4px solid #1366ce; padding-left: 8px; text-align: left; 
+        background-color: #ffffff; white-space: nowrap; 
     }
     
-    .matrix-table-wrap { width: max-content; background: transparent; margin-bottom: 0; padding: 0 15px 0 0; box-sizing: border-box; }
+    .matrix-table-wrap { width: max-content; background: transparent; margin-bottom: 15px; padding: 0 15px 0 0; box-sizing: border-box; }
     .matrix-table { 
         width: max-content; 
         border-collapse: separate; 
@@ -91,9 +98,9 @@
     .matrix-table th:last-child, .matrix-table td:last-child { border-right: none; } 
     .matrix-table tbody tr:last-child td { border-bottom: 1px solid #eaeaea; } 
     
-    /* 🟢 상단 년월 타이틀 높이(45px)만큼 Sticky 시작 위치 조정 */
-    .matrix-table thead tr:nth-child(1) th { top: 45px; height: 32px; z-index: 4; box-sizing: border-box; }
-    .matrix-table thead tr:nth-child(2) th { top: 77px; height: 28px; z-index: 3; box-sizing: border-box; }
+    /* 🟢 상단 년월 타이틀 최소 높이(32px)만큼 Sticky 시작 위치 정밀 조정 */
+    .matrix-table thead tr:nth-child(1) th { top: 32px; height: 32px; z-index: 4; box-sizing: border-box; }
+    .matrix-table thead tr:nth-child(2) th { top: 64px; height: 28px; z-index: 3; box-sizing: border-box; }
     
     .matrix-table thead tr:nth-child(1) th:first-child { left: 0; z-index: 5 !important; }
     .matrix-table tbody td:first-child { position: sticky; left: 0; z-index: 2; border-right: 1px solid #ced4da; }
@@ -1258,7 +1265,7 @@
                  if (rows.length > 0 && rows[rows.length - 1].length === 1 && rows[rows.length - 1][0] === "") {
                      rows.pop();
                  }
-              }
+             }
 
              let startRow = parseInt(this.dataset.row);
              let startCol = parseInt(this.dataset.col);
@@ -1500,9 +1507,9 @@
         
         let html = "";
         data.months.forEach(monthObj => {
-            /* 🟢 가로/세로 스크롤 동시 고정을 위한 구획화 섹션 마크업 반영 */
+            /* 🟢 가로/세로 스크롤 동시 고정을 위한 구획화 섹션 및 이중 Sticky 마크업 반영 */
             html += `<div class="matrix-month-section">`;
-            html += `<div class="matrix-month-title">${monthObj.month}</div>`;
+            html += `<div class="matrix-month-title-bg"><div class="matrix-month-title">${monthObj.month}</div></div>`;
             html += `<div class="matrix-table-wrap">
                         <table class="matrix-table">
                             <thead>
@@ -1513,17 +1520,17 @@
             
             data.classes.forEach(cName => {
                 html += `<th colspan="2">
-                             <div style="width: 190px; padding: 8px 0; margin: 0 auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; box-sizing: border-box;">${cName}</div>
+                             <div style="width: 150px; padding: 8px 0; margin: 0 auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; box-sizing: border-box;">${cName}</div>
                          </th>`;
             });
             html += `</tr><tr>`;
             
             data.classes.forEach(cName => {
                 html += `<th>
-                             <div style="width: 95px; padding: 6px 0; margin: 0 auto; font-size: 11px; box-sizing: border-box;">수업개요</div>
+                             <div style="width: 75px; padding: 6px 0; margin: 0 auto; font-size: 11px; box-sizing: border-box;">수업개요</div>
                          </th>
                          <th>
-                             <div style="width: 95px; padding: 6px 0; margin: 0 auto; font-size: 11px; box-sizing: border-box;">발송완료</div>
+                             <div style="width: 75px; padding: 6px 0; margin: 0 auto; font-size: 11px; box-sizing: border-box;">발송완료</div>
                          </th>`;
             });
             html += `</tr></thead><tbody>`;
