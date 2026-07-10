@@ -63,45 +63,46 @@
     .matrix-close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #888; }
     .matrix-close-btn:hover { color: #333; }
     
-    .matrix-content { overflow: auto; flex: 1; position: relative; padding: 0; } 
+    .matrix-content { overflow: auto; flex: 1; position: relative; }
+    .matrix-month-title { font-size: 16px; font-weight: 800; color: #495057; margin: 20px 0 10px 0; border-left: 4px solid #d32f2f; padding-left: 8px; }
     
-    .month-section { display: block; width: max-content; min-width: 100%; padding-bottom: 25px; }
-    .month-section:not(:first-child) { padding-top: 20px; }
-    
-    .matrix-month-title { 
-        position: sticky; top: 0; left: 0; z-index: 15; 
-        background-color: #ffffff; 
-        padding: 0 15px 0 0; margin: 0; 
-        font-size: 16px; font-weight: 800; color: #495057; 
-        width: max-content; height: 44px; box-sizing: border-box; 
-        display: flex; align-items: center; 
-    }
-    .matrix-month-title span {
-        border-left: 4px solid #d32f2f; padding-left: 8px; line-height: 1;
-    }
-    /* 🟢 가로 스크롤 우주끝까지 가던 원인(3000px 가림막) 완전히 삭제됨 */
-    
-    .matrix-table-wrap { width: max-content; background: transparent; padding: 0 15px 0 0; box-sizing: border-box; margin-top: 0; }
+    .matrix-table-wrap { width: max-content; background: transparent; margin-bottom: 15px; padding: 0 15px 0 0; box-sizing: border-box; }
     .matrix-table { 
-        width: max-content; border-collapse: separate; border-spacing: 0; 
-        font-size: 12px; text-align: center; margin: 0; 
-        border-top: 1px solid #ced4da; border-left: none; border-bottom: none;
+        width: max-content; 
+        border-collapse: separate; 
+        border-spacing: 0; 
+        font-size: 12px; 
+        text-align: center; 
+        margin: 0; 
+        border-top: 1px solid #ced4da; 
+        border-left: none; 
+        border-bottom: none;
     }
     .matrix-table th, .matrix-table td { 
-        border-top: none; border-left: none; 
-        border-bottom: 1px solid #eaeaea; border-right: 1px solid #eaeaea; 
+        border-top: none; 
+        border-left: none; 
+        border-bottom: 1px solid #eaeaea; 
+        border-right: 1px solid #eaeaea; 
         background-clip: padding-box; 
     }
-    .matrix-table th { background-color: #e9ecef; font-weight: bold; padding: 0; color: #333; position: sticky; border-bottom: 1px solid #ced4da; border-right: 1px solid #ced4da; }
+    .matrix-table th { 
+        background-color: #e9ecef; 
+        font-weight: bold; 
+        padding: 0; 
+        color: #333; 
+        position: sticky; 
+        border-bottom: 1px solid #ced4da; 
+        border-right: 1px solid #ced4da; 
+    }
     .matrix-table td { padding: 6px 4px; vertical-align: middle; }
     .matrix-table th:last-child, .matrix-table td:last-child { border-right: none; } 
     .matrix-table tbody tr:last-child td { border-bottom: 1px solid #eaeaea; } 
     
-    .matrix-table thead tr:nth-child(1) th { top: 44px; height: 32px; z-index: 10; box-sizing: border-box; }
-    .matrix-table thead tr:nth-child(2) th { top: 76px; height: 28px; z-index: 9; box-sizing: border-box; }
+    .matrix-table thead tr:nth-child(1) th { top: 0; height: 32px; z-index: 4; box-sizing: border-box; }
+    .matrix-table thead tr:nth-child(2) th { top: 32px; height: 28px; z-index: 3; box-sizing: border-box; }
     
-    .matrix-table thead tr:nth-child(1) th:first-child { left: 0; z-index: 12 !important; }
-    .matrix-table tbody td:first-child { position: sticky; left: 0; z-index: 8; border-right: 1px solid #ced4da; background-color: #fff; }
+    .matrix-table thead tr:nth-child(1) th:first-child { left: 0; z-index: 5 !important; }
+    .matrix-table tbody td:first-child { position: sticky; left: 0; z-index: 2; border-right: 1px solid #ced4da; }
 
     .academy-header-bar { margin-top: 15px; background-color: #495057; color: #ffffff; padding: 10px 25px; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; justify-content: center; align-items: center; position: relative; }
     .academy-header-bar a { position: absolute; right: 25px; }
@@ -137,16 +138,22 @@
     }
     .floating-setting-btn:hover .btn-text-wrap, .floating-upload-btn:hover .btn-text-wrap { opacity: 1; pointer-events: auto; }
     
+    /* 🟢 맨 위로 가기 스마트 플로팅 버튼 CSS (스르륵 효과 반영) */
     .floating-top-btn {
       position: fixed; bottom: 25px; right: 25px; 
       height: 36px; width: 36px; border-radius: 18px;
       background-color: #ffffff; color: #495057; border: 1px solid #ced4da;
       box-shadow: 0 4px 10px rgba(0,0,0,0.25); cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      z-index: 9999; opacity: 0; pointer-events: none; 
-      transition: opacity 0.3s, background-color 0.2s, transform 0.2s; 
+      z-index: 9999; 
+      opacity: 0; /* 초기상태 투명하게 */
+      pointer-events: none; /* 클릭 안되게 막음 */
+      transition: opacity 0.3s, background-color 0.2s, transform 0.2s; /* 스르륵 0.3초 반영 */
     }
-    .floating-top-btn.show { opacity: 1; pointer-events: auto; }
+    .floating-top-btn.show {
+      opacity: 1;
+      pointer-events: auto; /* 나타나면 클릭 허용 */
+    }
     .floating-top-btn:hover { background-color: #f8f9fa; transform: translateY(-2px); }
     .floating-top-btn:active { transform: translateY(0); }
 
@@ -445,7 +452,7 @@
         <span id="matrixTitle">선생님 학기 요약</span>
         <button class="matrix-close-btn" onclick="closeMatrixPopup()">✕</button>
       </div>
-      <div class="matrix-content" id="matrixContentArea"></div>
+      <div class="matrix-content" id="matrixContentArea"></div> 
     </div>
   </div>
 
@@ -454,7 +461,7 @@
     <a id="teacherLink" href="#" style="color:#ffffff; text-decoration:none; font-size:14px;" onclick="handleTeacherLinkClick(event)">⬅️ 선생님 모드로 돌아가기</a>
   </div>
 
-  <div style="position: absolute; right: 25px; margin-top: 6px; font-size: 11px; color: #adb5bd; font-family: 'Pretendard', sans-serif; letter-spacing: 0.5px; z-index: 10;">v.26.07.06-01</div>
+  <div style="position: absolute; right: 25px; margin-top: 6px; font-size: 11px; color: #adb5bd; font-family: 'Pretendard', sans-serif; letter-spacing: 0.5px; z-index: 10;">v.26.07.10-01</div>
 
   <div class="app-body">
     <div class="header-bar">
@@ -1101,8 +1108,7 @@
         
         let html = "";
         data.months.forEach(monthObj => {
-            html += `<div class="month-section">`;
-            html += `<div class="matrix-month-title"><span style="border-left: 4px solid #1366ce; padding-left: 8px; line-height: 1;">${monthObj.month}</span></div>`;
+            html += `<div class="matrix-month-title">${monthObj.month}</div>`;
             html += `<div class="matrix-table-wrap">
                         <table class="matrix-table">
                             <thead>
@@ -1163,7 +1169,7 @@
 
                         let tdClickStyle = "cursor:pointer; user-select:none;";
                         let onDblClick = `ondblclick="openTeacherAppForCell('${data.teacherName}', '${cName}', '${row.date}')"`;
-                        
+
                         html += `<td style="${subjStyle} ${tdClickStyle}" ${onDblClick} title="더블클릭하여 해당 명단 열기">${cellData.subject}</td>
                                  <td style="${sentStyle} ${tdClickStyle}" ${onDblClick} title="더블클릭하여 해당 명단 열기">${cellData.sent}</td>`;
                     }
@@ -1171,7 +1177,7 @@
                 html += `</tr>`;
             });
             
-            html += `</tbody></table></div></div>`;
+            html += `</tbody></table></div>`;
         });
         
         contentArea.innerHTML = html;
@@ -1182,25 +1188,14 @@
         document.getElementById("matrixOverlay").style.display = "none";
     }
 
-    function openHistoryPopup(studentName) {
-      const teacher = document.getElementById("teacherSelect").value;
-      const className = document.getElementById("classSelect").value;
+    function openHistoryPopup(teacher, className, studentName) {
       const dateVal = document.getElementById("dateInput").value;
-      if (!teacher || !className || !dateVal) return;
+      if (!dateVal) return;
       
       showLoading(true, "해당 학생의 학기 기록을 불러오는 중입니다...");
       document.getElementById("historyTitle").innerHTML = `<b>${studentName}</b> 학생 기록 <span style="font-size:13px; color:#666; font-weight:normal;">(${className})</span>`;
       
-      google.script.run
-        .withSuccessHandler(function(historyData) {
-          showLoading(false);
-          renderHistoryPopup(historyData);
-        })
-        .withFailureHandler(function(err) {
-          showLoading(false);
-          showCustomAlert("· Error: 기록을 불러오지 못했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
-        })
-        .getStudentHistory(teacher, className, studentName, dateVal);
+      createGoogleScriptMock().getStudentHistory(teacher, className, studentName, dateVal);
     }
 
     function renderHistoryPopup(data) {
@@ -1232,6 +1227,502 @@
       document.getElementById("historyOverlay").style.display = "none";
     }
 
+    function updateModalDate(inputEl, displayId) {
+        const disp = document.getElementById(displayId);
+        if(inputEl.value) {
+            disp.innerHTML = formatDateWithDay(inputEl.value);
+            disp.style.color = '#333';
+        } else {
+            disp.innerHTML = displayId === 'upStartDateDisplay' ? '학기 적용 시작 날짜를 입력하세요.' : '학기 적용 종료 날짜를 입력하세요.';
+            disp.style.color = '#b0b0b0';
+        }
+    }
+
+    function openSettingsModal() {
+        if(checkLockdown()) return;
+        document.getElementById('settingsModalOverlay').style.display = 'flex';
+        showLoading(true, "환경설정을 불러오는 중입니다...");
+        google.script.run.withSuccessHandler(function(res) {
+            showLoading(false);
+            document.getElementById('settingAcademyName').value = res.academyName || globalAcademyName;
+            document.getElementById('settingAdminCode').value = res.adminCode;
+            document.getElementById('settingPastDays').value = res.pastTermDays;
+        }).withFailureHandler(function(err){
+            showLoading(false);
+            showCustomAlert("· Error: 설정을 불러오지 못했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+        }).getSettings();
+    }
+    
+    function closeSettingsModal() {
+        document.getElementById('settingsModalOverlay').style.display = 'none';
+    }
+
+    function saveAcademyNameSetting() {
+        let name = document.getElementById('settingAcademyName').value.trim();
+        if(name === "") { showCustomAlert("학원명을 입력해 주세요."); return; }
+        
+        showLoading(true, "학원명을 저장 중입니다...");
+        google.script.run.withSuccessHandler(function() {
+            showLoading(false);
+            globalAcademyName = name; 
+            document.getElementById("mainTitleDisplay").textContent = globalAcademyName + " - 체크리스트 관리자 대시보드";
+            showCustomAlert("학원명이 성공적으로 저장되었습니다.");
+        }).withFailureHandler(function(err){
+            showLoading(false);
+            showCustomAlert("· Error: 저장에 실패했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+        }).saveSettings({ academyName: name });
+    }
+
+    function saveAdminCodeSetting() {
+        let code = document.getElementById('settingAdminCode').value.trim();
+        if(code === "") { showCustomAlert("관리자 코드를 입력해 주세요."); return; }
+        
+        showLoading(true, "관리자 코드를 저장 중입니다...");
+        google.script.run.withSuccessHandler(function() {
+            showLoading(false);
+            showCustomAlert("관리자 코드가 안전하게 저장되었습니다.");
+        }).withFailureHandler(function(err){
+            showLoading(false);
+            showCustomAlert("· Error: 저장에 실패했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+        }).saveSettings({ adminCode: code });
+    }
+
+    function savePastDaysSetting() {
+        let days = document.getElementById('settingPastDays').value;
+        if(days === "" || days < 0) { showCustomAlert("올바른 일수(숫자)를 입력해 주세요."); return; }
+        
+        showLoading(true, "표시 일정을 저장 중입니다...");
+        google.script.run.withSuccessHandler(function() {
+            showLoading(false);
+            showCustomAlert("지난 학기 표시 일정이 저장되었습니다.");
+        }).withFailureHandler(function(err){
+            showLoading(false);
+            showCustomAlert("· Error: 저장에 실패했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+        }).saveSettings({ pastTermDays: days });
+    }
+
+    function openTermManageModal() {
+        if(checkLockdown()) return;
+        document.getElementById('settingsModalOverlay').style.display = 'none'; 
+        document.getElementById('termManageModalOverlay').style.display = 'flex';
+        showLoading(true, "명단 목록을 불러오는 중입니다...");
+        
+        google.script.run.withSuccessHandler(function(res) {
+            showLoading(false);
+            termManageData = res;
+            termModifications = {};
+            renderTermManageList();
+        }).withFailureHandler(function(err){
+            showLoading(false);
+            showCustomAlert("· Error: 명단 목록을 불러오지 못했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+        }).getTermListForEdit();
+    }
+    
+    function closeTermManageModal() {
+        document.getElementById('termManageModalOverlay').style.display = 'none';
+    }
+
+    function renderTermManageList() {
+        const container = document.getElementById('termManageContent');
+        container.innerHTML = "";
+        
+        if(termManageData.length === 0) {
+            container.innerHTML = '<div style="padding: 40px; text-align:center; color:#888; font-weight:bold;">등록된 학기 명단이 없습니다.</div>';
+            return;
+        }
+
+        let html = "";
+        termManageData.forEach((term, idx) => {
+            let isDeleted = termModifications[idx] && termModifications[idx].isDeleted;
+            let rowClass = isDeleted ? "term-row deleted" : "term-row";
+            let btnClass = isDeleted ? "term-del-btn active" : "term-del-btn";
+            let btnText = isDeleted ? "삭제 대기" : "삭제";
+            
+            let isChecked = termModifications[idx] ? true : false;
+            let nameVal = isChecked && termModifications[idx].newName ? termModifications[idx].newName : term.name;
+            let startVal = isChecked && termModifications[idx].newStart ? termModifications[idx].newStart : term.start;
+            let endVal = isChecked && termModifications[idx].newEnd ? termModifications[idx].newEnd : term.end;
+
+            let startDispVal = formatDateWithDay(startVal);
+            let endDispVal = formatDateWithDay(endVal);
+
+            let disableInputs = (!isChecked || isDeleted) ? "disabled" : "";
+            let bgCol = (!isChecked || isDeleted) ? "#e9ecef" : "#fff";
+            let txtCol = (!isChecked || isDeleted) ? "#6c757d" : "#333";
+
+            html += `<div class="${rowClass}" id="termRow_${idx}">
+                <div style="width: 32px; flex-shrink: 0; display: flex; justify-content: center; align-items: center;">
+                    <input type="checkbox" onchange="toggleTermEdit(this, ${idx})" style="transform: scale(1.3); margin:0;" ${isChecked ? 'checked' : ''} ${isDeleted ? 'disabled' : ''}>
+                </div>
+                <div style="flex: 1;">
+                    <input type="text" class="term-input" id="editName_${idx}" value="${nameVal}" ${disableInputs} oninput="updateTermMod(${idx}, 'newName', this.value)">
+                </div>
+                <div style="flex: 1;">
+                    <div class="custom-date-wrapper" style="width: 100%;" onclick="if(!document.getElementById('editStart_${idx}').disabled) { let el=document.getElementById('editStart_${idx}'); if(el.showPicker) el.showPicker(); }">
+                        <div class="date-display" id="editStartDisp_${idx}" style="background-color: ${bgCol}; color: ${txtCol}; justify-content: center; padding-right: 25px;">${startDispVal}</div>
+                        <input type="date" class="hidden-date-input" id="editStart_${idx}" value="${startVal}" ${disableInputs} onchange="updateTermMod(${idx}, 'newStart', this.value); document.getElementById('editStartDisp_${idx}').innerText=formatDateWithDay(this.value);">
+                    </div>
+                </div>
+                <div style="flex: 1;">
+                    <div class="custom-date-wrapper" style="width: 100%;" onclick="if(!document.getElementById('editEnd_${idx}').disabled) { let el=document.getElementById('editEnd_${idx}'); if(el.showPicker) el.showPicker(); }">
+                        <div class="date-display" id="editEndDisp_${idx}" style="background-color: ${bgCol}; color: ${txtCol}; justify-content: center; padding-right: 25px;">${endDispVal}</div>
+                        <input type="date" class="hidden-date-input" id="editEnd_${idx}" value="${endVal}" ${disableInputs} onchange="updateTermMod(${idx}, 'newEnd', this.value); document.getElementById('editEndDisp_${idx}').innerText=formatDateWithDay(this.value);">
+                    </div>
+                </div>
+                <button class="${btnClass}" id="delBtn_${idx}" onclick="markTermDelete(${idx})">${btnText}</button>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function toggleTermEdit(cb, idx) {
+        let isChecked = cb.checked;
+        let nameInput = document.getElementById(`editName_${idx}`);
+        let startInput = document.getElementById(`editStart_${idx}`);
+        let endInput = document.getElementById(`editEnd_${idx}`);
+        let startDisp = document.getElementById(`editStartDisp_${idx}`);
+        let endDisp = document.getElementById(`editEndDisp_${idx}`);
+
+        nameInput.disabled = !isChecked;
+        startInput.disabled = !isChecked;
+        endInput.disabled = !isChecked;
+        
+        let bgCol = isChecked ? "#fff" : "#e9ecef";
+        let txtCol = isChecked ? "#333" : "#6c757d";
+        startDisp.style.backgroundColor = bgCol;
+        startDisp.style.color = txtCol;
+        endDisp.style.backgroundColor = bgCol;
+        endDisp.style.color = txtCol;
+
+        if (isChecked) {
+            if(!termModifications[idx]) termModifications[idx] = { originalName: termManageData[idx].name };
+            termModifications[idx].newName = nameInput.value;
+            termModifications[idx].newStart = startInput.value;
+            termModifications[idx].newEnd = endInput.value;
+        } else {
+            if(termModifications[idx]) {
+                delete termModifications[idx].newName;
+                delete termModifications[idx].newStart;
+                delete termModifications[idx].newEnd;
+                if(!termModifications[idx].isDeleted) delete termModifications[idx];
+            }
+            nameInput.value = termManageData[idx].name;
+            startInput.value = termManageData[idx].start;
+            startDisp.innerText = formatDateWithDay(termManageData[idx].start);
+            endInput.value = termManageData[idx].end;
+            endDisp.innerText = formatDateWithDay(termManageData[idx].end);
+        }
+    }
+
+    function updateTermMod(idx, field, val) {
+        if(!termModifications[idx]) termModifications[idx] = { originalName: termManageData[idx].name };
+        termModifications[idx][field] = val;
+    }
+
+    function markTermDelete(idx) {
+        let termName = termManageData[idx].name;
+        let isCurrentlyDeleted = termModifications[idx] && termModifications[idx].isDeleted;
+
+        if (isCurrentlyDeleted) {
+            termModifications[idx].isDeleted = false;
+            renderTermManageList(); 
+        } else {
+            showCustomConfirm(`<b>[${termName}]</b> 명단을 삭제하시겠습니까?<br>(상단의 적용 버튼을 눌러야 최종 적용 됩니다.)`, function() {
+                if(!termModifications[idx]) termModifications[idx] = { originalName: termManageData[idx].name };
+                termModifications[idx].isDeleted = true;
+                renderTermManageList(); 
+            });
+        }
+    }
+
+    function applyTermChanges() {
+        let mods = Object.values(termModifications);
+        if(mods.length === 0) {
+            showCustomAlert("수정 또는 삭제된 항목이 없습니다.");
+            return;
+        }
+
+        let existingNames = termManageData.map(t => t.name);
+        let finalNames = [...existingNames];
+        
+        for(let mod of mods) {
+            if(mod.isDeleted) {
+                finalNames = finalNames.filter(n => n !== mod.originalName);
+                continue; 
+            }
+            if(mod.newName && mod.newName !== mod.originalName) {
+                if(existingNames.includes(mod.newName)) {
+                    showCustomAlert(`'${mod.newName}'은(는) 이미 존재하는 명단 이름입니다.<br>다른 이름으로 수정해 주세요.`);
+                    return;
+                }
+                let idx = finalNames.indexOf(mod.originalName);
+                if(idx !== -1) finalNames[idx] = mod.newName;
+            }
+            let sD = mod.newStart || termManageData.find(t=>t.name === mod.originalName).start;
+            let eD = mod.newEnd || termManageData.find(t=>t.name === mod.originalName).end;
+            if(sD > eD) {
+                let n = mod.newName || mod.originalName;
+                showCustomAlert(`[${n}]의 종료 날짜가 시작 날짜보다 빠를 수 없습니다.`);
+                return;
+            }
+        }
+
+        if(new Set(finalNames).size !== finalNames.length) {
+            showCustomAlert("수정할 명단 이름에 중복이 존재합니다.<br>각 시트는 고유한 이름을 가져야 합니다.");
+            return;
+        }
+
+        showLoading(true, "변경 사항을 일괄 적용 중입니다...");
+        google.script.run.withSuccessHandler(function() {
+            showLoading(false);
+            closeTermManageModal();
+            showCustomAlert("✔ <b>적용 완료!</b><br>명단 수정 및 삭제가 성공적으로 반영되었습니다.", function() {
+                window.location.reload(); 
+            });
+        }).withFailureHandler(function(err){
+            showLoading(false);
+            showCustomAlert("· Error: 변경 사항 적용에 실패했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+        }).applyTermModifications(mods);
+    }
+
+    function viewBackupLogs() {
+        showLoading(true, "백업/삭제 실행 로그를 불러오는 중입니다...");
+        google.script.run.withSuccessHandler(function(logs) {
+            showLoading(false);
+            let msg = "<div style='max-height: 300px; overflow-y:auto; font-size:13px; text-align:left; border: 1px solid #ced4da; border-radius:4px; padding: 0;'>";
+            if (logs.length === 0) {
+                msg += "<div style='padding: 30px; text-align:center; color:#888; font-weight:bold;'>백업 및 삭제 실행 기록이 없습니다.</div>";
+            } else {
+                msg += "<table style='width:100%; border-collapse:collapse; margin:0; text-align:center;'>" +
+                       "<tr style='background:#f8f9fa; border-bottom:1px solid #ccc;'>" +
+                       "<th style='padding:10px 6px; position:sticky; top:0; background:#f8f9fa; white-space:nowrap;'>실행 일시</th>" +
+                       "<th style='padding:10px 6px; position:sticky; top:0; background:#f8f9fa; white-space:nowrap;'>대상 학기</th>" +
+                       "<th style='padding:10px 6px; position:sticky; top:0; background:#f8f9fa; white-space:nowrap;'>삭제 건수</th>" +
+                       "<th style='padding:10px 6px; position:sticky; top:0; background:#f8f9fa; white-space:nowrap;'>비고</th>" +
+                       "</tr>";
+                logs.forEach(l => {
+                    msg += `<tr style='border-bottom:1px solid #eee;'><td style='padding:8px 6px; white-space:nowrap;'>${l.date}</td><td style='padding:8px 6px;'>${l.terms}</td><td style='padding:8px 6px; white-space:nowrap;'>${l.rows}</td><td style='padding:8px 6px; white-space:nowrap; font-weight:bold; color:#1a3978;'>${l.note}</td></tr>`;
+                });
+                msg += "</table>";
+            }
+            msg += "</div>";
+            showCustomAlert("<div style='font-size:16px; font-weight:900; color:#1a3978; margin-bottom:15px;'>💾 백업/삭제 실행 로그</div>" + msg, null, '650px');
+        }).withFailureHandler(function(err){
+            showLoading(false);
+            showCustomAlert("· Error: 로그를 불러오는 중 오류가 발생했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+        }).getBackupLogs();
+    }
+
+    function runIntegratedBackup() {
+        showCustomConfirm("오늘 기준 <b>1년 전</b> 과거 데이터를<br>통합 백업하시겠습니까?", function() {
+            closeSettingsModal();
+            showLoading(true, "과거 데이터를 수집하여<br>백업 파일을 생성 중입니다...<br>(시간이 다소 소요될 수 있습니다.)");
+            
+            google.script.run.withSuccessHandler(function(res) {
+                showLoading(false);
+                if(res.status === "none") {
+                    showCustomAlert("백업할 1년 전 과거 데이터가 없습니다.");
+                } else if(res.status === "success") {
+                    currentBackupPayload = { targetTermNames: res.targetTermNames, maxEndDate: res.maxEndDate, logRow: res.logRow };
+                    
+                    let excelUrl = `https://docs.google.com/spreadsheets/d/${res.fileId}/export?format=xlsx`;
+                    
+                    let msg = `✔ <b>데이터 백업 성공!</b> <a href="${res.fileUrl}" target="_blank" style="color:#1366ce; font-weight:bold;">[백업 파일 확인하기]</a><br><br>` +
+                              `• 백업된 과거 학기: ${res.termCount}개<br>• 백업된 선생님 기록: ${res.rowCount}행<br><br>` +
+                              `<a href="${excelUrl}" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; gap:6px; margin-bottom:15px; padding:8px 18px; background-color:#28a745; color:white; font-size:13px; font-weight:bold; border-radius:50px; text-decoration:none; box-shadow:0 2px 4px rgba(0,0,0,0.15);">` +
+                              `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>` +
+                              `백업 파일 다운로드</a>` +
+                              `<hr style="border:none; border-top:1px solid #dee2e6; margin-bottom:15px; width:100%;">` +
+                              `<span style="color:#dc3545; font-weight:bold;">원본 시트에서 방금 백업한 과거 기록들을<br>완전히 삭제할까요?</span><br>` +
+                              `<span style="font-size:12px; color:#666; font-weight:normal;">(유지하려면 '아니오'를 누르세요)</span>`;
+                              
+                    showCustomConfirm(msg, 
+                    function() { 
+                        showLoading(true, "원본에서 과거 데이터를 초고속 영구 삭제 중입니다...");
+                        google.script.run.withSuccessHandler(function() {
+                            showLoading(false);
+                            showCustomAlert("✔ <b>삭제 완료!</b><br>과거 데이터가 원본 시트에서<br>안전하게 삭제되었습니다.", function() {
+                                window.location.reload();
+                            });
+                        }).withFailureHandler(function(err) {
+                            showLoading(false);
+                            showCustomAlert("· Error: 데이터 삭제 중 오류가 발생했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+                        }).apiIntegratedDelete(currentBackupPayload);
+                    }, 
+                    function() { 
+                        showCustomAlert("백업만 성공적으로 완료되었으며,<br>원본 데이터는 유지합니다.");
+                    });
+                }
+            }).withFailureHandler(function(err) {
+                showLoading(false);
+                showCustomAlert("· Error: 데이터 백업 중 오류가 발생했습니다.<br>(" + err.message.replace(/^Error:\s*/, '').trim() + ")");
+            }).apiIntegratedBackup();
+        });
+    }
+
+    function openUploadModal() {
+        if(checkLockdown()) return;
+        document.getElementById('latestTermInfo').innerText = "📌 최근 등록된 학기 종료일: " + globalLatestEndDate;
+        document.getElementById('uploadModalOverlay').style.display = 'flex';
+        document.getElementById('upStartDate').value = '';
+        document.getElementById('upEndDate').value = '';
+        updateModalDate(document.getElementById('upStartDate'), 'upStartDateDisplay');
+        updateModalDate(document.getElementById('upEndDate'), 'upEndDateDisplay');
+        document.getElementById('upTermName').value = '';
+        document.getElementById('fileInput').value = '';
+    }
+
+    function closeUploadModal() {
+        document.getElementById('uploadModalOverlay').style.display = 'none';
+    }
+
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#e6f0ff'; dropZone.style.borderColor = '#0f52a8'; });
+    dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#f8f9fa'; dropZone.style.borderColor = '#1366ce'; });
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.backgroundColor = '#f8f9fa'; dropZone.style.borderColor = '#1366ce';
+        if (e.dataTransfer.files.length) processExcel(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length) processExcel(e.target.files[0]);
+    });
+
+    function processExcel(file) {
+        let sDate = document.getElementById('upStartDate').value;
+        let eDate = document.getElementById('upEndDate').value;
+        let tName = document.getElementById('upTermName').value;
+
+        if(!sDate || !eDate || !tName) {
+            document.getElementById('fileInput').value = '';
+            showCustomAlert("상단의 [시작 날짜], [종료 날짜], [학기]를<br>모두 선택해 주세요.");
+            return;
+        }
+
+        if(sDate > eDate) {
+            document.getElementById('fileInput').value = '';
+            showCustomAlert("종료 날짜가 시작 날짜보다 빠를 수 없습니다.<br>날짜를 다시 확인해 주세요.");
+            return;
+        }
+
+        showLoading(true, "엑셀 파일을 스마트 분석 중입니다...<br>화면을 닫지 마세요.");
+
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                let data = new Uint8Array(e.target.result);
+                let workbook = XLSX.read(data, {type: 'array'});
+                let firstSheetName = workbook.SheetNames[0];
+                let worksheet = workbook.Sheets[firstSheetName];
+                let jsonArr = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+
+                let headerRowIdx = -1;
+                let colMap = { ban: -1, name: -1, school: -1, grade: -1, teacher: -1, room: -1 };
+
+                for (let i = 0; i < Math.min(20, jsonArr.length); i++) {
+                    let row = jsonArr[i];
+                    if (!row) continue;
+                    let strRow = row.map(cell => String(cell || '').replace(/\s+/g, '')).join(',');
+                    if ((strRow.includes('학생명') || strRow.includes('이름') || strRow.includes('원생명')) &&
+                        (strRow.includes('반명') || strRow.includes('수강반') || strRow.includes('클래스'))) {
+                        headerRowIdx = i;
+                        break;
+                    }
+                }
+
+                if (headerRowIdx === -1) throw new Error("엑셀 데이터에서 머릿글(반명, 학생명 등)을 찾을 수 없습니다.<br>파일 형식을 확인해 주세요.");
+
+                let headers = jsonArr[headerRowIdx];
+                for (let c = 0; c < headers.length; c++) {
+                    let h = String(headers[c] || '').replace(/\s+/g, '');
+                    if (!h) continue;
+
+                    if (['반명', '반', '수강반', '클래스'].includes(h)) colMap.ban = c;
+                    else if (['학생명', '원생명', '이름', '성명'].includes(h)) colMap.name = c;
+                    else if (['학교명', '출신학교'].includes(h)) colMap.school = c; 
+                    else if (['학년'].includes(h)) colMap.grade = c;
+                    else if (['담임', '담임명', '담당강사', '선생님', '강사'].includes(h)) colMap.teacher = c;
+                    else if (['강의실', '호실', '장소'].includes(h)) colMap.room = c;
+                }
+
+                if (colMap.ban === -1 || colMap.name === -1) {
+                    throw new Error("필수 항목(반명, 학생명) 열(Column)을 찾을 수 없습니다.");
+                }
+
+                let parsedStudents = [];
+                for (let i = headerRowIdx + 1; i < jsonArr.length; i++) {
+                    let row = jsonArr[i];
+                    if (!row || row.length === 0) continue;
+                    
+                    let ban = colMap.ban !== -1 ? String(row[colMap.ban] || '').trim() : '';
+                    let name = colMap.name !== -1 ? String(row[colMap.name] || '').trim() : '';
+                    if (!ban || !name) continue; 
+
+                    let school = colMap.school !== -1 ? String(row[colMap.school] || '').trim() : '';
+                    let grade = colMap.grade !== -1 ? String(row[colMap.grade] || '').trim() : '';
+                    let teacher = colMap.teacher !== -1 ? String(row[colMap.teacher] || '').trim() : '';
+                    let room = colMap.room !== -1 ? String(row[colMap.room] || '').trim() : '';
+
+                    parsedStudents.push([ban, name, school, grade, teacher, room]);
+                }
+
+                if(parsedStudents.length === 0) throw new Error("추출할 수 있는 학생 데이터가 없습니다.");
+
+                showLoading(false);
+
+                let formattedStart = sDate.replace(/-/g, '.');
+                let formattedEnd = eDate.replace(/-/g, '.');
+                let dPartsPopup = sDate.split('-');
+                let expectedSheetName = `${dPartsPopup[0]}.${dPartsPopup[1]}-${tName}`;
+                
+                let confirmMsg = `성공적으로 ${parsedStudents.length}명의 데이터를 추출했습니다.<br><br>` +
+                                 `<div style="text-align: left; display: inline-block; font-size: 14px; line-height: 1.6; color: #333;">` +
+                                 `· 학기명단이름: ${expectedSheetName}<br>` +
+                                 `· 학기시작날짜: ${formattedStart}<br>` +
+                                 `· 학기종료날짜: ${formattedEnd}` +
+                                 `</div><br><br>명단을 작성할까요?`;
+
+                showCustomConfirm(confirmMsg, function() {
+                    
+                    showLoading(true, "명단을 생성중입니다...<br>화면을 닫지 마세요.");
+                    
+                    createGoogleScriptMock().withSuccessHandler(function(res) {
+                        showLoading(false);
+                        closeUploadModal();
+                        let dParts = sDate.split('-');
+                        let sheetName = `${dParts[0]}.${dParts[1]}-${tName}`;
+                        showCustomAlert(`✔ <b>명단 업로드 성공!</b><br>[${sheetName}] 명단이 시스템에 적용되었습니다.<br>새로고침(F5) 후 사용해 주세요.`, function() {
+                           window.location.reload(); 
+                        });
+                    })
+                    .withFailureHandler(function(err) {
+                        showLoading(false);
+                        document.getElementById('fileInput').value = '';
+                        showCustomAlert("· Error: " + err.message.replace(/^Error:\s*/, '').trim());
+                    })
+                    .uploadNewTerm({
+                        termName: tName,
+                        startDate: sDate,
+                        endDate: eDate,
+                        students: parsedStudents
+                    });
+
+                }, function() {
+                    document.getElementById('fileInput').value = '';
+                });
+
+            } catch (err) {
+                showLoading(false);
+                document.getElementById('fileInput').value = '';
+                showCustomAlert("· Error: " + err.message.replace(/^Error:\s*/, '').trim());
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
     /* 🟢 스크롤 감지 리스너 추가 (200px 이상 도달 시 클래스 부여하여 노출 제어) */
     window.addEventListener('scroll', function() {
       const topBtn = document.getElementById('scrollTopBtn');
@@ -1246,17 +1737,27 @@
 
     window.addEventListener('keydown', function(e) {
       const modal = document.getElementById('customModalOverlay');
+      const settingModal = document.getElementById('settingsModalOverlay');
+      const termManageModal = document.getElementById('termManageModalOverlay');
       
       if (e.key === 'Escape') {
           const matrixOverlay = document.getElementById('matrixOverlay');
           if (matrixOverlay && matrixOverlay.style.display === 'flex') {
-              closeMatrixPopup();
-              return;
+              closeMatrixPopup(); return;
           }
           const historyOverlay = document.getElementById('historyOverlay');
           if (historyOverlay && historyOverlay.style.display === 'flex') {
-              closeHistoryPopup();
-              return;
+              closeHistoryPopup(); return;
+          }
+          const uploadOverlay = document.getElementById('uploadModalOverlay');
+          if (uploadOverlay && uploadOverlay.style.display === 'flex') {
+              closeUploadModal(); return;
+          }
+          if (termManageModal && termManageModal.style.display === 'flex') {
+              closeTermManageModal(); return;
+          }
+          if (settingModal && settingModal.style.display === 'flex') {
+              closeSettingsModal(); return;
           }
       }
 
@@ -1289,53 +1790,11 @@
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
         const saveBtn = document.getElementById('saveBtn');
-        if (saveBtn && document.getElementById('attendanceContent').style.display === 'block') {
-          saveData();
+        if (saveBtn && saveBtn.style.display !== 'none' && adminUpdates.length > 0) {
+          saveAdminData();
         }
       }
     });
-
-    let eggClicks = 0;
-    let eggTimer = null;
-    
-    function createCherryBlossoms() {
-      const container = document.body;
-      const petalCount = 50; 
-      for (let i = 0; i < petalCount; i++) {
-        const petal = document.createElement("div");
-        petal.classList.add("cherry-petal");
-        const size = Math.random() * 8 + 10;
-        petal.style.width = `${size}px`;
-        petal.style.height = `${size}px`;
-        petal.style.left = `${Math.random() * 95}vw`;
-        const fallDuration = Math.random() * 3 + 3; 
-        const swayDuration = Math.random() * 5 + 1; 
-        const delay = Math.random() * 7; 
-        petal.style.animationDuration = `${fallDuration}s, ${swayDuration}s`;
-        petal.style.animationDelay = `${delay}s, ${delay}s`;
-        container.appendChild(petal);
-        setTimeout(() => { petal.remove(); }, (fallDuration + delay) * 1000);
-      }
-    }
-
-    function triggerEasterEgg() {
-      eggClicks++;
-      if (eggClicks === 1) { eggTimer = setTimeout(() => { eggClicks = 0; }, 5000); }
-      if (eggClicks === 5) {
-        clearTimeout(eggTimer); eggClicks = 0;
-        const bubble = document.getElementById("eggBubble");
-        bubble.classList.add("show");
-        createCherryBlossoms();
-
-        const dogImg = document.createElement("img");
-        dogImg.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/506.gif"; 
-        dogImg.classList.add("popup-dog-gif");
-        document.body.appendChild(dogImg);
-        
-        setTimeout(() => { dogImg.remove(); }, 6000);
-        setTimeout(() => { bubble.classList.remove("show"); }, 3000); 
-      }
-    } 
   </script>
 </body>
 </html>
