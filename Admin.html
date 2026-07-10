@@ -217,42 +217,43 @@
     .t-info { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: bold; flex-wrap: wrap; flex: 1; }
     .t-alert { color: #dc3545; font-weight: 900; }
     
+    /* 🟢 전체 컨테이너와 점선 박스 빈 화면 채우기 반영 완료 */
     .main-container { display: flex; flex-direction: column; background-color: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); min-height: calc(100vh - 180px); }
-    .empty-state { flex: 1; display: flex; justify-content: center; align-items: center; color: #888; border: 2px dashed #dee2e6; border-radius: 6px; min-height: 300px; font-weight: bold; }
+    .empty-state { display: flex; justify-content: center; align-items: center; color: #888; border: 2px dashed #dee2e6; border-radius: 6px; min-height: calc(100vh - 225px); font-weight: bold; width: 100%; box-sizing: border-box; }
     
     .teacher-group { position: relative; padding-bottom: 20px; margin-bottom: 20px; }
     
-    /* 🟢 상단 여백 축소 및 고정 높이 정밀 조정 (48px -> 38px) */
+    /* 🟢 우측 미세 회색라인 제거 완료 (margin: 0 -2px 확장 덮기) */
     .teacher-header { 
         position: sticky; top: 0; z-index: 20; 
         background-color: #fff; 
         font-size: 18px; font-weight: 900; color: #1a3978; 
-        margin: 0; padding: 5px 0 8px 0; 
+        margin: 0 -2px; padding: 15px 2px 8px 2px; 
         border-bottom: 2px solid #1a3978; 
-        height: 38px; box-sizing: border-box; 
+        height: 48px; box-sizing: border-box; 
     }
     
     .class-group { position: relative; margin-top: 15px; padding-bottom: 10px; }
     
-    /* 🟢 반명 고정 위치 톱니바퀴 맞춤 (top: 53px) 및 폰트 15px 반영 */
+    /* 🟢 반명 박스 독립형 디자인 복구, 공백 가림막 덧댐, 폰트 15px 적용 완료 */
     .class-sub-header { 
-        position: sticky; top: 53px; z-index: 19; 
+        position: sticky; top: 63px; z-index: 19; 
         font-size: 15px; font-weight: 700; color: #495057; 
-        margin: 0; padding: 0 12px; 
-        background-color: #f1f3f5; border-radius: 4px 4px 0 0; border-left: 4px solid #1a3978; border-top: 1px solid #dee2e6; border-right: 1px solid #dee2e6; border-bottom: 1px solid #dee2e6;
+        margin: 0 0 8px 0; padding: 0 12px; 
+        background-color: #f1f3f5; border-radius: 4px; border-left: 4px solid #1a3978; 
         height: 36px; display: flex; align-items: center;
     }
     .class-sub-header::before {
         content: ""; position: absolute;
-        top: -15px; left: -4px; width: calc(100% + 4px); height: 15px;
+        top: -15px; left: -4px; width: calc(100% + 8px); height: 59px;
         background-color: #fff; z-index: -1;
     }
 
     table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; table-layout: fixed; margin-bottom: 0; border-left: 1px solid #dee2e6; }
     th, td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 8px 4px; text-align: center; vertical-align: middle; box-sizing: border-box; }
     
-    /* 🟢 표 머릿글 고정 위치 톱니바퀴 맞춤 (top: 89px) */
-    thead th { background-color: #f8f9fa; font-weight: bold; color: #333; position: sticky; top: 89px; z-index: 18; height: 38px; border-top: none; }
+    /* 🟢 표 머릿글 고정 위치(top) 톱니바퀴 맞춤 및 자체 상단 보더 추가 완료 */
+    thead th { background-color: #f8f9fa; font-weight: bold; color: #333; position: sticky; top: 107px; z-index: 18; height: 38px; border-top: 1px solid #dee2e6; }
     
     .readonly-text { width: 100%; box-sizing: border-box; font-family: 'Pretendard', sans-serif; font-size: 14px; color: #333; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .readonly-note { width: 100%; box-sizing: border-box; font-family: 'Pretendard', sans-serif; font-size: 14px; color: #333; text-align: left; padding: 0 4px; max-height: 42px; overflow-y: auto; overflow-x: hidden; display: block; line-height: 1.4; word-break: break-all; }
@@ -550,7 +551,7 @@
   <script>
     const CAMPUS_URLS = {
       "yeongtong": "https://script.google.com/macros/s/AKfycbwV5hXkSNGT2_jkCrQakQieov2OswU9x-zCBSkquarMujUqoKXdSZO_ih0OyQxftodu/exec",
-      "dongtan": "https://script.google.com/macros/s/AKfycbwMtIkLaAF85AYQgpWXsVmwftBnPKy0tOV65X8zKajto0srs4MM6pA4oRcczZHDqRcXNg/exec",
+      "dongtan": "https://script.google.com/macros/s/AKfycbwMtIkLaAF85AYQgpWXsVmwftBnPKy0tOV65X8zKajto0srs4MM6pA4oRcczZHDqRcXNg/exec"
     };
 
     let globalTermSheets = [];
