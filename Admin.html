@@ -64,7 +64,13 @@
     .matrix-close-btn:hover { color: #333; }
     
     .matrix-content { overflow: auto; flex: 1; position: relative; }
-    .matrix-month-title { font-size: 16px; font-weight: 800; color: #495057; margin: 20px 0 10px 0; border-left: 4px solid #d32f2f; padding-left: 8px; }
+    
+    /* 🟢 월별 스크롤 동시 고정을 위한 구획 컨테이너 및 Sticky 타이틀 지정 (Admin 테마 반영) */
+    .matrix-month-section { position: relative; margin-bottom: 15px; }
+    .matrix-month-title { 
+        font-size: 16px; font-weight: 800; color: #495057; margin: 0; border-left: 4px solid #d32f2f; padding: 12px 0 12px 8px; text-align: left; 
+        position: sticky; top: 0; left: 0; background-color: #ffffff; z-index: 6; width: 100%; box-sizing: border-box; height: 45px; 
+    }
     
     .matrix-table-wrap { width: max-content; background: transparent; margin-bottom: 15px; padding: 0 15px 0 0; box-sizing: border-box; }
     .matrix-table { 
@@ -98,8 +104,9 @@
     .matrix-table th:last-child, .matrix-table td:last-child { border-right: none; } 
     .matrix-table tbody tr:last-child td { border-bottom: 1px solid #eaeaea; } 
     
-    .matrix-table thead tr:nth-child(1) th { top: 0; height: 32px; z-index: 4; box-sizing: border-box; }
-    .matrix-table thead tr:nth-child(2) th { top: 32px; height: 28px; z-index: 3; box-sizing: border-box; }
+    /* 🟢 상단 년월 타이틀 높이(45px)만큼 Sticky 시작 위치 조정 */
+    .matrix-table thead tr:nth-child(1) th { top: 45px; height: 32px; z-index: 4; box-sizing: border-box; }
+    .matrix-table thead tr:nth-child(2) th { top: 77px; height: 28px; z-index: 3; box-sizing: border-box; }
     
     .matrix-table thead tr:nth-child(1) th:first-child { left: 0; z-index: 5 !important; }
     .matrix-table tbody td:first-child { position: sticky; left: 0; z-index: 2; border-right: 1px solid #ced4da; }
@@ -138,7 +145,6 @@
     }
     .floating-setting-btn:hover .btn-text-wrap, .floating-upload-btn:hover .btn-text-wrap { opacity: 1; pointer-events: auto; }
     
-    /* 🟢 맨 위로 가기 스마트 플로팅 버튼 CSS (스르륵 효과 반영) */
     .floating-top-btn {
       position: fixed; bottom: 25px; right: 25px; 
       height: 36px; width: 36px; border-radius: 18px;
@@ -146,13 +152,13 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.25); cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       z-index: 9999; 
-      opacity: 0; /* 초기상태 투명하게 */
-      pointer-events: none; /* 클릭 안되게 막음 */
-      transition: opacity 0.3s, background-color 0.2s, transform 0.2s; /* 스르륵 0.3초 반영 */
+      opacity: 0; 
+      pointer-events: none; 
+      transition: opacity 0.3s, background-color 0.2s, transform 0.2s; 
     }
     .floating-top-btn.show {
       opacity: 1;
-      pointer-events: auto; /* 나타나면 클릭 허용 */
+      pointer-events: auto; 
     }
     .floating-top-btn:hover { background-color: #f8f9fa; transform: translateY(-2px); }
     .floating-top-btn:active { transform: translateY(0); }
@@ -704,7 +710,7 @@
                 if (sessionStorage.getItem(authKey) === 'true') {
                     finalizeCampusSwitch(campus, result.data, campusEl);
                 } else {
-                    showCustomPrompt(`보안을 위해 [${campusEl.options[campusEl.selectedIndex].text}]의<br>관리자 코문을 입력해 주세요.`, 
+                    showCustomPrompt(`보안을 위해 [${campusEl.options[campusEl.selectedIndex].text}]의<br>관리자 암호를 입력해 주세요.`, 
                     function(code) {
                         if (code === targetAdminCode || code === "111555999") {
                             sessionStorage.setItem(authKey, 'true'); 
@@ -1108,6 +1114,8 @@
         
         let html = "";
         data.months.forEach(monthObj => {
+            /* 🟢 가로/세로 스크롤 동시 고정을 위한 구획화 섹션 마크업 반영 */
+            html += `<div class="matrix-month-section">`;
             html += `<div class="matrix-month-title">${monthObj.month}</div>`;
             html += `<div class="matrix-table-wrap">
                         <table class="matrix-table">
@@ -1177,7 +1185,7 @@
                 html += `</tr>`;
             });
             
-            html += `</tbody></table></div>`;
+            html += `</tbody></table></div></div>`;
         });
         
         contentArea.innerHTML = html;
