@@ -218,7 +218,7 @@
     .t-alert { color: #dc3545; font-weight: 900; }
     
     .main-container { display: flex; flex-direction: column; background-color: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); min-height: calc(100vh - 180px); box-sizing: border-box; }
-.empty-state { flex: 1; display: flex; justify-content: center; align-items: center; color: #888; border: 2px dashed #dee2e6; border-radius: 6px; min-height: 300px; font-weight: bold; width: 100%; box-sizing: border-box; }
+    .empty-state { flex: 1; display: flex; justify-content: center; align-items: center; color: #888; border: 2px dashed #dee2e6; border-radius: 6px; min-height: 300px; font-weight: bold; width: 100%; box-sizing: border-box; }
     
     /* 🟢 계층형 스마트 스크롤 CSS 수정: 여백/디자인 완벽 복구 및 톱니바퀴 재계산 */
     .teacher-group { position: relative; padding-bottom: 20px; margin-bottom: 20px; }
@@ -564,8 +564,8 @@
 
   <script>
     const CAMPUS_URLS = {
-      "yeongtong": "https://script.google.com/macros/s/AKfycbwV5hXkSNGT2_jkCrQakQieov2OswU9x-zCBSkquarMujUqoKXdSZO_ih0OyQxftodu/exec",
-      "dongtan": "https://script.google.com/macros/s/AKfycbwMtIkLaAF85AYQgpWXsVmwftBnPKy0tOV65X8zKajto0srs4MM6pA4oRcczZHDqRcXNg/exec"
+      "yeongtong": "https://script.google.com/macros/s/AKfycbxuvxrHEHKtL33Wweh8AoNxFwrl_mmVogZN0l9gjB6GwV1nUGI5HnNLJOQ_Tt7rY7yi/exec",
+      "dongtan": "https://script.google.com/macros/s/AKfycbzRcme0LEJ5O3PEqjekUkGSA-zBl_a1Kgb1aLR85A9DBIOA8G-u8uGWAMbx1ThLLw4ITQ/exec"
     };
 
     let globalTermSheets = [];
@@ -981,12 +981,9 @@
              let textContent = '';
              if (g.summary.isNoClass) {
                  textContent = `<span style="color:#adb5bd; font-weight:normal;">해당 없음</span>`;
-             } else if (g.summary.isHolidayEmpty) { // 🟢 NEW: 공휴일이면서 비어있을 때 (검은색 텍스트 표기)
-                 textContent = `<span style="color:#333; font-weight:900;">${g.summary.holidayName}</span>`;
              } else if (g.summary.isMissingComplete) {
                  textContent = `<span class="t-alert">검토 요망</span>`;
              } else {
-                 // ... 이하 기존 퍼센트 계산 로직 동일 ...
                  let s = g.summary;
                  let subjPct = s.classCount > 0 ? Math.min(100, Math.round((s.subjectCount / s.classCount) * 100)) : 0;
                  let sentPct = s.totalStudents > 0 ? Math.min(100, Math.round((s.totalSent / s.totalStudents) * 100)) : 100;
@@ -1049,8 +1046,7 @@
              content.innerHTML += html;
           });
           
-          // 🟢 변경: 공휴일 비어있음(isHolidayEmpty) 조건 추가
-          let hasData = res.some(g => !g.summary.isNoClass && !g.summary.isMissingComplete && !g.summary.isHolidayEmpty);
+          let hasData = res.some(g => !g.summary.isNoClass && !g.summary.isMissingComplete);
           if(hasData) {
              document.getElementById("saveBtn").style.display = "inline-flex";
              document.getElementById("globalCheckLabel").style.display = "flex";
