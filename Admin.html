@@ -1020,7 +1020,7 @@
           document.getElementById("summaryBanner").innerHTML = summaryHtml;
 
           res.forEach(group => {
-             if (group.summary.isNoClass || group.summary.isMissingComplete) return;
+             if (group.summary.isNoClass || group.summary.isMissingComplete || group.summary.isHolidayEmpty) return;
              
              let html = `<div class="teacher-group"><div class="teacher-header">📌 담임명: ${group.teacher}</div>`;
              
